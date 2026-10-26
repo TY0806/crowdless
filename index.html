@@ -1,18 +1,366 @@
-<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CrowdLess | 서울을 더 여유롭게</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><style>
-:root{--ink:#192e2b;--muted:#70817c;--green:#168b70;--light:#eaf5f0;--bg:#f7f9f6;--border:#e5ece7}*{box-sizing:border-box}body{margin:0;font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}header{background:#fff;border-bottom:1px solid var(--border);padding:18px max(24px,calc((100vw - 1390px)/2));display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:1100}.brand{font-weight:900;font-size:25px;letter-spacing:-1.2px;color:#123b32}.brand i{display:inline-block;width:15px;height:15px;background:#15aa85;border-radius:50% 50% 50% 3px;transform:rotate(-35deg);margin-right:8px}.header-right{display:flex;align-items:center;gap:14px}.mini{font-size:12px;color:var(--muted)}.pill{padding:7px 12px;background:#fff5e7;color:#9e671c;border-radius:50px;font-size:12px;font-weight:800}.pill.live{background:#e2f7ed;color:#147558}.hero{background:#123d34;color:white;padding:54px max(24px,calc((100vw - 1390px)/2)) 70px;position:relative;overflow:hidden}.hero:after{content:'';width:550px;height:550px;position:absolute;right:-100px;top:-180px;border:90px solid #ffffff08;border-radius:50%;pointer-events:none}.eyebrow{font-size:13px;color:#acdec9;font-weight:800;letter-spacing:1.3px}.hero h1{font-size:clamp(30px,4.4vw,56px);letter-spacing:-2px;line-height:1.29;margin:16px 0}.hero h1 em{font-style:normal;color:#9de8c6}.hero p{color:#b6d3c9;line-height:1.9;margin:0;font-size:15px}.main{max-width:1390px;margin:-35px auto 60px;padding:0 24px;position:relative;z-index:1}.toolbar{background:white;padding:18px;border-radius:20px;box-shadow:0 12px 40px #163a2f12;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.search{position:relative;flex:1;min-width:210px}.search input{width:100%;border:1px solid var(--border);border-radius:12px;padding:13px 16px 13px 42px;outline:0}.search span{position:absolute;top:11px;left:15px;color:#8b9d95;font-size:19px}.toolbar select,.btn{border:1px solid var(--border);background:white;padding:12px 15px;border-radius:12px;color:var(--ink);font-weight:700}.btn.primary{background:var(--green);color:white;border-color:var(--green)}.btn:disabled{opacity:.5;cursor:wait}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0}.metric{border:1px solid var(--border);border-radius:17px;background:white;padding:19px}.metric small{display:block;color:var(--muted);font-size:12px;font-weight:700}.metric strong{display:block;font-size:27px;margin-top:8px;letter-spacing:-1px}.metric .hint{font-size:12px;color:var(--muted);margin-top:4px}.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr);gap:20px}.panel{background:white;border:1px solid var(--border);border-radius:20px;overflow:hidden}.panel-header{padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px}.panel h2{margin:0;font-size:18px;letter-spacing:-.6px}.panel-sub{font-size:12px;color:var(--muted);margin-top:5px}.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:#5d6d66}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}.map{height:490px;background:#e9f2ed}.map-fallback{height:490px;display:grid;place-items:center;padding:24px;color:var(--muted);background:linear-gradient(130deg,#f0f7f3,#e2ebe6);text-align:center}.place-scroll{max-height:490px;overflow:auto;padding:0 15px 15px}.place{width:100%;display:flex;justify-content:space-between;align-items:center;gap:9px;border:1px solid var(--border);background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;text-align:left;transition:.2s}.place:hover,.place.active{border-color:#7abda8;background:#f5fbf8}.place h3{font-size:14px;margin:0 0 6px}.place small{font-size:11px;color:var(--muted)}.level{font-size:11px;font-weight:900;border-radius:30px;padding:6px 10px;white-space:nowrap}.low{background:#e3f5ec;color:#167f5c}.medium{background:#eef0ff;color:#6576a6}.high{background:#fff2d5;color:#a87615}.veryhigh{background:#ffebe8;color:#d6574d}.none{background:#f1f3f4;color:#84908c}.info{margin-top:20px;display:grid;grid-template-columns:1.05fr 1fr;gap:20px}.detail{padding:22px}.detail-top{display:flex;justify-content:space-between;gap:10px;align-items:start}.detail h2{font-size:23px;margin:8px 0}.detail-tag{font-size:12px;color:var(--muted)}.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:18px}.fact{background:#f6f9f7;border-radius:12px;padding:14px}.fact small{color:var(--muted);font-size:11px;display:block;margin-bottom:7px}.fact strong{font-size:16px}.notice{background:#f5f8f6;border-radius:12px;padding:13px 15px;color:#60716a;font-size:12px;line-height:1.8;margin-top:16px}.recommend{padding:22px}.rec-intro{font-size:12px;color:var(--muted);line-height:1.7}.chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.chip{border:1px solid var(--border);border-radius:30px;padding:8px 13px;font-weight:700;background:#fff;color:#63736d;font-size:12px}.chip.selected{background:#194d3f;color:white;border-color:#194d3f}.rec-item{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:12px 0;gap:12px}.rec-item b{font-size:13px}.rec-item small{display:block;color:var(--muted);margin-top:4px;font-size:11px}.rec-rank{width:28px;height:28px;border-radius:9px;background:#e9f4ee;color:#23795b;display:grid;place-items:center;font-weight:900;font-size:12px;flex-shrink:0}.rec-row{display:flex;align-items:center;gap:10px}.footer{max-width:1390px;margin:auto;padding:0 24px 34px;font-size:12px;color:#7b8a83;line-height:1.8}.footer a{color:#25886c}.leaflet-container{font-family:inherit}.maplabel{background:white;border:1px solid #dfe8e3;border-radius:20px;box-shadow:0 5px 13px #23412f25;padding:4px 9px;font-size:11px;font-weight:800;white-space:nowrap}.empty{padding:45px 15px;text-align:center;color:var(--muted);font-size:13px}.mode-banner{background:#fff4dc;border:1px solid #f2dcaa;color:#886321;border-radius:12px;padding:12px 15px;font-size:12px;margin-top:16px;line-height:1.7}@media(max-width:900px){.layout,.info{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.map{height:350px}.place-scroll{max-height:370px}.hero{padding-top:43px}.panel-header{flex-wrap:wrap}}@media(max-width:520px){header{padding:13px 17px}.brand{font-size:21px}.mini{display:none}.hero{padding-left:20px;padding-right:20px}.main{padding:0 13px}.metrics{gap:9px}.metric{padding:14px}.metric strong{font-size:21px}.toolbar{padding:12px}.search{flex-basis:100%}.btn{flex:1}.legend{font-size:10px}.facts{grid-template-columns:1fr 1fr}}
-</style></head><body><header><div class="brand"><i></i>CrowdLess<span style="font-size:10px;color:#899b94;margin-left:8px;letter-spacing:0">SEOUL</span></div><div class="header-right"><span class="mini" id="checked">서울시 공공데이터 기반</span><span class="pill" id="modeBadge">데모 모드</span></div></header><section class="hero"><div class="eyebrow">EXPLORE SEOUL, WITHOUT THE CROWD</div><h1>붐비는 서울 속,<br><em>나만의 여유를 찾다.</em></h1><p>어디로 나갈지 고민된다면? 서울의 지역별 인구 혼잡도와 날씨를 비교해<br>더 쾌적한 외출 장소를 찾아보세요.</p></section><main class="main"><div class="toolbar"><div class="search"><span>⌕</span><input id="search" placeholder="장소 검색하기 (예: 홍대, 서울숲)" aria-label="장소 검색"></div><select id="sort" aria-label="정렬"><option value="recommended">혼잡도 낮은 순</option><option value="name">이름순</option><option value="population">추정 인구 적은 순</option></select><button class="btn" id="demo">데모 보기</button><button class="btn primary" id="refresh">↻ 실제 데이터 조회</button></div><div id="modeNotice" class="mode-banner">체험용 데모 데이터가 표시되고 있습니다. 혼잡도·인구·날씨 수치는 모두 가상값이며 현재 서울 상황이 아닙니다.</div><div class="metrics"><div class="metric"><small>📍 표시 중인 장소</small><strong id="count">12곳</strong><div class="hint">서울 주요 장소</div></div><div class="metric"><small>🌿 여유로운 장소</small><strong id="calm">—</strong><div class="hint">혼잡도 ‘여유’ 기준</div></div><div class="metric"><small>🌤 평균 기온</small><strong id="avgTemp">—</strong><div class="hint">기온 정보 제공 장소 평균</div></div><div class="metric"><small>🕒 최신 갱신 정보</small><strong id="updated" style="font-size:20px">데모</strong><div class="hint" id="freshHint">실제 측정 정보 아님</div></div></div><div class="layout"><section class="panel"><div class="panel-header"><div><h2>서울 혼잡도 지도</h2><div class="panel-sub">마커를 선택하면 장소별 상세 정보를 확인할 수 있어요.</div></div><div class="legend"><span><i class="dot" style="background:#2bad7e"></i>여유</span><span><i class="dot" style="background:#8093d5"></i>보통</span><span><i class="dot" style="background:#f4b43d"></i>약간 붐빔</span><span><i class="dot" style="background:#e8695f"></i>붐빔</span></div></div><div id="map" class="map"></div></section><section class="panel"><div class="panel-header"><div><h2>장소별 혼잡도</h2><div class="panel-sub">지도와 연동되는 실시간 장소 비교 목록</div></div><span class="mini" id="listCount"></span></div><div class="place-scroll" id="placeList"></div></section></div><div class="info"><section class="panel detail" id="detail"></section><section class="panel recommend"><h2>✨ 지금 어디로 갈까?</h2><p class="rec-intro">외출 목적을 선택하면 조건에 맞는 장소를 추천해 드려요. 혼잡도 등급을 먼저 고려하고, 선택한 목적과 날씨 정보로 순위를 정해요.</p><div class="chips"><button class="chip selected" data-purpose="all">🌿 한적한 곳</button><button class="chip" data-purpose="walk">🚶 산책하기</button><button class="chip" data-purpose="visit">📷 관광하기</button><button class="chip" data-purpose="shop">🛍 쇼핑하기</button></div><div id="recommendList"></div><div class="notice">추천은 공공데이터와 장소 유형을 활용한 참고 정보이며, 실제 보행 편의나 안전을 보장하지 않습니다.</div></section></div></main><footer class="footer">데이터 출처: <a href="https://data.seoul.go.kr/dataList/openApiView.do?infId=OA-21285&srvType=A" target="_blank" rel="noopener">서울특별시 실시간 도시데이터 API</a> · 지도: © OpenStreetMap contributors · CrowdLess 팀 프로젝트<br>인구 혼잡도는 통신사 데이터를 가공한 지역 전체의 추정 인구 정보이며 보행자만의 수치가 아닙니다. 장소 좌표는 지도 표현을 위한 대략적인 중심점입니다.</footer><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
-const seed=[['광화문·덕수궁',37.5712,126.9769,'문화·산책','보통',18300,22100,18.4,17],['홍대 관광특구',37.5554,126.9236,'관광·쇼핑','붐빔',33000,38000,19.2,24],['강남역',37.4979,127.0276,'관광·쇼핑','약간 붐빔',28000,32000,18.8,23],['서울역',37.5547,126.9706,'교통·도심','보통',23000,28000,18.7,22],['명동 관광특구',37.5636,126.9845,'관광·쇼핑','붐빔',27000,32000,18.5,27],['잠실 관광특구',37.5133,127.1001,'관광·쇼핑','약간 붐빔',21000,25000,19.1,18],['북촌한옥마을',37.5826,126.9831,'문화·산책','여유',5000,6500,17.9,15],['서울숲공원',37.5445,127.0374,'공원·산책','여유',4100,5600,18.2,13],['여의도한강공원',37.5284,126.9325,'공원·산책','여유',6500,8400,18.6,18],['반포한강공원',37.5109,126.9957,'공원·산책','보통',11000,14000,18.9,16],['성수카페거리',37.5446,127.0567,'관광·쇼핑','약간 붐빔',18000,23000,18.7,21],['이태원 관광특구',37.5345,126.9946,'관광·쇼핑','보통',15000,19000,18.6,25]];
-let data=[],live=false,selected=seed[0][0],purpose='all',query='',sort='recommended',map,markers=[];
-const $=id=>document.getElementById(id);const fmt=n=>n==null?'정보 없음':Math.round(n).toLocaleString('ko-KR');const levels={'여유':0,'보통':1,'약간 붐빔':2,'붐빔':3};const classes=['low','medium','high','veryhigh'];const colors=['#2bad7e','#8093d5','#f4b43d','#e8695f'];const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function demo(){data=seed.map(([name,lat,lng,kind,status,min,max,temp,pm25])=>({name,lat,lng,kind,status,min,max,temp,pm25,time:null}));live=false;selected=data.some(x=>x.name===selected)?selected:data[0].name;render()}
-function current(){return data.find(p=>p.name===selected)||data[0]}
-function filtered(){let a=data.filter(p=>p.name.includes(query)||p.kind.includes(query));if(sort==='name')a.sort((x,y)=>x.name.localeCompare(y.name,'ko'));else if(sort==='population')a.sort((x,y)=>(x.min??1e12)-(y.min??1e12));else a.sort((x,y)=>(levels[x.status]??9)-(levels[y.status]??9));return a}
-function badge(p){const i=levels[p.status];return `<span class="level ${i===undefined?'none':classes[i]}">${safe(p.status)}</span>`}
-function render(){const valid=data.filter(p=>p.status in levels);$('modeBadge').textContent=live?'실시간 연결':'데모 모드';$('modeBadge').className='pill'+(live?' live':'');$('modeNotice').style.display=live?'none':'block';$('count').textContent=data.length+'곳';$('calm').textContent=valid.filter(p=>p.status==='여유').length+'곳';const temps=data.filter(p=>Number.isFinite(p.temp));$('avgTemp').textContent=temps.length?(temps.reduce((s,p)=>s+p.temp,0)/temps.length).toFixed(1)+'°':'—';$('updated').textContent=live?'실제 데이터':'데모';$('freshHint').textContent=live?'시간은 장소별 세부정보 확인':'현재 측정 정보 아님';const list=filtered();$('listCount').textContent=list.length+'개 장소';$('placeList').innerHTML=list.length?list.map(p=>`<button class="place ${selected===p.name?'active':''}" data-place="${safe(p.name)}"><div><h3>${safe(p.name)}</h3><small>${safe(p.kind)} · 추정 ${p.min==null?'정보 없음':fmt(p.min)+'~'+fmt(p.max)+'명'}</small></div>${badge(p)}</button>`).join(''):'<div class="empty">검색 결과가 없어요.</div>';document.querySelectorAll('[data-place]').forEach(b=>b.addEventListener('click',()=>choose(b.dataset.place)));drawDetail();drawRecs();drawMap(list)}
-function choose(name){selected=name;render();const p=current();if(map&&p)map.flyTo([p.lat,p.lng],12,{duration:.6})}
-function drawDetail(){const p=current();if(!p){$('detail').innerHTML='정보 없음';return}const time=p.time?`인구 기준시각 ${safe(p.time)}`:'기준시각 정보 없음';$('detail').innerHTML=`<div class="detail-top"><div><div class="detail-tag">📍 선택한 장소 · ${safe(p.kind)}</div><h2>${safe(p.name)}</h2></div>${badge(p)}</div><div class="facts"><div class="fact"><small>실시간 추정 인구</small><strong>${p.min==null?'정보 없음':fmt(p.min)+' ~ '+fmt(p.max)+'명'}</strong></div><div class="fact"><small>현재 혼잡도</small><strong>${safe(p.status)}</strong></div><div class="fact"><small>현재 기온</small><strong>${p.temp==null?'정보 없음':p.temp+'°C'}</strong></div><div class="fact"><small>초미세먼지 PM2.5</small><strong>${p.pm25==null?'정보 없음':p.pm25+' ㎍/㎥'}</strong></div></div><div class="notice">${live?(safe(p.message||'서울시 인구 혼잡도 기준')+'<br>'+time):'⚠ 이 수치는 시연을 위한 가상 데이터입니다. 실제 서울시 현황을 나타내지 않습니다.'}${p.error?'<br>API 안내: '+safe(p.error):''}</div><button class="btn" style="margin-top:12px;width:100%" id="openMap">📌 지도에서 장소 보기 ↗</button>`;$('openMap').addEventListener('click',()=>window.open('https://www.openstreetmap.org/?mlat='+p.lat+'&mlon='+p.lng+'#map=15/'+p.lat+'/'+p.lng,'_blank','noopener'))}
-function drawRecs(){const eligible=data.filter(p=>p.status in levels).filter(p=>purpose==='all'||(purpose==='walk'&&/산책|공원/.test(p.kind))||(purpose==='visit'&&/관광|문화|산책/.test(p.kind))||(purpose==='shop'&&/쇼핑/.test(p.kind)));eligible.sort((a,b)=>{let score=p=>(levels[p.status]*100)+(p.pm25==null?30:Math.max(0,p.pm25-15)*.15);return score(a)-score(b)});$('recommendList').innerHTML=eligible.length?eligible.slice(0,3).map((p,i)=>`<div class="rec-item"><div class="rec-row"><span class="rec-rank">${i+1}</span><div><b>${safe(p.name)}</b><small>${safe(p.kind)} · ${p.temp==null?'기온 정보 없음':p.temp+'°C'} · ${p.pm25==null?'초미세먼지 정보 없음':'PM2.5 '+p.pm25}</small></div></div>${badge(p)}</div>`).join(''):'<div class="empty">조건에 맞는 장소의 데이터를 찾지 못했어요.</div>'}
-function drawMap(list){if(!map)return;markers.forEach(m=>map.removeLayer(m));markers=[];for(const p of list){const col=colors[levels[p.status]]||'#a0aba8';const marker=L.circleMarker([p.lat,p.lng],{radius:p.name===selected?13:10,color:'#fff',weight:3,fillColor:col,fillOpacity:1}).addTo(map);marker.bindTooltip(`<b>${safe(p.name)}</b><br>${safe(p.status)}`,{direction:'top'});marker.on('click',()=>choose(p.name));markers.push(marker)}}
-async function loadLive(){const btn=$('refresh');btn.disabled=true;btn.textContent='조회 중…';try{const r=await fetch('/api/places',{cache:'no-store'});if(!r.ok)throw Error('서버 연결 실패');const j=await r.json();if(!j.live)throw Error('서울시 API 인증키가 설정되지 않았습니다. README의 설정 방법을 확인해 주세요.');const valid=j.places.filter(p=>p.status in levels);if(valid.length===0)throw Error('유효한 서울시 혼잡도 데이터가 없습니다. API 인증키 및 서버 로그를 확인해 주세요.');data=j.places;live=true;selected=data.some(p=>p.name===selected)?selected:data[0].name;render();$('checked').textContent='조회 시각 '+new Date(j.retrievedAt*1000).toLocaleTimeString('ko-KR');if(valid.length<data.length)alert(`${data.length-valid.length}개 장소는 데이터가 없어 ‘정보 없음’으로 표시됩니다.`)}catch(err){alert('실제 데이터 조회 실패: '+err.message+'\n기존 화면은 유지됩니다.')}finally{btn.disabled=false;btn.textContent='↻ 실제 데이터 조회'}}
-$('search').addEventListener('input',e=>{query=e.target.value.trim();render()});$('sort').addEventListener('change',e=>{sort=e.target.value;render()});$('refresh').addEventListener('click',loadLive);$('demo').addEventListener('click',()=>{demo();$('checked').textContent='시연용 가상 데이터'});document.querySelectorAll('[data-purpose]').forEach(b=>b.addEventListener('click',()=>{purpose=b.dataset.purpose;document.querySelectorAll('[data-purpose]').forEach(x=>x.classList.toggle('selected',x===b));drawRecs()}));if(typeof L!=='undefined'){map=L.map('map',{scrollWheelZoom:false}).setView([37.553,126.992],11);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(map)}else{$('map').outerHTML='<div class="map-fallback">지도를 불러오지 못했어요. 인터넷에 연결된 상태에서 새로고침해 주세요.<br>장소 목록과 비교 기능은 이용할 수 있습니다.</div>'}demo();
-</script></body></html>
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CrowdLess | 서울 혼잡도 지도</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--green:#177b65;--dark:#173d33;--line:#e2eae5;--bg:#f4f8f5;--muted:#71877c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--dark);font-family:system-ui,"Malgun Gothic",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+header{background:white;border-bottom:1px solid var(--line);padding:17px max(18px,calc((100vw - 1330px)/2));display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font-size:26px;font-weight:900;letter-spacing:-1px}
+.logo i{background:#1ba784;color:white;padding:4px 10px;border-radius:10px;font-style:normal}
+.subtitle{color:var(--muted);font-size:12px}
+.hero{background:linear-gradient(115deg,#123d32,#21715a);color:white;padding:38px max(18px,calc((100vw - 1330px)/2)) 68px}
+.hero h1{font-size:clamp(27px,4vw,44px);margin:0 0 12px;line-height:1.35}
+.hero p{color:#d2ede2;line-height:1.8;font-size:14px}
+main{max-width:1330px;margin:-28px auto 0;padding:0 16px 50px;position:relative}
+.tools{display:flex;flex-wrap:wrap;gap:9px;background:white;border-radius:18px;padding:15px;box-shadow:0 10px 30px #174b3112}
+.tools input{flex:1;min-width:210px}
+.tools input,.tools select,.tools button{border:1px solid var(--line);background:#fff;padding:12px 13px;border-radius:12px;min-height:45px}
+.tools button{background:var(--green);color:white;font-weight:800}
+.tools button:disabled{opacity:.6}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:17px 0}
+.card{padding:18px;border:1px solid var(--line);background:white;border-radius:15px}
+.card small{color:var(--muted);display:block}
+.card strong{display:block;font-size:25px;margin-top:7px}
+.notice{border:1px solid #dfd5a2;background:#fff8e5;color:#80672a;padding:12px 15px;border-radius:12px;font-size:13px;margin:15px 0;line-height:1.7}
+.layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,.8fr);gap:16px}
+.panel{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.panel h2{font-size:17px;margin:0}
+.head{padding:17px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.head small{color:var(--muted);font-size:12px}
+#map{height:550px;background:#e9efea}
+.list{height:550px;overflow:auto;padding:0 12px 12px}
+.item{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:7px;padding:13px;border:1px solid var(--line);border-radius:12px;background:white;margin-bottom:8px}
+.item:hover,.item.active{background:#f0faf4;border-color:#94c8b4}
+.item b{display:block;font-size:13px}
+.item small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+.badge{white-space:nowrap;border-radius:30px;padding:6px 9px;font-size:11px;font-weight:800;background:#eef1ef;color:#75877e}
+.detail{margin-top:16px;padding:23px;border:1px solid var(--line);background:white;border-radius:17px}
+.detail h2{margin:8px 0 13px;font-size:25px}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.fact{background:#f6f9f7;border-radius:12px;padding:15px}
+.fact small{color:var(--muted);font-size:12px}
+.fact strong{display:block;font-size:17px;margin-top:8px}
+.detail p{font-size:13px;color:var(--muted);line-height:1.75}
+.levels{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.levels span{font-size:12px;color:#6e8177}
+.foot{color:#6f867b;font-size:12px;margin:22px 0;line-height:1.8}
+@media(max-width:850px){
+  .layout{grid-template-columns:1fr}
+  #map{height:420px}
+  .list{height:330px}
+  .facts{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:550px){
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .tools input{flex-basis:100%}
+  .hero{padding:33px 20px 60px}
+  .head{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><i>✦</i> CrowdLess</div>
+  <span class="subtitle">서울시 실시간 도시데이터 API</span>
+</header>
+<section class="hero">
+  <h1>붐비는 서울 속,<br>나만의 여유를 찾다.</h1>
+  <p>서울시 주요 121곳의 인구 혼잡도를 지도에서 확인하세요.<br>사람이 덜 모인 장소와 날씨를 비교할 수 있어요.</p>
+</section>
+<main>
+<div class="tools">
+  <input id="search" type="search" placeholder="장소 검색: 강남, 홍대, 서울숲..." aria-label="장소 검색">
+  <select id="kind" aria-label="장소 유형">
+    <option value="">모든 유형</option>
+    <option>관광특구</option>
+    <option>고궁·문화유산</option>
+    <option>인구밀집지역</option>
+    <option>발달상권</option>
+    <option>공원</option>
+  </select>
+  <select id="sort" aria-label="정렬">
+    <option value="name">이름순</option>
+    <option value="quiet">덜 붐비는 순</option>
+    <option value="busy">많이 붐비는 순</option>
+  </select>
+  <button id="refresh">↻ 실시간 새로고침</button>
+</div>
+
+<div class="cards">
+  <div class="card"><small>전체 장소</small><strong id="all">121</strong></div>
+  <div class="card"><small>현재 검색 결과</small><strong id="found">121</strong></div>
+  <div class="card"><small>실시간 조회 완료</small><strong id="loaded">0</strong></div>
+  <div class="card"><small>공식 '여유' 장소</small><strong id="quiet">0</strong></div>
+</div>
+
+<div class="notice" id="notice">장소 목록과 지도는 표시되지만, 혼잡도는 서울시 API 연결 후에 표시됩니다.</div>
+<div class="levels" id="legend"></div>
+
+<div class="layout">
+  <section class="panel">
+    <div class="head"><h2>서울 혼잡도 지도</h2><small id="mapCount">121개 위치</small></div>
+    <div id="map"></div>
+  </section>
+  <section class="panel">
+    <div class="head"><h2>장소 목록</h2><small>이름을 누르면 상세정보 표시</small></div>
+    <div class="list" id="list"></div>
+  </section>
+</div>
+<section class="detail" id="detail"></section>
+<p class="foot">
+출처: 서울특별시 실시간 도시데이터 API · 위치 핀은 장소별 대략적인 중심 지점입니다.
+혼잡도는 해당 지역의 추정 인구를 기반으로 하며 보행자만 집계한 수치가 아닙니다.
+'매우 붐빔'은 CrowdLess가 공식 '붐빔' 등급과 공식 설명 문구를 근거로 별도 표시하는 참고 등급입니다.
+</p>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// 서울시 주요 121곳: 코드 | 이름 | 유형번호 | 위도 | 경도
+const raw = `POI001|강남 MICE 관광특구|0|37.513|127.059
+POI002|동대문 관광특구|0|37.568|127.01
+POI003|명동 관광특구|0|37.5636|126.9845
+POI004|이태원 관광특구|0|37.5345|126.9946
+POI005|잠실 관광특구|0|37.5133|127.1001
+POI006|종로·청계 관광특구|0|37.5705|126.995
+POI007|홍대 관광특구|0|37.5554|126.9236
+POI008|경복궁|1|37.5796|126.977
+POI009|광화문·덕수궁|1|37.5712|126.9769
+POI010|보신각|1|37.5699|126.9836
+POI011|서울 암사동 유적|1|37.5591|127.1291
+POI012|창덕궁·종묘|1|37.5805|126.9923
+POI013|가산디지털단지역|2|37.4817|126.8829
+POI014|강남역|2|37.4979|127.0276
+POI015|건대입구역|2|37.5404|127.0692
+POI016|고덕역|2|37.555|127.1544
+POI017|고속터미널역|2|37.5049|127.0049
+POI018|교대역|2|37.4934|127.0145
+POI019|구로디지털단지역|2|37.4853|126.9014
+POI020|구로역|2|37.5032|126.8821
+POI021|군자역|2|37.5571|127.0804
+POI022|남구로역|2|37.4851|126.8873
+POI023|대림역|2|37.4929|126.8965
+POI024|동대문역|2|37.5714|127.0097
+POI025|뚝섬역|2|37.547|127.0474
+POI026|미아사거리역|2|37.6134|127.0301
+POI027|발산역|2|37.5587|126.8378
+POI028|북한산우이역|2|37.662|127.0128
+POI029|사당역|2|37.4765|126.9816
+POI030|삼각지역|2|37.5344|126.9734
+POI031|서울대입구역|2|37.4812|126.9527
+POI032|서울식물원·마곡나루역|2|37.568|126.8295
+POI033|서울역|2|37.5547|126.9706
+POI034|선릉역|2|37.5046|127.0491
+POI035|성신여대입구역|2|37.5927|127.0165
+POI036|수유역|2|37.6381|127.0258
+POI037|신논현역·논현역|2|37.505|127.0239
+POI038|신도림역|2|37.5089|126.891
+POI039|신림역|2|37.4843|126.9297
+POI040|신촌·이대역|2|37.5573|126.939
+POI041|양재역|2|37.4844|127.0345
+POI042|역삼역|2|37.5007|127.0365
+POI043|연신내역|2|37.6185|126.9213
+POI044|오목교역·목동운동장|2|37.5231|126.8753
+POI045|왕십리역|2|37.5615|127.0377
+POI046|용산역|2|37.5298|126.9649
+POI047|이태원역|2|37.5345|126.9946
+POI048|장지역|2|37.4787|127.1269
+POI049|장한평역|2|37.5613|127.0647
+POI050|천호역|2|37.5384|127.1239
+POI051|총신대입구(이수)역|2|37.4862|126.982
+POI052|충정로역|2|37.5598|126.9636
+POI053|합정역|2|37.5496|126.9139
+POI054|혜화역|2|37.5822|127.0019
+POI055|홍대입구역(2호선)|2|37.557|126.9237
+POI056|회기역|2|37.5895|127.0576
+POI057|4·19 카페거리|3|37.6505|127.013
+POI058|가락시장|3|37.4927|127.1176
+POI059|가로수길|3|37.5195|127.0223
+POI060|광장(전통)시장|3|37.57|126.9985
+POI061|김포공항|3|37.5587|126.8016
+POI062|낙산공원·이화마을|3|37.5795|127.0079
+POI063|노량진|3|37.5135|126.9428
+POI064|덕수궁길·정동길|3|37.5667|126.971
+POI065|방배역 먹자골목|3|37.481|126.997
+POI066|북촌한옥마을|3|37.5826|126.9831
+POI067|서촌|3|37.579|126.969
+POI068|성수카페거리|3|37.5446|127.0567
+POI069|수유리 먹자골목|3|37.6406|127.027
+POI070|쌍문동 맛집거리|3|37.6539|127.0373
+POI071|압구정로데오거리|3|37.5275|127.0406
+POI072|여의도|3|37.5219|126.9248
+POI073|연남동|3|37.5661|126.9253
+POI074|영등포 타임스퀘어|3|37.517|126.9034
+POI075|외대앞|3|37.5957|127.0593
+POI076|용리단길|3|37.5315|126.9725
+POI077|이태원 앤틱가구거리|3|37.5344|126.9937
+POI078|인사동·익선동|3|37.5735|126.986
+POI079|창동 신경제 중심지|3|37.6537|127.0475
+POI080|청담동 명품거리|3|37.5245|127.0465
+POI081|청량리 제기동 일대 전통시장|3|37.5808|127.039
+POI082|해방촌·경리단길|3|37.5412|126.987
+POI083|DDP(동대문디자인플라자)|3|37.5671|127.0097
+POI084|DMC(디지털미디어시티)|3|37.5785|126.8902
+POI085|강서한강공원|4|37.5886|126.8192
+POI086|고척돔|4|37.4982|126.867
+POI087|광나루한강공원|4|37.5521|127.1191
+POI088|광화문광장|4|37.5719|126.9768
+POI089|국립중앙박물관·용산가족공원|4|37.5239|126.9802
+POI090|난지한강공원|4|37.5675|126.8749
+POI091|남산공원|4|37.5511|126.9899
+POI092|노들섬|4|37.5166|126.9583
+POI093|뚝섬한강공원|4|37.531|127.0666
+POI094|망원한강공원|4|37.5522|126.8997
+POI095|반포한강공원|4|37.5109|126.9957
+POI096|북서울꿈의숲|4|37.6204|127.0403
+POI097|불광천|4|37.6042|126.9293
+POI098|서리풀공원·몽마르뜨공원|4|37.4939|127.002
+POI099|서울광장|4|37.5655|126.978
+POI100|서울대공원|4|37.434|127.0158
+POI101|서울숲공원|4|37.5445|127.0374
+POI102|아차산|4|37.5669|127.103
+POI103|양화한강공원|4|37.545|126.8983
+POI104|어린이대공원|4|37.5498|127.0818
+POI105|여의도한강공원|4|37.5284|126.9325
+POI106|월드컵공원|4|37.5666|126.8896
+POI107|응봉산|4|37.5476|127.0308
+POI108|이촌한강공원|4|37.5193|126.9684
+POI109|잠실종합운동장|4|37.5157|127.0731
+POI110|잠실한강공원|4|37.5204|127.0914
+POI111|잠원한강공원|4|37.5181|127.019
+POI112|청계산|4|37.415|127.05
+POI113|청와대|4|37.5866|126.9749
+POI114|북창동 먹자골목|3|37.562|126.978
+POI115|남대문시장|3|37.5581|126.9773
+POI116|익선동|3|37.572|126.9892
+POI118|잠실새내역|2|37.511|127.086
+POI122|신촌 스타광장|3|37.557|126.935
+POI123|보라매공원|4|37.4924|126.9198
+POI125|안양천|4|37.5175|126.868
+POI126|여의서로|4|37.5276|126.9258`;
+
+const typeNames = ["관광특구","고궁·문화유산","인구밀집지역","발달상권","공원"];
+const colors = ["#26b68a","#64a0de","#e6ba49","#ed8f52","#d12f62"];
+const labels = ["여유","보통","약간 붐빔","붐빔","매우 붐빔"];
+const places = raw.trim().split("\n").map(line => {
+  const [code,name,t,lat,lng] = line.split("|");
+  return {code,name,kind:typeNames[Number(t)],lat:Number(lat),lng:Number(lng),official:"정보 없음",minimum:null,maximum:null,temperature:null,pm25:null,time:null,message:null,error:null};
+});
+const byCode = new Map(places.map(p => [p.code,p]));
+const $ = id => document.getElementById(id);
+let selected = "POI014";
+let map, pins, inProgress = false, successes = 0, processed = 0;
+
+function level(p) {
+  // 서울시 공식 분류 4개 + 공식 설명에 '매우 혼잡' 등이 포함될 경우 추가 단계
+  if(p.official === "붐빔" && /매우\s*(붐|혼잡)|극심한\s*혼잡/.test(p.message || "")) return 4;
+  return ["여유","보통","약간 붐빔","붐빔"].indexOf(p.official);
+}
+function levelText(p) { const i=level(p); return i<0?"정보 없음":labels[i]; }
+function bg(p) {const i=level(p);return i<0?"#9daaa5":colors[i];}
+function escapeHtml(s) {return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+function people(p) {return p.minimum==null||p.maximum==null?"정보 없음":p.minimum.toLocaleString("ko-KR")+" ~ "+p.maximum.toLocaleString("ko-KR")+"명";}
+function badge(p) {const i=level(p);return `<span class="badge" style="background:${i<0?"#eef1ef":colors[i]+"22"};color:${i<0?"#788880":colors[i]}">${levelText(p)}</span>`;}
+function subset() {
+  const q=$("search").value.trim().toLocaleLowerCase("ko");
+  const k=$("kind").value, order=$("sort").value;
+  const items=places.filter(p=>(!k||p.kind===k) && (p.name.toLocaleLowerCase("ko").includes(q)||p.code.toLowerCase().includes(q)||p.kind.includes(q)));
+  if(order==="name") items.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+  else items.sort((a,b)=>{
+    const x=level(a)<0?99:(order==="quiet"?level(a):-level(a));
+    const y=level(b)<0?99:(order==="quiet"?level(b):-level(b));
+    return x-y||a.name.localeCompare(b.name,"ko");
+  });
+  return items;
+}
+function redraw() {
+  const items=subset();
+  $("found").textContent=items.length;
+  $("loaded").textContent=places.filter(p=>level(p)>=0).length;
+  $("quiet").textContent=places.filter(p=>p.official==="여유").length;
+  $("list").innerHTML=items.length?items.map(p=>`<button class="item ${p.code===selected?"active":""}" data-code="${p.code}"><span><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.kind)} · ${p.code}</small></span>${badge(p)}</button>`).join(""):'<p style="padding:20px;color:#6b8175">검색 결과 없음</p>';
+  $("list").querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>choose(b.dataset.code));
+  if(items.length && !items.some(p=>p.code===selected)) selected=items[0].code;
+  const p=items.find(p=>p.code===selected);
+  $("detail").innerHTML=p?`<small>${escapeHtml(p.kind)} · ${p.code}</small><h2>${escapeHtml(p.name)} ${badge(p)}</h2>
+    <div class="facts"><div class="fact"><small>공식 혼잡도</small><strong>${escapeHtml(p.official)}</strong></div>
+    <div class="fact"><small>추정 인구</small><strong>${people(p)}</strong></div>
+    <div class="fact"><small>기온</small><strong>${p.temperature==null?"정보 없음":p.temperature+"°C"}</strong></div>
+    <div class="fact"><small>초미세먼지 PM2.5</small><strong>${p.pm25==null?"정보 없음":p.pm25+"㎍/㎥"}</strong></div></div>
+    <p>관측 시각: ${escapeHtml(p.time||"정보 없음")}</p><p>${escapeHtml(p.message || p.error || "서울시 실시간 자료를 조회하고 있습니다.")}</p>`:'<h2>검색 결과 없음</h2><p>다른 검색어를 입력해 주세요.</p>';
+  if(pins) {
+    pins.clearLayers();
+    items.forEach(p=>{
+      const pin=L.circleMarker([p.lat,p.lng],{radius:p.code===selected?10:7,color:"#fff",weight:2,fillColor:bg(p),fillOpacity:1});
+      pin.bindTooltip(`${escapeHtml(p.name)} · ${levelText(p)}`);
+      pin.on("click",()=>choose(p.code));pin.addTo(pins);
+    });
+  }
+  $("mapCount").textContent=items.length+"개 위치";
+}
+function choose(code) {
+  selected=code;redraw();
+  const p=byCode.get(code);
+  if(map && p) map.flyTo([p.lat,p.lng],13,{duration:.45});
+}
+function notice(s) { $("notice").textContent=s; }
+async function fetchBatch(codes) {
+  const response=await fetch("/api/places?codes="+codes.join(","),{cache:"no-store"});
+  if(!response.ok) throw new Error("서버 응답 오류: "+response.status);
+  const data=await response.json();
+  if(!data.configured) throw new Error("서버에 SEOUL_API_KEY가 없습니다.");
+  if(!Array.isArray(data.places)) throw new Error("서버 JSON 응답을 확인해 주세요.");
+  data.places.forEach(info=>{
+    const p=byCode.get(info.code);
+    if(p) Object.assign(p,info);
+  });
+  processed += codes.length;
+  successes=places.filter(p=>level(p)>=0).length;
+  notice(`조회 중: ${processed}/121곳 · 혼잡도 확인 ${successes}곳 · 미확인 ${processed-successes}곳`);
+  redraw();
+}
+async function refresh() {
+  if(inProgress)return;
+  if(location.protocol==="file:") {notice("index.html을 직접 열면 실시간 데이터를 불러올 수 없습니다. Python 서버에서 실행해 주세요.");return;}
+  inProgress=true;$("refresh").disabled=true;processed=0;successes=0;
+  places.forEach(p=>{p.official="정보 없음";p.minimum=null;p.maximum=null;p.temperature=null;p.pm25=null;p.time=null;p.message=null;p.error=null;});
+  redraw();notice("서울시 API에서 121개 장소를 조회하고 있습니다...");
+  const batches=[];
+  for(let i=0;i<places.length;i+=8) batches.push(places.slice(i,i+8).map(p=>p.code));
+  let cursor=0, fail=null;
+  async function worker() {
+    while(cursor<batches.length && !fail) {
+      const batch=batches[cursor++];
+      try {await fetchBatch(batch);} catch(err) {fail=err;}
+    }
+  }
+  await Promise.all([worker(),worker(),worker()]);
+  if(fail) notice("실시간 조회 오류: "+fail.message+" (확인된 장소: "+successes+"곳)");
+  else notice("조회 완료: "+successes+"/121개 장소 혼잡도 확인. 회색 핀은 데이터 미확인 장소입니다.");
+  inProgress=false;$("refresh").disabled=false;
+  redraw();
+}
+$("legend").innerHTML=[...labels,"정보 없음"].map((v,i)=>`<span><i class="dot" style="background:${i===5?"#9daaa5":colors[i]}"></i>${v}</span>`).join("");
+$("search").addEventListener("input",redraw);
+$("kind").addEventListener("change",redraw);
+$("sort").addEventListener("change",redraw);
+$("refresh").addEventListener("click",refresh);
+if(typeof L!=="undefined") {
+  map=L.map("map",{scrollWheelZoom:false}).setView([37.55,126.99],11);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(map);
+  pins=L.layerGroup().addTo(map);
+} else {$("map").innerHTML='<p style="padding:30px">지도 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.</p>';}
+redraw();
+refresh();
+</script>
+</body>
+</html>
