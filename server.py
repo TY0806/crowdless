@@ -1,31 +1,39 @@
 
-import os
 import json
+import os
 import re
 import time
-from pathlib import Path
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs, quote
-from urllib.request import Request, urlopen
 from concurrent.futures import ThreadPoolExecutor
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from threading import Lock
+from urllib.parse import parse_qs, quote, urlparse
+from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
 
-API_KEY = os.environ.get("SEOUL_API_KEY", "").strip()
-PORT = int(os.environ.get("PORT", "8000"))
+# Render에서는 Environment -> SEOUL_API_KEY에 인증키를 등록합니다.
+# 개인 PC에서만 실행할 때는 아래의 API_KEY 값을 직접 설정할 수도 있습니다.
+API_KEY = "545475756174616937386c4f487350"
+PORT = int(os.getenv("PORT", "8000"))
+HOME = Path(__file__).resolve().parent
 CACHE = {}
+LOCK = Lock()
 
-def get_value(node, tag):
+
+def value(node, tag):
     element = node.find(".//" + tag) if node is not None else None
     return (element.text or "").strip() if element is not None else ""
 
-def number(value):
+
+def as_number(text, decimal=False):
     try:
-        return int(value.replace(",", ""))
-    except (ValueError, TypeError):
+        return float(text) if decimal else int(text.replace(",", ""))
+    except (TypeError, ValueError):
         return None
 
+
 def fetch_place(code):
-    result = {
+    data = {
         "code": code,
         "official": "정보 없음",
         "minimum": None,
@@ -33,16 +41,19 @@ def fetch_place(code):
         "temperature": None,
         "pm25": None,
         "time": None,
-        "message": None
+        "message": None,
+        "error": None
     }
 
     if not API_KEY:
-        result["error"] = "서버에 API 인증키가 없습니다."
-        return result
+        data["error"] = "서버 환경변수 SEOUL_API_KEY가 설정되지 않았습니다."
+        return data
 
-    cached = CACHE.get(code)
-    if cached and time.time() - cached[0] < 300:
-        return cached[1]
+    with LOCK:
+        old = CACHE.get(code)
+
+    if old and time.time() - old[0] < 300:
+        return old[1]
 
     url = (
         "http://openapi.seoul.go.kr:8088/"
@@ -52,74 +63,104 @@ def fetch_place(code):
     )
 
     try:
-        request = Request(url, headers={"User-Agent": "CrowdLess/1.0"})
+        request = Request(
+            url,
+            headers={"User-Agent": "CrowdLess/1.0"}
+        )
 
-        with urlopen(request, timeout=12) as response:
-            root = ET.fromstring(response.read(2000000))
+        with urlopen(request, timeout=15) as response:
+            root = ET.fromstring(response.read(3_000_000))
 
         people = root.find(".//LIVE_PPLTN_STTS")
         weather = root.find(".//WEATHER_STTS")
 
-        result["official"] = get_value(people, "AREA_CONGEST_LVL") or "정보 없음"
-        result["minimum"] = number(get_value(people, "AREA_PPLTN_MIN"))
-        result["maximum"] = number(get_value(people, "AREA_PPLTN_MAX"))
-        result["time"] = get_value(people, "PPLTN_TIME")
-        result["message"] = get_value(people, "AREA_CONGEST_MSG")
+        data.update(
+            official=value(people, "AREA_CONGEST_LVL") or "정보 없음",
+            minimum=as_number(value(people, "AREA_PPLTN_MIN")),
+            maximum=as_number(value(people, "AREA_PPLTN_MAX")),
+            time=value(people, "PPLTN_TIME") or None,
+            message=value(people, "AREA_CONGEST_MSG") or None,
+            temperature=as_number(value(weather, "TEMP"), True),
+            pm25=as_number(value(weather, "PM25"), True),
+        )
 
-        try:
-            result["temperature"] = float(get_value(weather, "TEMP"))
-        except ValueError:
-            pass
+        if data["official"] == "정보 없음":
+            data["error"] = (
+                value(root, "MESSAGE")
+                or "혼잡도 응답이 없습니다."
+            )
 
-        try:
-            result["pm25"] = float(get_value(weather, "PM25"))
-        except ValueError:
-            pass
+    except Exception as exc:
+        data["error"] = (
+            "서울시 API 호출 실패: "
+            + type(exc).__name__
+        )
 
-        if result["official"] == "정보 없음":
-            result["error"] = "서울시 혼잡도 응답을 확인할 수 없습니다."
+    with LOCK:
+        CACHE[code] = (time.time(), data)
 
-    except Exception as error:
-        result["error"] = "API 조회 실패: " + type(error).__name__
+    return data
 
-    CACHE[code] = (time.time(), result)
-    return result
 
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
-            directory=str(Path(__file__).resolve().parent),
+            directory=str(HOME),
             **kwargs
         )
 
     def do_GET(self):
-        parsed = urlparse(self.path)
+        uri = urlparse(self.path)
 
-        if parsed.path != "/api/places":
+        if uri.path == "/api/health":
+            return self.send_json({
+                "configured": bool(API_KEY)
+            })
+
+        if uri.path != "/api/places":
             return super().do_GET()
 
-        query = parse_qs(parsed.query)
-        codes = query.get("codes", [""])[0].split(",")
-        codes = [
-            code for code in codes
-            if re.fullmatch(r"POI\d{3}", code)
-        ][:8]
+        params = parse_qs(uri.query)
+        wanted = params.get("codes", [""])[0].split(",")
+
+        codes = list(dict.fromkeys(
+            c for c in wanted
+            if re.fullmatch(r"POI\d{3}", c)
+        ))[:8]
 
         with ThreadPoolExecutor(max_workers=4) as pool:
             places = list(pool.map(fetch_place, codes))
 
-        response = json.dumps({
+        self.send_json({
             "configured": bool(API_KEY),
             "places": places
-        }, ensure_ascii=False).encode("utf-8")
+        })
+
+    def send_json(self, obj):
+        body = json.dumps(
+            obj,
+            ensure_ascii=False
+        ).encode("utf-8")
 
         self.send_response(200)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header(
+            "Content-Type",
+            "application/json; charset=utf-8"
+        )
         self.send_header("Cache-Control", "no-store")
-        self.send_header("Content-Length", str(len(response)))
+        self.send_header("Content-Length", str(len(body)))
         self.end_headers()
-        self.wfile.write(response)
+        self.wfile.write(body)
+
 
 if __name__ == "__main__":
-    ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+    print(
+        f"CrowdLess http://localhost:{PORT} "
+        f"| 인증키 설정: {bool(API_KEY)}"
+    )
+
+    ThreadingHTTPServer(
+        ("0.0.0.0", PORT),
+        Handler
+    ).serve_forever()
