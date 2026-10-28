@@ -1,39 +1,88 @@
 
+"""
+CrowdLess GitHub Actions collector.
+
+서울시 API에서 혼잡도 데이터를 가져와
+data/crowd.json 파일로 저장합니다.
+
+별도 웹서버가 필요하지 않습니다.
+Python 표준 라이브러리만 사용합니다.
+"""
+
+import concurrent.futures
 import json
 import os
 import re
 import time
-from concurrent.futures import ThreadPoolExecutor
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+import urllib.error
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
+
+from datetime import datetime, timezone
 from pathlib import Path
-from threading import Lock
-from urllib.parse import parse_qs, quote, urlparse
-from urllib.request import Request, urlopen
-from xml.etree import ElementTree as ET
 
-# Render에서는 Environment -> SEOUL_API_KEY에 인증키를 등록합니다.
-# 개인 PC에서만 실행할 때는 아래의 API_KEY 값을 직접 설정할 수도 있습니다.
-API_KEY = "545475756174616937386c4f487350"
-PORT = int(os.getenv("PORT", "8000"))
-HOME = Path(__file__).resolve().parent
-CACHE = {}
-LOCK = Lock()
 
+# ======================================
+# 1. 기본 설정
+# ======================================
+
+ROOT = Path(__file__).resolve().parent
+
+# 여기에 서울시 API 인증키를 입력할 수 있습니다.
+# 공개 GitHub 저장소에서는 키가 노출됩니다.
+LOCAL_API_KEY = "545475756174616937386c4f487350"
+
+# GitHub Secrets에 등록된 키를 우선 사용합니다.
+API_KEY = (
+    os.environ.get("SEOUL_API_KEY", "").strip()
+    or LOCAL_API_KEY.strip()
+)
+
+VALID = {
+    "여유",
+    "보통",
+    "약간 붐빔",
+    "붐빔"
+}
+
+
+# ======================================
+# 2. XML 데이터 처리
+# ======================================
 
 def value(node, tag):
-    element = node.find(".//" + tag) if node is not None else None
-    return (element.text or "").strip() if element is not None else ""
+    found = (
+        node.find(".//" + tag)
+        if node is not None
+        else None
+    )
+
+    return (
+        (found.text or "").strip()
+        if found is not None
+        else ""
+    )
 
 
-def as_number(text, decimal=False):
+def number(value_text, decimal=False):
     try:
-        return float(text) if decimal else int(text.replace(",", ""))
-    except (TypeError, ValueError):
+        if decimal:
+            return float(value_text)
+
+        return int(value_text.replace(",", ""))
+
+    except (ValueError, TypeError):
         return None
 
 
+# ======================================
+# 3. 서울시 API에서 장소별 정보 조회
+# ======================================
+
 def fetch_place(code):
-    data = {
+
+    result = {
         "code": code,
         "official": "정보 없음",
         "minimum": None,
@@ -45,122 +94,233 @@ def fetch_place(code):
         "error": None
     }
 
-    if not API_KEY:
-        data["error"] = "서버 환경변수 SEOUL_API_KEY가 설정되지 않았습니다."
-        return data
-
-    with LOCK:
-        old = CACHE.get(code)
-
-    if old and time.time() - old[0] < 300:
-        return old[1]
-
     url = (
         "http://openapi.seoul.go.kr:8088/"
-        + quote(API_KEY, safe="")
+        + urllib.parse.quote(API_KEY, safe="")
         + "/xml/citydata/1/5/"
         + code
     )
 
-    try:
-        request = Request(
-            url,
-            headers={"User-Agent": "CrowdLess/1.0"}
-        )
+    for attempt in range(2):
 
-        with urlopen(request, timeout=15) as response:
-            root = ET.fromstring(response.read(3_000_000))
-
-        people = root.find(".//LIVE_PPLTN_STTS")
-        weather = root.find(".//WEATHER_STTS")
-
-        data.update(
-            official=value(people, "AREA_CONGEST_LVL") or "정보 없음",
-            minimum=as_number(value(people, "AREA_PPLTN_MIN")),
-            maximum=as_number(value(people, "AREA_PPLTN_MAX")),
-            time=value(people, "PPLTN_TIME") or None,
-            message=value(people, "AREA_CONGEST_MSG") or None,
-            temperature=as_number(value(weather, "TEMP"), True),
-            pm25=as_number(value(weather, "PM25"), True),
-        )
-
-        if data["official"] == "정보 없음":
-            data["error"] = (
-                value(root, "MESSAGE")
-                or "혼잡도 응답이 없습니다."
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={
+                    "User-Agent": "CrowdLess-GitHubActions/1.0"
+                }
             )
 
-    except Exception as exc:
-        data["error"] = (
-            "서울시 API 호출 실패: "
-            + type(exc).__name__
-        )
+            with urllib.request.urlopen(
+                req,
+                timeout=22
+            ) as response:
 
-    with LOCK:
-        CACHE[code] = (time.time(), data)
+                root = ET.fromstring(
+                    response.read(2_500_000)
+                )
 
-    return data
+            people = root.find(
+                ".//LIVE_PPLTN_STTS"
+            )
 
+            weather = root.find(
+                ".//WEATHER_STTS"
+            )
 
-class Handler(SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            *args,
-            directory=str(HOME),
-            **kwargs
-        )
+            result.update({
 
-    def do_GET(self):
-        uri = urlparse(self.path)
+                "official":
+                    value(
+                        people,
+                        "AREA_CONGEST_LVL"
+                    ) or "정보 없음",
 
-        if uri.path == "/api/health":
-            return self.send_json({
-                "configured": bool(API_KEY)
+                "minimum":
+                    number(
+                        value(
+                            people,
+                            "AREA_PPLTN_MIN"
+                        )
+                    ),
+
+                "maximum":
+                    number(
+                        value(
+                            people,
+                            "AREA_PPLTN_MAX"
+                        )
+                    ),
+
+                "time":
+                    value(
+                        people,
+                        "PPLTN_TIME"
+                    ) or None,
+
+                "message":
+                    value(
+                        people,
+                        "AREA_CONGEST_MSG"
+                    ) or None,
+
+                "temperature":
+                    number(
+                        value(
+                            weather,
+                            "TEMP"
+                        ),
+                        True
+                    ),
+
+                "pm25":
+                    number(
+                        value(
+                            weather,
+                            "PM25"
+                        ),
+                        True
+                    )
             })
 
-        if uri.path != "/api/places":
-            return super().do_GET()
+            if result["official"] not in VALID:
 
-        params = parse_qs(uri.query)
-        wanted = params.get("codes", [""])[0].split(",")
+                result["error"] = (
+                    value(root, "MESSAGE")
+                    or value(root, "CODE")
+                    or "공식 혼잡도 없음"
+                )
 
-        codes = list(dict.fromkeys(
-            c for c in wanted
-            if re.fullmatch(r"POI\d{3}", c)
-        ))[:8]
+            return result
 
-        with ThreadPoolExecutor(max_workers=4) as pool:
-            places = list(pool.map(fetch_place, codes))
+        except (
+            urllib.error.URLError,
+            TimeoutError,
+            ET.ParseError,
+            ValueError
+        ) as exc:
 
-        self.send_json({
-            "configured": bool(API_KEY),
-            "places": places
-        })
+            result["error"] = type(exc).__name__
 
-    def send_json(self, obj):
-        body = json.dumps(
-            obj,
-            ensure_ascii=False
-        ).encode("utf-8")
+            if attempt == 0:
+                time.sleep(1)
 
-        self.send_response(200)
-        self.send_header(
-            "Content-Type",
-            "application/json; charset=utf-8"
+    return result
+
+
+# ======================================
+# 4. 121개 장소 데이터 수집
+# ======================================
+
+def main():
+
+    if not API_KEY:
+        raise SystemExit(
+            "서울시 인증키가 없습니다. "
+            "GitHub Secret SEOUL_API_KEY 또는 "
+            "LOCAL_API_KEY를 설정하세요."
         )
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+
+    html = (
+        ROOT / "index.html"
+    ).read_text(
+        encoding="utf-8"
+    )
+
+    # HTML 파일에 있는 장소 코드를 추출합니다.
+    codes = list(
+        dict.fromkeys(
+            re.findall(
+                r"(POI\d{3})\|",
+                html
+            )
+        )
+    )
+
+    if len(codes) != 121:
+        raise SystemExit(
+            f"장소 목록 오류: "
+            f"121개여야 하는데 "
+            f"{len(codes)}개입니다."
+        )
+
+    # API 요청을 병렬로 실행합니다.
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=4
+    ) as executor:
+
+        places = list(
+            executor.map(
+                fetch_place,
+                codes
+            )
+        )
+
+    ok = sum(
+        p["official"] in VALID
+        for p in places
+    )
+
+    print(
+        "서울시 조회 완료:",
+        ok,
+        "/",
+        len(places)
+    )
+
+    # 모든 API 요청이 실패했다면 배포하지 않습니다.
+    if ok == 0:
+
+        print(
+            "응답 확인:",
+            [
+                (p["code"], p["error"])
+                for p in places[:5]
+            ]
+        )
+
+        raise SystemExit(
+            "유효한 혼잡도가 0건입니다. "
+            "API 키나 서울시 응답을 확인하세요."
+        )
+
+    # ==================================
+    # 5. JSON 파일 저장
+    # ==================================
+
+    output = (
+        ROOT / "data" / "crowd.json"
+    )
+
+    output.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    result = {
+        "generated_at":
+            datetime.now(
+                timezone.utc
+            ).isoformat(),
+
+        "success_count": ok,
+
+        "places": places
+    }
+
+    output.write_text(
+        json.dumps(
+            result,
+            ensure_ascii=False
+        ),
+        encoding="utf-8"
+    )
+
+    print(
+        "저장 완료:",
+        output
+    )
 
 
 if __name__ == "__main__":
-    print(
-        f"CrowdLess http://localhost:{PORT} "
-        f"| 인증키 설정: {bool(API_KEY)}"
-    )
-
-    ThreadingHTTPServer(
-        ("0.0.0.0", PORT),
-        Handler
-    ).serve_forever()
+    main()
