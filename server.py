@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parent
 
 # 여기에 서울시 API 인증키를 입력할 수 있습니다.
 # 공개 GitHub 저장소에서는 키가 노출됩니다.
-LOCAL_API_KEY = "545475756174616937386c4f487350"
+LOCAL_API_KEY = "576e6d5569746169363866564c445a "
 
 # GitHub Secrets에 등록된 키를 우선 사용합니다.
 API_KEY = (
