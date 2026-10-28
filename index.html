@@ -1,9 +1,9 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CrowdLess | 서울 혼잡도 지도</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
@@ -54,72 +54,69 @@ main{max-width:1330px;margin:-28px auto 0;padding:0 16px 50px;position:relative}
 .levels span{font-size:12px;color:#6e8177}
 .foot{color:#6f867b;font-size:12px;margin:22px 0;line-height:1.8}
 @media(max-width:850px){
-  .layout{grid-template-columns:1fr}
-  #map{height:420px}
-  .list{height:330px}
-  .facts{grid-template-columns:repeat(2,1fr)}
+.layout{grid-template-columns:1fr}
+#map{height:420px}
+.list{height:330px}
+.facts{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:550px){
-  .cards{grid-template-columns:repeat(2,1fr)}
-  .tools input{flex-basis:100%}
-  .hero{padding:33px 20px 60px}
-  .head{flex-wrap:wrap}
+.cards{grid-template-columns:repeat(2,1fr)}
+.tools input{flex-basis:100%}
+.hero{padding:33px 20px 60px}
+.head{flex-wrap:wrap}
 }
 </style>
 </head>
 <body>
 <header>
-  <div class="logo"><i>✦</i> CrowdLess</div>
-  <span class="subtitle">서울시 실시간 도시데이터 API</span>
+<div class="logo"><i>✦</i> CrowdLess</div>
+<span class="subtitle">서울시 실시간 도시데이터 API</span>
 </header>
 <section class="hero">
-  <h1>붐비는 서울 속,<br>나만의 여유를 찾다.</h1>
-  <p>서울시 주요 121곳의 인구 혼잡도를 지도에서 확인하세요.<br>사람이 덜 모인 장소와 날씨를 비교할 수 있어요.</p>
+<h1>붐비는 서울 속,<br>나만의 여유를 찾다.</h1>
+<p>서울시 주요 121곳의 인구 혼잡도를 지도에서 확인하세요.<br>혼잡도는 GitHub Actions에서 수집한 최신 자료를 사용합니다.</p>
 </section>
 <main>
 <div class="tools">
-  <input id="search" type="search" placeholder="장소 검색: 강남, 홍대, 서울숲..." aria-label="장소 검색">
-  <select id="kind" aria-label="장소 유형">
-    <option value="">모든 유형</option>
-    <option>관광특구</option>
-    <option>고궁·문화유산</option>
-    <option>인구밀집지역</option>
-    <option>발달상권</option>
-    <option>공원</option>
-  </select>
-  <select id="sort" aria-label="정렬">
-    <option value="name">이름순</option>
-    <option value="quiet">덜 붐비는 순</option>
-    <option value="busy">많이 붐비는 순</option>
-  </select>
-  <button id="refresh">↻ 실시간 새로고침</button>
+<input id="search" type="search" placeholder="장소 검색: 강남, 홍대, 서울숲..." aria-label="장소 검색">
+<select id="kind" aria-label="장소 유형">
+<option value="">모든 유형</option>
+<option>관광특구</option>
+<option>고궁·문화유산</option>
+<option>인구밀집지역</option>
+<option>발달상권</option>
+<option>공원</option>
+</select>
+<select id="sort" aria-label="정렬">
+<option value="name">이름순</option>
+<option value="quiet">덜 붐비는 순</option>
+<option value="busy">많이 붐비는 순</option>
+</select>
+<button id="refresh">↻ 최신 데이터 확인</button>
 </div>
-
 <div class="cards">
-  <div class="card"><small>전체 장소</small><strong id="all">121</strong></div>
-  <div class="card"><small>현재 검색 결과</small><strong id="found">121</strong></div>
-  <div class="card"><small>실시간 조회 완료</small><strong id="loaded">0</strong></div>
-  <div class="card"><small>공식 '여유' 장소</small><strong id="quiet">0</strong></div>
+<div class="card"><small>전체 장소</small><strong id="all">121</strong></div>
+<div class="card"><small>현재 검색 결과</small><strong id="found">121</strong></div>
+<div class="card"><small>혼잡도 확인 완료</small><strong id="loaded">0</strong></div>
+<div class="card"><small>공식 '여유' 장소</small><strong id="quiet">0</strong></div>
 </div>
-
-<div class="notice" id="notice">장소 목록과 지도는 표시되지만, 혼잡도는 서울시 API 연결 후에 표시됩니다.</div>
+<div class="notice" id="notice">최신 혼잡도 자료를 불러오는 중입니다.</div>
 <div class="levels" id="legend"></div>
-
 <div class="layout">
-  <section class="panel">
-    <div class="head"><h2>서울 혼잡도 지도</h2><small id="mapCount">121개 위치</small></div>
-    <div id="map"></div>
-  </section>
-  <section class="panel">
-    <div class="head"><h2>장소 목록</h2><small>이름을 누르면 상세정보 표시</small></div>
-    <div class="list" id="list"></div>
-  </section>
+<section class="panel">
+<div class="head"><h2>서울 혼잡도 지도</h2><small id="mapCount">121개 위치</small></div>
+<div id="map"></div>
+</section>
+<section class="panel">
+<div class="head"><h2>장소 목록</h2><small>이름을 누르면 상세정보 표시</small></div>
+<div class="list" id="list"></div>
+</section>
 </div>
 <section class="detail" id="detail"></section>
 <p class="foot">
-출처: 서울특별시 실시간 도시데이터 API · 위치 핀은 장소별 대략적인 중심 지점입니다.
-혼잡도는 해당 지역의 추정 인구를 기반으로 하며 보행자만 집계한 수치가 아닙니다.
-'매우 붐빔'은 CrowdLess가 공식 '붐빔' 등급과 공식 설명 문구를 근거로 별도 표시하는 참고 등급입니다.
+출처: 서울특별시 실시간 도시데이터 API · 위치 핀은 대략적인 중심 지점입니다.
+혼잡도는 GitHub Actions 수집 시점 기준이며 초 단위 실시간 값이 아닙니다.
+'매우 붐빔'은 공식 혼잡도 설명을 근거로 추가한 참고 등급입니다.
 </p>
 </main>
 
@@ -248,117 +245,207 @@ POI123|보라매공원|4|37.4924|126.9198
 POI125|안양천|4|37.5175|126.868
 POI126|여의서로|4|37.5276|126.9258`;
 
-const typeNames = ["관광특구","고궁·문화유산","인구밀집지역","발달상권","공원"];
-const colors = ["#26b68a","#64a0de","#e6ba49","#ed8f52","#d12f62"];
-const labels = ["여유","보통","약간 붐빔","붐빔","매우 붐빔"];
-const places = raw.trim().split("\n").map(line => {
-  const [code,name,t,lat,lng] = line.split("|");
-  return {code,name,kind:typeNames[Number(t)],lat:Number(lat),lng:Number(lng),official:"정보 없음",minimum:null,maximum:null,temperature:null,pm25:null,time:null,message:null,error:null};
-});
-const byCode = new Map(places.map(p => [p.code,p]));
-const $ = id => document.getElementById(id);
-let selected = "POI014";
-let map, pins, inProgress = false, successes = 0, processed = 0;
+const typeNames=["관광특구","고궁·문화유산","인구밀집지역","발달상권","공원"];
+const colors=["#26b68a","#64a0de","#e6ba49","#ed8f52","#d12f62"];
+const labels=["여유","보통","약간 붐빔","붐빔","매우 붐빔"];
 
-function level(p) {
-  // 서울시 공식 분류 4개 + 공식 설명에 '매우 혼잡' 등이 포함될 경우 추가 단계
-  if(p.official === "붐빔" && /매우\s*(붐|혼잡)|극심한\s*혼잡/.test(p.message || "")) return 4;
+const places=raw.trim().split("\n").map(line=>{
+  const [code,name,t,lat,lng]=line.split("|");
+  return {
+    code,name,kind:typeNames[Number(t)],
+    lat:Number(lat),lng:Number(lng),
+    official:"정보 없음",minimum:null,maximum:null,
+    temperature:null,pm25:null,time:null,
+    message:null,error:null
+  };
+});
+
+const byCode=new Map(places.map(p=>[p.code,p]));
+const $=id=>document.getElementById(id);
+
+let selected="POI014";
+let map,pins,inProgress=false;
+
+function level(p){
+  if(p.official==="붐빔" &&
+     /매우\s*(붐|혼잡)|극심한\s*혼잡/.test(p.message||""))
+    return 4;
   return ["여유","보통","약간 붐빔","붐빔"].indexOf(p.official);
 }
-function levelText(p) { const i=level(p); return i<0?"정보 없음":labels[i]; }
-function bg(p) {const i=level(p);return i<0?"#9daaa5":colors[i];}
-function escapeHtml(s) {return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
-function people(p) {return p.minimum==null||p.maximum==null?"정보 없음":p.minimum.toLocaleString("ko-KR")+" ~ "+p.maximum.toLocaleString("ko-KR")+"명";}
-function badge(p) {const i=level(p);return `<span class="badge" style="background:${i<0?"#eef1ef":colors[i]+"22"};color:${i<0?"#788880":colors[i]}">${levelText(p)}</span>`;}
-function subset() {
+
+function levelText(p){
+  const i=level(p);
+  return i<0?"정보 없음":labels[i];
+}
+
+function bg(p){
+  const i=level(p);
+  return i<0?"#9daaa5":colors[i];
+}
+
+function escapeHtml(s){
+  return String(s??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    "\"":"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function people(p){
+  return p.minimum==null||p.maximum==null
+    ?"정보 없음"
+    :p.minimum.toLocaleString("ko-KR")+" ~ "+
+     p.maximum.toLocaleString("ko-KR")+"명";
+}
+
+function badge(p){
+  const i=level(p);
+  return `<span class="badge" style="background:${i<0?"#eef1ef":colors[i]+"22"};color:${i<0?"#788880":colors[i]}">${escapeHtml(levelText(p))}</span>`;
+}
+
+function subset(){
   const q=$("search").value.trim().toLocaleLowerCase("ko");
-  const k=$("kind").value, order=$("sort").value;
-  const items=places.filter(p=>(!k||p.kind===k) && (p.name.toLocaleLowerCase("ko").includes(q)||p.code.toLowerCase().includes(q)||p.kind.includes(q)));
-  if(order==="name") items.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
-  else items.sort((a,b)=>{
-    const x=level(a)<0?99:(order==="quiet"?level(a):-level(a));
-    const y=level(b)<0?99:(order==="quiet"?level(b):-level(b));
-    return x-y||a.name.localeCompare(b.name,"ko");
-  });
+  const k=$("kind").value;
+  const order=$("sort").value;
+
+  const items=places.filter(p=>
+    (!k||p.kind===k) &&
+    (p.name.toLocaleLowerCase("ko").includes(q) ||
+     p.code.toLowerCase().includes(q) ||
+     p.kind.includes(q))
+  );
+
+  if(order==="name")
+    items.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+  else
+    items.sort((a,b)=>{
+      const x=level(a)<0?99:(order==="quiet"?level(a):-level(a));
+      const y=level(b)<0?99:(order==="quiet"?level(b):-level(b));
+      return x-y||a.name.localeCompare(b.name,"ko");
+    });
   return items;
 }
-function redraw() {
+
+function redraw(){
   const items=subset();
   $("found").textContent=items.length;
   $("loaded").textContent=places.filter(p=>level(p)>=0).length;
   $("quiet").textContent=places.filter(p=>p.official==="여유").length;
-  $("list").innerHTML=items.length?items.map(p=>`<button class="item ${p.code===selected?"active":""}" data-code="${p.code}"><span><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.kind)} · ${p.code}</small></span>${badge(p)}</button>`).join(""):'<p style="padding:20px;color:#6b8175">검색 결과 없음</p>';
-  $("list").querySelectorAll("[data-code]").forEach(b=>b.onclick=()=>choose(b.dataset.code));
-  if(items.length && !items.some(p=>p.code===selected)) selected=items[0].code;
+
+  $("list").innerHTML=items.length
+    ?items.map(p=>`<button class="item ${p.code===selected?"active":""}" data-code="${p.code}"><span><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.kind)} · ${p.code}</small></span>${badge(p)}</button>`).join("")
+    :'<p style="padding:20px;color:#6b8175">검색 결과 없음</p>';
+
+  $("list").querySelectorAll("[data-code]").forEach(
+    b=>b.onclick=()=>choose(b.dataset.code)
+  );
+
+  if(items.length&&!items.some(p=>p.code===selected))
+    selected=items[0].code;
+
   const p=items.find(p=>p.code===selected);
-  $("detail").innerHTML=p?`<small>${escapeHtml(p.kind)} · ${p.code}</small><h2>${escapeHtml(p.name)} ${badge(p)}</h2>
-    <div class="facts"><div class="fact"><small>공식 혼잡도</small><strong>${escapeHtml(p.official)}</strong></div>
-    <div class="fact"><small>추정 인구</small><strong>${people(p)}</strong></div>
-    <div class="fact"><small>기온</small><strong>${p.temperature==null?"정보 없음":p.temperature+"°C"}</strong></div>
-    <div class="fact"><small>초미세먼지 PM2.5</small><strong>${p.pm25==null?"정보 없음":p.pm25+"㎍/㎥"}</strong></div></div>
-    <p>관측 시각: ${escapeHtml(p.time||"정보 없음")}</p><p>${escapeHtml(p.message || p.error || "서울시 실시간 자료를 조회하고 있습니다.")}</p>`:'<h2>검색 결과 없음</h2><p>다른 검색어를 입력해 주세요.</p>';
-  if(pins) {
+
+  $("detail").innerHTML=p
+    ?`<small>${escapeHtml(p.kind)} · ${p.code}</small>
+      <h2>${escapeHtml(p.name)} ${badge(p)}</h2>
+      <div class="facts">
+        <div class="fact"><small>공식 혼잡도</small><strong>${escapeHtml(p.official)}</strong></div>
+        <div class="fact"><small>추정 인구</small><strong>${people(p)}</strong></div>
+        <div class="fact"><small>기온</small><strong>${p.temperature==null?"정보 없음":p.temperature+"°C"}</strong></div>
+        <div class="fact"><small>초미세먼지 PM2.5</small><strong>${p.pm25==null?"정보 없음":p.pm25+"㎍/㎥"}</strong></div>
+      </div>
+      <p>관측 시각: ${escapeHtml(p.time||"정보 없음")}</p>
+      <p>${escapeHtml(p.message||p.error||"해당 장소의 혼잡도 자료가 없습니다.")}</p>`
+    :'<h2>검색 결과 없음</h2>';
+
+  if(pins){
     pins.clearLayers();
     items.forEach(p=>{
-      const pin=L.circleMarker([p.lat,p.lng],{radius:p.code===selected?10:7,color:"#fff",weight:2,fillColor:bg(p),fillOpacity:1});
+      const pin=L.circleMarker([p.lat,p.lng],{
+        radius:p.code===selected?10:7,
+        color:"#fff",weight:2,
+        fillColor:bg(p),fillOpacity:1
+      });
       pin.bindTooltip(`${escapeHtml(p.name)} · ${levelText(p)}`);
-      pin.on("click",()=>choose(p.code));pin.addTo(pins);
+      pin.on("click",()=>choose(p.code));
+      pin.addTo(pins);
     });
   }
   $("mapCount").textContent=items.length+"개 위치";
 }
-function choose(code) {
-  selected=code;redraw();
+
+function choose(code){
+  selected=code;
+  redraw();
   const p=byCode.get(code);
-  if(map && p) map.flyTo([p.lat,p.lng],13,{duration:.45});
+  if(map&&p)map.flyTo([p.lat,p.lng],13,{duration:.45});
 }
-function notice(s) { $("notice").textContent=s; }
-async function fetchBatch(codes) {
-  const response=await fetch("/api/places?codes="+codes.join(","),{cache:"no-store"});
-  if(!response.ok) throw new Error("서버 응답 오류: "+response.status);
-  const data=await response.json();
-  if(!data.configured) throw new Error("서버에 SEOUL_API_KEY가 없습니다.");
-  if(!Array.isArray(data.places)) throw new Error("서버 JSON 응답을 확인해 주세요.");
-  data.places.forEach(info=>{
-    const p=byCode.get(info.code);
-    if(p) Object.assign(p,info);
-  });
-  processed += codes.length;
-  successes=places.filter(p=>level(p)>=0).length;
-  notice(`조회 중: ${processed}/121곳 · 혼잡도 확인 ${successes}곳 · 미확인 ${processed-successes}곳`);
-  redraw();
-}
-async function refresh() {
+
+async function refresh(){
   if(inProgress)return;
-  if(location.protocol==="file:") {notice("index.html을 직접 열면 실시간 데이터를 불러올 수 없습니다. Python 서버에서 실행해 주세요.");return;}
-  inProgress=true;$("refresh").disabled=true;processed=0;successes=0;
-  places.forEach(p=>{p.official="정보 없음";p.minimum=null;p.maximum=null;p.temperature=null;p.pm25=null;p.time=null;p.message=null;p.error=null;});
-  redraw();notice("서울시 API에서 121개 장소를 조회하고 있습니다...");
-  const batches=[];
-  for(let i=0;i<places.length;i+=8) batches.push(places.slice(i,i+8).map(p=>p.code));
-  let cursor=0, fail=null;
-  async function worker() {
-    while(cursor<batches.length && !fail) {
-      const batch=batches[cursor++];
-      try {await fetchBatch(batch);} catch(err) {fail=err;}
+  inProgress=true;
+  $("refresh").disabled=true;
+  $("notice").textContent="GitHub에서 수집한 데이터를 확인하고 있어요...";
+
+  try{
+    const response=await fetch(
+      "./data/crowd.json?t="+Date.now(),
+      {cache:"no-store"}
+    );
+    if(!response.ok)
+      throw Error("데이터 파일 없음 (HTTP "+response.status+")");
+
+    const data=await response.json();
+    if(!Array.isArray(data.places))
+      throw Error("데이터 형식 오류");
+
+    for(const info of data.places){
+      const p=byCode.get(info.code);
+      if(p)Object.assign(p,info);
     }
+
+    const count=places.filter(p=>level(p)>=0).length;
+    const ts=data.generated_at
+      ?new Date(data.generated_at).toLocaleString("ko-KR",{
+        timeZone:"Asia/Seoul"
+      })
+      :"알 수 없음";
+
+    $("notice").textContent=
+      `최근 수집: ${ts} (한국시간) · 혼잡도 확인 ${count}/121곳. GitHub Actions가 약 10분 간격으로 수집하며 지연될 수 있습니다.`;
+
+  }catch(err){
+    $("notice").textContent=
+      "혼잡도 파일을 불러오지 못했습니다: "+
+      err.message+
+      ". GitHub Actions의 마지막 실행 결과와 Pages 배포 설정을 확인하세요.";
+  }finally{
+    inProgress=false;
+    $("refresh").disabled=false;
+    redraw();
   }
-  await Promise.all([worker(),worker(),worker()]);
-  if(fail) notice("실시간 조회 오류: "+fail.message+" (확인된 장소: "+successes+"곳)");
-  else notice("조회 완료: "+successes+"/121개 장소 혼잡도 확인. 회색 핀은 데이터 미확인 장소입니다.");
-  inProgress=false;$("refresh").disabled=false;
-  redraw();
 }
-$("legend").innerHTML=[...labels,"정보 없음"].map((v,i)=>`<span><i class="dot" style="background:${i===5?"#9daaa5":colors[i]}"></i>${v}</span>`).join("");
+
+$("legend").innerHTML=[...labels,"정보 없음"].map(
+  (v,i)=>`<span><i class="dot" style="background:${i===5?"#9daaa5":colors[i]}"></i>${v}</span>`
+).join("");
+
 $("search").addEventListener("input",redraw);
 $("kind").addEventListener("change",redraw);
 $("sort").addEventListener("change",redraw);
 $("refresh").addEventListener("click",refresh);
-if(typeof L!=="undefined") {
+
+if(typeof L!=="undefined"){
   map=L.map("map",{scrollWheelZoom:false}).setView([37.55,126.99],11);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(map);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+    attribution:'© OpenStreetMap contributors',
+    maxZoom:18
+  }).addTo(map);
   pins=L.layerGroup().addTo(map);
-} else {$("map").innerHTML='<p style="padding:30px">지도 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.</p>';}
+}else{
+  $("map").innerHTML=
+    '<p style="padding:30px">지도 라이브러리를 불러오지 못했습니다.</p>';
+}
+
 redraw();
 refresh();
 </script>
