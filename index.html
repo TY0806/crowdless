@@ -1,128 +1,1214 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CrowdLess | 서울 혼잡도 지도</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#233c35">
+<title>CrowdLess | 경성 전차 안내소</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
 <style>
-:root{--green:#177b65;--dark:#173d33;--line:#e2eae5;--bg:#f4f8f5;--muted:#71877c}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--dark);font-family:system-ui,"Malgun Gothic",sans-serif}
-button,input,select{font:inherit}
-button{cursor:pointer}
-header{background:white;border-bottom:1px solid var(--line);padding:17px max(18px,calc((100vw - 1330px)/2));display:flex;align-items:center;justify-content:space-between;gap:10px}
-.logo{font-size:26px;font-weight:900;letter-spacing:-1px}
-.logo i{background:#1ba784;color:white;padding:4px 10px;border-radius:10px;font-style:normal}
-.subtitle{color:var(--muted);font-size:12px}
-.hero{background:linear-gradient(115deg,#123d32,#21715a);color:white;padding:38px max(18px,calc((100vw - 1330px)/2)) 68px}
-.hero h1{font-size:clamp(27px,4vw,44px);margin:0 0 12px;line-height:1.35}
-.hero p{color:#d2ede2;line-height:1.8;font-size:14px}
-main{max-width:1330px;margin:-28px auto 0;padding:0 16px 50px;position:relative}
-.tools{display:flex;flex-wrap:wrap;gap:9px;background:white;border-radius:18px;padding:15px;box-shadow:0 10px 30px #174b3112}
-.tools input{flex:1;min-width:210px}
-.tools input,.tools select,.tools button{border:1px solid var(--line);background:#fff;padding:12px 13px;border-radius:12px;min-height:45px}
-.tools button{background:var(--green);color:white;font-weight:800}
-.tools button:disabled{opacity:.6}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:17px 0}
-.card{padding:18px;border:1px solid var(--line);background:white;border-radius:15px}
-.card small{color:var(--muted);display:block}
-.card strong{display:block;font-size:25px;margin-top:7px}
-.notice{border:1px solid #dfd5a2;background:#fff8e5;color:#80672a;padding:12px 15px;border-radius:12px;font-size:13px;margin:15px 0;line-height:1.7}
-.layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,.8fr);gap:16px}
-.panel{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden}
-.panel h2{font-size:17px;margin:0}
-.head{padding:17px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.head small{color:var(--muted);font-size:12px}
-#map{height:550px;background:#e9efea}
-.list{height:550px;overflow:auto;padding:0 12px 12px}
-.item{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:7px;padding:13px;border:1px solid var(--line);border-radius:12px;background:white;margin-bottom:8px}
-.item:hover,.item.active{background:#f0faf4;border-color:#94c8b4}
-.item b{display:block;font-size:13px}
-.item small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
-.badge{white-space:nowrap;border-radius:30px;padding:6px 9px;font-size:11px;font-weight:800;background:#eef1ef;color:#75877e}
-.detail{margin-top:16px;padding:23px;border:1px solid var(--line);background:white;border-radius:17px}
-.detail h2{margin:8px 0 13px;font-size:25px}
-.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
-.fact{background:#f6f9f7;border-radius:12px;padding:15px}
-.fact small{color:var(--muted);font-size:12px}
-.fact strong{display:block;font-size:17px;margin-top:8px}
-.detail p{font-size:13px;color:var(--muted);line-height:1.75}
-.levels{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
-.levels span{font-size:12px;color:#6e8177}
-.foot{color:#6f867b;font-size:12px;margin:22px 0;line-height:1.8}
-@media(max-width:850px){
-.layout{grid-template-columns:1fr}
-#map{height:420px}
-.list{height:330px}
-.facts{grid-template-columns:repeat(2,1fr)}
+:root {
+  --paper: #f3ebd8;
+  --cream: #fffaf0;
+  --ink: #292d28;
+  --forest: #233c35;
+  --forest2: #35594c;
+  --red: #883b32;
+  --brass: #aa8248;
+  --line: #cbbd9f;
+  --muted: #6c6b5d;
+  --shadow: 0 12px 30px rgba(51,43,27,.10);
 }
-@media(max-width:550px){
-.cards{grid-template-columns:repeat(2,1fr)}
-.tools input{flex-basis:100%}
-.hero{padding:33px 20px 60px}
-.head{flex-wrap:wrap}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Noto Sans KR", sans-serif;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(161,122,63,.12),
+      transparent 35%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 5px,
+      rgba(91,77,51,.017) 5px 6px
+    ),
+    var(--paper);
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #bd854e;
+  outline-offset: 2px;
+}
+
+a {
+  color: inherit;
+}
+
+.serif {
+  font-family: "Gowun Batang", Georgia, serif;
+}
+
+/* 상단 안내 띠 */
+
+.topbar {
+  background: #182c27;
+  color: #ecdfc4;
+  border-bottom: 3px double #b28c50;
+}
+
+.topbar-inner {
+  max-width: 1240px;
+  margin: auto;
+  padding: 9px 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+.topbar b {
+  font-weight: 600;
+}
+
+/* 안내소 로고 */
+
+.masthead {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 25px 22px 19px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.seal {
+  height: 62px;
+  width: 62px;
+  border: 3px double var(--brass);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--forest);
+  font: 700 25px Georgia, serif;
+  transform: rotate(-7deg);
+  background: #eee1c2;
+  box-shadow: inset 0 0 0 4px var(--paper);
+}
+
+.eyebrow {
+  font: 700 11px Georgia, serif;
+  letter-spacing: .24em;
+  color: var(--red);
+}
+
+.brand h1 {
+  margin: 3px 0 2px;
+  font-family: "Gowun Batang", serif;
+  font-size: clamp(25px, 3.5vw, 38px);
+  font-weight: 700;
+  letter-spacing: -.05em;
+  line-height: 1.2;
+}
+
+.brand p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .06em;
+}
+
+.issue {
+  border: 1px solid var(--brass);
+  padding: 10px 15px;
+  text-align: center;
+  min-width: 130px;
+  color: var(--forest);
+  background: rgba(255,250,240,.65);
+}
+
+.issue small {
+  font-size: 10px;
+  display: block;
+  letter-spacing: .13em;
+}
+
+.issue strong {
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+
+.wrap {
+  max-width: 1240px;
+  margin: auto;
+  padding: 0 22px 46px;
+}
+
+/* 경성 전차 포스터 */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  min-height: 265px;
+  background: var(--forest);
+  color: #f7ecd3;
+  margin-top: 23px;
+  overflow: hidden;
+  position: relative;
+  border: 6px solid #e6d9bb;
+  outline: 1px solid #9d885f;
+  box-shadow: var(--shadow);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(223,199,144,.26);
+  pointer-events: none;
+}
+
+.hero-copy {
+  padding: 35px 38px;
+  z-index: 1;
+}
+
+.kicker {
+  display: inline-block;
+  font: 700 11px Georgia, serif;
+  letter-spacing: .25em;
+  color: #dbbb83;
+  border-bottom: 1px solid #bda170;
+  padding-bottom: 8px;
+}
+
+.hero h2 {
+  font-family: "Gowun Batang", serif;
+  font-size: clamp(29px,4.2vw,52px);
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 14px 0 12px;
+  letter-spacing: -.07em;
+}
+
+.hero p {
+  font-size: 12px;
+  line-height: 1.95;
+  color: #e2dcc7;
+  max-width: 550px;
+  margin: 0;
+}
+
+.hero-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 24px 20px;
+  background: radial-gradient(
+    circle at 55% 40%,
+    #59705a 0%,
+    #334b40 58%,
+    transparent 70%
+  );
+}
+
+.hero-art svg {
+  width: min(100%,340px);
+  height: auto;
+  filter: drop-shadow(0 15px 0 rgba(0,0,0,.12));
+}
+
+.art-caption {
+  font: 700 10px Georgia, serif;
+  letter-spacing: .26em;
+  color: #d5b984;
+  text-align: center;
+  margin-top: -4px;
+}
+
+/* 장식 제목 */
+
+.ribbon {
+  margin: 18px 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: var(--red);
+  font: 700 12px "Gowun Batang", serif;
+}
+
+.ribbon::before,
+.ribbon::after {
+  content: "";
+  height: 1px;
+  background: var(--line);
+  flex: 1;
+}
+
+/* 검색 및 필터 */
+
+.toolbar {
+  border: 1px solid var(--line);
+  background: var(--cream);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  display: grid;
+  grid-template-columns:
+    minmax(220px,2fr)
+    repeat(2,minmax(135px,1fr))
+    auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 7px;
+  letter-spacing: .03em;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 45px;
+  padding: 10px 13px;
+  border: 1px solid #bbaa8a;
+  border-radius: 0;
+  background: #fffdf6;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+#refresh {
+  min-height: 45px;
+  padding: 10px 17px;
+  border: 1px solid #1c312b;
+  background: var(--forest);
+  color: #fff5dc;
+  font-weight: 700;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+
+#refresh:hover {
+  background: var(--forest2);
+}
+
+#refresh:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+/* 관측 현황 카드 */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stat {
+  position: relative;
+  background: #e9dbc0;
+  border: 1px solid #c7b48d;
+  padding: 17px 19px 15px;
+  min-height: 111px;
+  overflow: hidden;
+}
+
+.stat::after {
+  content: "";
+  position: absolute;
+  right: -17px;
+  top: -17px;
+  width: 75px;
+  height: 75px;
+  border: 2px solid rgba(151,112,63,.17);
+  border-radius: 50%;
+}
+
+.stat small {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #665a45;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 5px;
+  font: 700 37px Georgia, "Gowun Batang", serif;
+  color: var(--forest);
+  line-height: 1.2;
+}
+
+.stat span {
+  display: block;
+  font-size: 10px;
+  color: #897652;
+  margin-top: 4px;
+}
+
+/* 관측 상황 안내 */
+
+.notice {
+  border-left: 5px solid var(--red);
+  background: #fff8e9;
+  padding: 13px 17px;
+  margin: 17px 0;
+  line-height: 1.8;
+  font-size: 12px;
+  color: #5b5547;
+  box-shadow: 0 2px 10px rgba(50,45,25,.05);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  margin: 26px 0 12px;
+}
+
+.section-head h3 {
+  margin: 0;
+  font: 700 24px "Gowun Batang", serif;
+  color: var(--forest);
+}
+
+.section-head small {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* 혼잡도 범례 */
+
+.legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0 0 13px;
+}
+
+.legend span {
+  font-size: 11px;
+  color: #5c594a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid #fff7e6;
+  box-shadow: 0 0 0 1px #ac9c78;
+}
+
+/* 지도와 장소 목록 */
+
+.layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0,1.45fr)
+    minmax(300px,.83fr);
+  gap: 15px;
+}
+
+.panel {
+  background: #fff9ec;
+  border: 1px solid #b9a781;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+
+.panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--forest);
+  color: #f2e5ca;
+  padding: 13px 16px;
+  border-bottom: 3px solid var(--brass);
+  gap: 9px;
+}
+
+.panel-title h4 {
+  margin: 0;
+  font: 700 17px "Gowun Batang", serif;
+}
+
+.panel-title small {
+  font: 700 11px Georgia, "Noto Sans KR", sans-serif;
+  color: #d7c6a3;
+}
+
+.map-shell {
+  position: relative;
+  background: #d7d1b7;
+}
+
+#map {
+  height: 510px;
+  width: 100%;
+  z-index: 1;
+}
+
+/* 실제 지도에 빛바랜 종이 효과 적용 */
+
+#map .leaflet-tile-pane {
+  filter: sepia(.33) saturate(.7) contrast(.95);
+}
+
+.map-label {
+  position: absolute;
+  z-index: 500;
+  top: 12px;
+  right: 12px;
+  pointer-events: none;
+  border: 1px solid rgba(83,64,37,.55);
+  background: rgba(255,249,229,.92);
+  padding: 9px 13px;
+  font-size: 11px;
+  color: var(--forest);
+  box-shadow: 2px 2px 0 rgba(43,42,29,.11);
+}
+
+.map-label b {
+  display: block;
+  font: 700 17px "Gowun Batang", serif;
+  line-height: 1.4;
+}
+
+.map-label span {
+  font-size: 9px;
+  letter-spacing: .05em;
+}
+
+/* 정류장 안내판 */
+
+#list {
+  height: 510px;
+  overflow-y: auto;
+  padding: 10px;
+  background: repeating-linear-gradient(
+    0deg,
+    #fff9ec,
+    #fff9ec 45px,
+    #f7efdb 46px
+  );
+}
+
+.stop {
+  display: grid;
+  grid-template-columns: 34px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  background: rgba(255,253,247,.94);
+  color: var(--ink);
+  border: 1px solid #d4c6a8;
+  padding: 11px 10px;
+  margin-bottom: 7px;
+  transition: background .16s, border-color .16s;
+}
+
+.stop:hover {
+  background: #f1e3c6;
+  border-color: #ad8b55;
+}
+
+.stop.active {
+  background: #e7d5ad;
+  border-color: #8c6b3f;
+  box-shadow: inset 3px 0 0 var(--red);
+}
+
+.stop-number {
+  font: 700 13px Georgia, serif;
+  text-align: center;
+  color: var(--red);
+  border-right: 1px solid #d3c3a4;
+  padding-right: 7px;
+}
+
+.stop b {
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.stop small {
+  font-size: 10px;
+  color: #81745f;
+  display: block;
+  margin-top: 3px;
+}
+
+/* 혼잡도 표시 */
+
+.status {
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+  padding: 5px 7px;
+  background: rgba(255,255,255,.56);
+}
+
+.status-0 { color: #236c56; }
+.status-1 { color: #32669a; }
+.status-2 { color: #946313; }
+.status-3 { color: #a14e29; }
+.status-4 { color: #a62d3b; }
+.status-unknown { color: #79796b; }
+
+.empty {
+  padding: 35px 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* 전차 승차권 모양의 상세정보 */
+
+.ticket {
+  background: #fff9ec;
+  border: 1px solid #b8a17c;
+  position: relative;
+  box-shadow: var(--shadow);
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.ticket::before,
+.ticket::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  background: var(--paper);
+  border: 1px solid #b8a17c;
+  top: 80px;
+  z-index: 1;
+}
+
+.ticket::before { left: -12px; }
+.ticket::after { right: -12px; }
+
+.ticket-top {
+  background: #e5d3af;
+  padding: 19px 25px 17px;
+  border-bottom: 2px dashed #b59b70;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.ticket-kicker {
+  font: 700 10px Georgia, serif;
+  color: var(--red);
+  letter-spacing: .20em;
+}
+
+.ticket-top h3 {
+  font: 700 clamp(22px,3vw,32px) "Gowun Batang", serif;
+  letter-spacing: -.06em;
+  margin: 6px 0 0;
+  color: var(--forest);
+}
+
+.ticket-seal {
+  min-width: 64px;
+  height: 64px;
+  border: 3px double var(--red);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  transform: rotate(-12deg);
+  font: 700 11px "Gowun Batang", serif;
+  color: var(--red);
+  line-height: 1.4;
+}
+
+.ticket-content {
+  padding: 20px 25px 24px;
+}
+
+.ticket-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 9px;
+}
+
+.fact {
+  padding: 13px;
+  background: #f2e7d0;
+  border-top: 3px solid var(--brass);
+  min-width: 0;
+}
+
+.fact small {
+  display: block;
+  font-size: 10px;
+  color: #665d4e;
+}
+
+.fact strong {
+  display: block;
+  font-size: 15px;
+  color: var(--forest);
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+
+.ticket p {
+  line-height: 1.9;
+  font-size: 12px;
+  color: #615a4f;
+  margin: 13px 0 0;
+}
+
+/* 하단 안내 */
+
+.foot {
+  margin: 27px 0 0;
+  border-top: 3px double #c1ad85;
+  padding: 18px 3px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.95;
+}
+
+.foot strong {
+  color: var(--forest);
+}
+
+/* 태블릿 */
+
+@media(max-width:1040px) {
+  .toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .field:first-child {
+    grid-column: 1/-1;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    grid-template-columns: 1fr .7fr;
+  }
+
+  #map {
+    height: 460px;
+  }
+
+  #list {
+    height: 300px;
+  }
+}
+
+/* 모바일 */
+
+@media(max-width:650px) {
+  .topbar-inner {
+    font-size: 9px;
+  }
+
+  .masthead {
+    padding: 19px 15px;
+  }
+
+  .issue {
+    display: none;
+  }
+
+  .seal {
+    width: 49px;
+    height: 49px;
+    font-size: 20px;
+  }
+
+  .wrap {
+    padding: 0 13px 30px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    margin-top: 15px;
+  }
+
+  .hero-copy {
+    padding: 24px 23px 5px;
+  }
+
+  .hero-art {
+    min-height: 145px;
+    padding: 0;
+  }
+
+  .hero-art svg {
+    max-width: 240px;
+  }
+
+  .art-caption {
+    display: none;
+  }
+
+  .toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .field:first-child {
+    grid-column: auto;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .stat strong {
+    font-size: 31px;
+  }
+
+  .section-head {
+    align-items: start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .legend {
+    gap: 10px;
+  }
+
+  .facts {
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .ticket-top,
+  .ticket-content {
+    padding-left: 17px;
+    padding-right: 17px;
+  }
+
+  #map {
+    height: 395px;
+  }
+
+  .map-label {
+    font-size: 9px;
+    padding: 6px 8px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  * {
+    transition: none !important;
+  }
 }
 </style>
 </head>
+
 <body>
-<header>
-<div class="logo"><i>✦</i> CrowdLess</div>
-<span class="subtitle">서울시 실시간 도시데이터 API</span>
+
+<!-- 상단 안내 띠 -->
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span>京城 電車 案內所 · RETRO CITY GUIDE</span>
+    <span>옛 안내소의 멋으로 읽는 오늘의 서울</span>
+  </div>
+</div>
+
+<!-- 로고 -->
+
+<header class="masthead">
+  <div class="brand">
+    <div class="seal" aria-hidden="true">CL</div>
+
+    <div>
+      <div class="eyebrow">
+        CROWDLESS · SEOUL EDITION
+      </div>
+
+      <h1>경성 전차 안내소</h1>
+
+      <p>
+        서울 군중 관측 안내 · 서울시 공공데이터 기반
+      </p>
+    </div>
+  </div>
+
+  <div class="issue">
+    <small>금일의 안내</small>
+    <strong id="today">SEOUL · TODAY</strong>
+  </div>
 </header>
-<section class="hero">
-<h1>붐비는 서울 속,<br>나만의 여유를 찾다.</h1>
-<p>서울시 주요 121곳의 인구 혼잡도를 지도에서 확인하세요.<br>혼잡도는 GitHub Actions에서 수집한 최신 자료를 사용합니다.</p>
+
+<div class="wrap">
+
+<!-- 메인 포스터 -->
+
+<section class="hero" aria-label="서비스 소개">
+
+  <div class="hero-copy">
+    <span class="kicker">
+      CITY OBSERVATION · NO. 001
+    </span>
+
+    <h2>
+      북적이는 거리 사이,<br>
+      한가로운 길을 찾아서.
+    </h2>
+
+    <p>
+      오래된 전차 안내소를 닮은 서울의 혼잡도 지도.
+      121개 관측 지점의 최신 인구 혼잡도와
+      날씨를 살펴보세요.
+      지도와 정보는 <b>오늘날의 서울</b>을 기준으로 합니다.
+    </p>
+  </div>
+
+  <!-- CSS와 SVG로 만든 전차 일러스트 -->
+
+  <div class="hero-art" aria-hidden="true">
+    <div>
+      <svg viewBox="0 0 360 210"
+           xmlns="http://www.w3.org/2000/svg">
+
+        <!-- 철길 -->
+        <path d="M0 178H360M0 191H360"
+              stroke="#bb9d62"
+              stroke-width="3"/>
+
+        <path d="M45 185h270
+                 M90 178l-10 13
+                 m65-13-10 13
+                 m65-13-10 13
+                 m65-13-10 13"
+              stroke="#e5c88e"
+              stroke-width="3"/>
+
+        <!-- 전차 전선 -->
+        <path d="M178 14v43M119 14h118"
+              stroke="#e4cc94"
+              stroke-width="3"
+              fill="none"/>
+
+        <!-- 전차 차체 -->
+        <path d="M86 64h188
+                 a16 16 0 0 1 16 16
+                 v82H70V80
+                 a16 16 0 0 1 16-16Z"
+              fill="#e7d5ae"
+              stroke="#c3a06b"
+              stroke-width="5"/>
+
+        <!-- 창문 -->
+        <rect x="84" y="78"
+              width="192" height="65"
+              rx="4"
+              fill="#223a33"
+              stroke="#b69050"
+              stroke-width="3"/>
+
+        <path d="M148 78v65M212 78v65"
+              stroke="#c8ad77"
+              stroke-width="5"/>
+
+        <!-- 전차 표지 -->
+        <rect x="159" y="48"
+              width="42" height="24"
+              rx="3"
+              fill="#8e4333"
+              stroke="#d3aa6a"
+              stroke-width="2"/>
+
+        <text x="180" y="65"
+              fill="#fff0cf"
+              font-size="13"
+              font-weight="bold"
+              text-anchor="middle">電車</text>
+
+        <!-- 차체 하단 -->
+        <rect x="64" y="145"
+              width="232" height="31"
+              rx="7"
+              fill="#8c4235"
+              stroke="#d2ad71"
+              stroke-width="4"/>
+
+        <!-- 바퀴 -->
+        <circle cx="102" cy="178" r="14"
+                fill="#222824"
+                stroke="#c6ab76"
+                stroke-width="5"/>
+
+        <circle cx="258" cy="178" r="14"
+                fill="#222824"
+                stroke="#c6ab76"
+                stroke-width="5"/>
+
+        <!-- 전조등 -->
+        <circle cx="84" cy="161" r="5"
+                fill="#f8e2a8"/>
+
+        <circle cx="276" cy="161" r="5"
+                fill="#f8e2a8"/>
+      </svg>
+
+      <div class="art-caption">
+        CROWDLESS · A JOURNEY THROUGH SEOUL
+      </div>
+    </div>
+  </div>
+
 </section>
-<main>
-<div class="tools">
-<input id="search" type="search" placeholder="장소 검색: 강남, 홍대, 서울숲..." aria-label="장소 검색">
-<select id="kind" aria-label="장소 유형">
-<option value="">모든 유형</option>
-<option>관광특구</option>
-<option>고궁·문화유산</option>
-<option>인구밀집지역</option>
-<option>발달상권</option>
-<option>공원</option>
-</select>
-<select id="sort" aria-label="정렬">
-<option value="name">이름순</option>
-<option value="quiet">덜 붐비는 순</option>
-<option value="busy">많이 붐비는 순</option>
-</select>
-<button id="refresh">↻ 최신 데이터 확인</button>
+
+<div class="ribbon">
+  電車案內 · 군중 관측 대장
 </div>
-<div class="cards">
-<div class="card"><small>전체 장소</small><strong id="all">121</strong></div>
-<div class="card"><small>현재 검색 결과</small><strong id="found">121</strong></div>
-<div class="card"><small>혼잡도 확인 완료</small><strong id="loaded">0</strong></div>
-<div class="card"><small>공식 '여유' 장소</small><strong id="quiet">0</strong></div>
-</div>
-<div class="notice" id="notice">최신 혼잡도 자료를 불러오는 중입니다.</div>
-<div class="levels" id="legend"></div>
-<div class="layout">
-<section class="panel">
-<div class="head"><h2>서울 혼잡도 지도</h2><small id="mapCount">121개 위치</small></div>
-<div id="map"></div>
+
+<!-- 검색 기능 -->
+
+<section class="toolbar" aria-label="지역 검색과 정렬">
+
+  <div class="field">
+    <label for="search">
+      01 / 정류장 · 장소 찾기
+    </label>
+
+    <input id="search"
+           type="search"
+           placeholder="예: 강남역, 홍대, 서울숲"
+           autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label for="kind">
+      02 / 장소 종류
+    </label>
+
+    <select id="kind">
+      <option value="">전체 구역</option>
+      <option>관광특구</option>
+      <option>고궁·문화유산</option>
+      <option>인구밀집지역</option>
+      <option>발달상권</option>
+      <option>공원</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="sort">
+      03 / 안내 순서
+    </label>
+
+    <select id="sort">
+      <option value="name">이름순</option>
+      <option value="quiet">한가로운 순</option>
+      <option value="busy">붐비는 순</option>
+    </select>
+  </div>
+
+  <button id="refresh" type="button">
+    ↻ 최신 관측 확인
+  </button>
+
 </section>
-<section class="panel">
-<div class="head"><h2>장소 목록</h2><small>이름을 누르면 상세정보 표시</small></div>
-<div class="list" id="list"></div>
+
+<!-- 관측 현황 -->
+
+<section class="stats" aria-label="관측 현황">
+
+  <div class="stat">
+    <small>전체 관측 지점</small>
+    <strong id="all">121</strong>
+    <span>TOTAL STOPS</span>
+  </div>
+
+  <div class="stat">
+    <small>현재 안내 구역</small>
+    <strong id="found">121</strong>
+    <span>SEARCH RESULTS</span>
+  </div>
+
+  <div class="stat">
+    <small>관측 자료 확인</small>
+    <strong id="loaded">0</strong>
+    <span>AVAILABLE REPORTS</span>
+  </div>
+
+  <div class="stat">
+    <small>여유로운 장소</small>
+    <strong id="quiet">0</strong>
+    <span>QUIET PLACES</span>
+  </div>
+
 </section>
+
+<div class="notice"
+     id="notice"
+     role="status"
+     aria-live="polite">
+  오늘의 혼잡도 기록을 확인하는 중입니다…
 </div>
-<section class="detail" id="detail"></section>
-<p class="foot">
-출처: 서울특별시 실시간 도시데이터 API · 위치 핀은 대략적인 중심 지점입니다.
-혼잡도는 GitHub Actions 수집 시점 기준이며 초 단위 실시간 값이 아닙니다.
-'매우 붐빔'은 공식 혼잡도 설명을 근거로 추가한 참고 등급입니다.
-</p>
-</main>
+
+<div class="section-head">
+  <h3>오늘의 경성시내 안내도</h3>
+  <small>
+    복고풍 연출 · 실제 지도와 데이터는 현대 서울 기준
+  </small>
+</div>
+
+<!-- 혼잡도 색상 범례 -->
+
+<div id="legend"
+     class="legend"
+     aria-label="혼잡도 범례">
+</div>
+
+<!-- 지도와 장소 안내 -->
+
+<section class="layout">
+
+  <div class="panel">
+    <div class="panel-title">
+      <h4>◈ 혼잡도 노선 안내도</h4>
+      <small id="mapCount">121개 관측 지점</small>
+    </div>
+
+    <div class="map-shell">
+
+      <div id="map"
+           role="region"
+           aria-label="서울시 혼잡도 지도">
+      </div>
+
+      <div class="map-label">
+        <b>서울시 혼잡 지도</b>
+        <span>MODERN SEOUL · DATA MAP</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">
+      <h4>▤ 정류장 안내판</h4>
+      <small>장소를 누르면 자세히 표시</small>
+    </div>
+
+    <div id="list" aria-label="장소 목록"></div>
+  </div>
+
+</section>
+
+<!-- 장소별 상세정보 -->
+
+<section class="ticket"
+         id="detail"
+         aria-label="선택한 장소 안내">
+</section>
+
+<footer class="foot">
+  <strong>CROWDLESS · 경성 전차 안내소</strong>
+  — 1920~30년대 전차 안내판에서 영감을 받은
+  시각적 콘셉트로, 역사적 전차 노선이나 당시
+  혼잡도를 재현한 서비스는 아닙니다.
+
+  <br>
+
+  자료: 서울특별시 실시간 도시데이터 API.
+  혼잡도는 GitHub Actions의 마지막 수집 시점을
+  기준으로 하며 초 단위 실시간 데이터가 아닙니다.
+  장소 핀은 대략적인 중심 좌표를 사용합니다.
+  '매우 붐빔'은 공식 설명 문구에서 추가로 추정한
+  참고 등급입니다.
+</footer>
+
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-// 서울시 주요 121곳: 코드 | 이름 | 유형번호 | 위도 | 경도
+
+// =====================================
+// 1. 서울시 주요 121개 장소
+// =====================================
+
+// 중요: server.py가 아래 장소 코드 행을
+// 읽어 121개 장소를 수집합니다.
+// 이 목록의 형식을 변경하지 마세요.
+
 const raw = `POI001|강남 MICE 관광특구|0|37.513|127.059
 POI002|동대문 관광특구|0|37.568|127.01
 POI003|명동 관광특구|0|37.5636|126.9845
@@ -152,7 +1238,7 @@ POI026|미아사거리역|2|37.6134|127.0301
 POI027|발산역|2|37.5587|126.8378
 POI028|북한산우이역|2|37.662|127.0128
 POI029|사당역|2|37.4765|126.9816
-POI030|삼각지역|2|37.5344|126.9734
+POI030|삼각지역|2|37.5344|126.973
 POI031|서울대입구역|2|37.4812|126.9527
 POI032|서울식물원·마곡나루역|2|37.568|126.8295
 POI033|서울역|2|37.5547|126.9706
@@ -245,209 +1331,565 @@ POI123|보라매공원|4|37.4924|126.9198
 POI125|안양천|4|37.5175|126.868
 POI126|여의서로|4|37.5276|126.9258`;
 
-const typeNames=["관광특구","고궁·문화유산","인구밀집지역","발달상권","공원"];
-const colors=["#26b68a","#64a0de","#e6ba49","#ed8f52","#d12f62"];
-const labels=["여유","보통","약간 붐빔","붐빔","매우 붐빔"];
+// =====================================
+// 2. 데이터와 색상 설정
+// =====================================
 
-const places=raw.trim().split("\n").map(line=>{
-  const [code,name,t,lat,lng]=line.split("|");
+const $ = id => document.getElementById(id);
+
+const typeNames = [
+  "관광특구",
+  "고궁·문화유산",
+  "인구밀집지역",
+  "발달상권",
+  "공원"
+];
+
+const colors = [
+  "#278363",
+  "#4675a3",
+  "#c28b2a",
+  "#c46a3f",
+  "#b43f4c"
+];
+
+const labels = [
+  "여유",
+  "보통",
+  "약간 붐빔",
+  "붐빔",
+  "매우 붐빔"
+];
+
+const places = raw.trim().split("\n").map(line => {
+  const [code,name,t,lat,lng] = line.split("|");
+
   return {
-    code,name,kind:typeNames[Number(t)],
-    lat:Number(lat),lng:Number(lng),
-    official:"정보 없음",minimum:null,maximum:null,
-    temperature:null,pm25:null,time:null,
-    message:null,error:null
+    code,
+    name,
+    kind: typeNames[Number(t)],
+    lat: Number(lat),
+    lng: Number(lng),
+    official: "정보 없음",
+    minimum: null,
+    maximum: null,
+    temperature: null,
+    pm25: null,
+    time: null,
+    message: null,
+    error: null
   };
 });
 
-const byCode=new Map(places.map(p=>[p.code,p]));
-const $=id=>document.getElementById(id);
+const byCode = new Map(
+  places.map(p => [p.code,p])
+);
 
-let selected="POI014";
-let map,pins,inProgress=false;
+let map;
+let pins;
+let selected = "POI014";
+let inProgress = false;
 
-function level(p){
-  if(p.official==="붐빔" &&
-     /매우\s*(붐|혼잡)|극심한\s*혼잡/.test(p.message||""))
+// =====================================
+// 3. 혼잡도 계산
+// =====================================
+
+function level(p) {
+  if (
+    p.official === "붐빔" &&
+    /매우\s*(붐|혼잡)|극심한\s*혼잡/.test(p.message || "")
+  ) {
     return 4;
-  return ["여유","보통","약간 붐빔","붐빔"].indexOf(p.official);
+  }
+
+  return [
+    "여유",
+    "보통",
+    "약간 붐빔",
+    "붐빔"
+  ].indexOf(p.official);
 }
 
-function levelText(p){
-  const i=level(p);
-  return i<0?"정보 없음":labels[i];
+function levelText(p) {
+  const i = level(p);
+  return i < 0 ? "정보 없음" : labels[i];
 }
 
-function bg(p){
-  const i=level(p);
-  return i<0?"#9daaa5":colors[i];
+function pinColor(p) {
+  const i = level(p);
+  return i < 0 ? "#9c998b" : colors[i];
 }
 
-function escapeHtml(s){
-  return String(s??"").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",
-    "\"":"&quot;","'":"&#39;"
-  }[c]));
+function escapeHtml(s) {
+  return String(s ?? "").replace(
+    /[&<>"']/g,
+    c => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;"
+    }[c])
+  );
 }
 
-function people(p){
-  return p.minimum==null||p.maximum==null
-    ?"정보 없음"
-    :p.minimum.toLocaleString("ko-KR")+" ~ "+
-     p.maximum.toLocaleString("ko-KR")+"명";
+function people(p) {
+  if (
+    p.minimum == null ||
+    p.maximum == null
+  ) {
+    return "정보 없음";
+  }
+
+  return (
+    Number(p.minimum).toLocaleString("ko-KR") +
+    " ~ " +
+    Number(p.maximum).toLocaleString("ko-KR") +
+    "명"
+  );
 }
 
-function badge(p){
-  const i=level(p);
-  return `<span class="badge" style="background:${i<0?"#eef1ef":colors[i]+"22"};color:${i<0?"#788880":colors[i]}">${escapeHtml(levelText(p))}</span>`;
+function badge(p) {
+  const i = level(p);
+
+  return `
+    <span class="status status-${i < 0 ? "unknown" : i}">
+      ${escapeHtml(levelText(p))}
+    </span>
+  `;
 }
 
-function subset(){
-  const q=$("search").value.trim().toLocaleLowerCase("ko");
-  const k=$("kind").value;
-  const order=$("sort").value;
+// =====================================
+// 4. 장소 검색과 정렬
+// =====================================
 
-  const items=places.filter(p=>
-    (!k||p.kind===k) &&
-    (p.name.toLocaleLowerCase("ko").includes(q) ||
-     p.code.toLowerCase().includes(q) ||
-     p.kind.includes(q))
+function subset() {
+  const q = $("search").value
+    .trim()
+    .toLocaleLowerCase("ko");
+
+  const k = $("kind").value;
+  const sort = $("sort").value;
+
+  const list = places.filter(p =>
+    (!k || p.kind === k) &&
+    (
+      p.name.toLocaleLowerCase("ko").includes(q) ||
+      p.code.toLowerCase().includes(q) ||
+      p.kind.includes(q)
+    )
   );
 
-  if(order==="name")
-    items.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
-  else
-    items.sort((a,b)=>{
-      const x=level(a)<0?99:(order==="quiet"?level(a):-level(a));
-      const y=level(b)<0?99:(order==="quiet"?level(b):-level(b));
-      return x-y||a.name.localeCompare(b.name,"ko");
+  if (sort === "name") {
+    list.sort((a,b) =>
+      a.name.localeCompare(b.name,"ko")
+    );
+  } else {
+    list.sort((a,b) => {
+      const ia = level(a);
+      const ib = level(b);
+
+      const aa = ia < 0 ? 99 :
+        (sort === "quiet" ? ia : -ia);
+
+      const bb = ib < 0 ? 99 :
+        (sort === "quiet" ? ib : -ib);
+
+      return aa - bb ||
+        a.name.localeCompare(b.name,"ko");
     });
-  return items;
+  }
+
+  return list;
 }
 
-function redraw(){
-  const items=subset();
-  $("found").textContent=items.length;
-  $("loaded").textContent=places.filter(p=>level(p)>=0).length;
-  $("quiet").textContent=places.filter(p=>p.official==="여유").length;
+// =====================================
+// 5. 장소 목록 및 상세정보 표시
+// =====================================
 
-  $("list").innerHTML=items.length
-    ?items.map(p=>`<button class="item ${p.code===selected?"active":""}" data-code="${p.code}"><span><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.kind)} · ${p.code}</small></span>${badge(p)}</button>`).join("")
-    :'<p style="padding:20px;color:#6b8175">검색 결과 없음</p>';
+function redraw() {
+  const items = subset();
 
-  $("list").querySelectorAll("[data-code]").forEach(
-    b=>b.onclick=()=>choose(b.dataset.code)
+  $("all").textContent = places.length;
+  $("found").textContent = items.length;
+
+  $("loaded").textContent = places.filter(
+    p => level(p) >= 0
+  ).length;
+
+  $("quiet").textContent = places.filter(
+    p => p.official === "여유"
+  ).length;
+
+  if (
+    items.length &&
+    !items.some(p => p.code === selected)
+  ) {
+    selected = items[0].code;
+  }
+
+  // 정류장 안내판 생성
+
+  $("list").innerHTML = items.length
+    ? items.map((p,i) => `
+        <button
+          class="stop ${p.code === selected ? "active" : ""}"
+          data-code="${p.code}"
+          aria-pressed="${p.code === selected}"
+        >
+          <span class="stop-number">
+            ${String(i+1).padStart(2,"0")}
+          </span>
+
+          <span>
+            <b>${escapeHtml(p.name)}</b>
+            <small>
+              ${escapeHtml(p.kind)}
+              · ${escapeHtml(p.code)}
+            </small>
+          </span>
+
+          ${badge(p)}
+        </button>
+      `).join("")
+    : `
+        <div class="empty">
+          조건에 맞는 장소가 없습니다.<br>
+          다른 검색어를 입력해 주세요.
+        </div>
+      `;
+
+  $("list").querySelectorAll("[data-code]")
+    .forEach(b => {
+      b.addEventListener(
+        "click",
+        () => choose(b.dataset.code)
+      );
+    });
+
+  const p = items.find(
+    p => p.code === selected
   );
 
-  if(items.length&&!items.some(p=>p.code===selected))
-    selected=items[0].code;
+  // 전차 승차권 모양의 상세정보
 
-  const p=items.find(p=>p.code===selected);
+  $("detail").innerHTML = p
+    ? `
+      <div class="ticket-top">
 
-  $("detail").innerHTML=p
-    ?`<small>${escapeHtml(p.kind)} · ${p.code}</small>
-      <h2>${escapeHtml(p.name)} ${badge(p)}</h2>
-      <div class="facts">
-        <div class="fact"><small>공식 혼잡도</small><strong>${escapeHtml(p.official)}</strong></div>
-        <div class="fact"><small>추정 인구</small><strong>${people(p)}</strong></div>
-        <div class="fact"><small>기온</small><strong>${p.temperature==null?"정보 없음":p.temperature+"°C"}</strong></div>
-        <div class="fact"><small>초미세먼지 PM2.5</small><strong>${p.pm25==null?"정보 없음":p.pm25+"㎍/㎥"}</strong></div>
+        <div>
+          <div class="ticket-kicker">
+            CROWDLESS · OBSERVATION TICKET
+          </div>
+
+          <h3>${escapeHtml(p.name)}</h3>
+        </div>
+
+        <div class="ticket-seal" aria-hidden="true">
+          관측<br>기록
+        </div>
+
       </div>
-      <p>관측 시각: ${escapeHtml(p.time||"정보 없음")}</p>
-      <p>${escapeHtml(p.message||p.error||"해당 장소의 혼잡도 자료가 없습니다.")}</p>`
-    :'<h2>검색 결과 없음</h2>';
 
-  if(pins){
+      <div class="ticket-content">
+
+        <div class="ticket-info">
+          <span>
+            ${escapeHtml(p.kind)}
+            · ${escapeHtml(p.code)}
+          </span>
+
+          ${badge(p)}
+        </div>
+
+        <div class="facts">
+
+          <div class="fact">
+            <small>공식 혼잡도</small>
+            <strong>
+              ${escapeHtml(p.official)}
+            </strong>
+          </div>
+
+          <div class="fact">
+            <small>추정 인구</small>
+            <strong>
+              ${escapeHtml(people(p))}
+            </strong>
+          </div>
+
+          <div class="fact">
+            <small>기온</small>
+            <strong>
+              ${p.temperature == null
+                ? "정보 없음"
+                : escapeHtml(p.temperature) + "°C"}
+            </strong>
+          </div>
+
+          <div class="fact">
+            <small>초미세먼지 PM2.5</small>
+            <strong>
+              ${p.pm25 == null
+                ? "정보 없음"
+                : escapeHtml(p.pm25) + "㎍/㎥"}
+            </strong>
+          </div>
+
+        </div>
+
+        <p>
+          <b>관측 시각</b>
+          · ${escapeHtml(p.time || "정보 없음")}
+        </p>
+
+        <p>
+          ${escapeHtml(
+            p.message ||
+            p.error ||
+            "해당 장소의 최신 관측 자료가 없습니다."
+          )}
+        </p>
+
+      </div>
+    `
+    : `
+      <div class="ticket-content">
+        <h3>선택한 장소가 없습니다.</h3>
+        <p>검색 조건을 변경해 주세요.</p>
+      </div>
+    `;
+
+  // 지도 마커 다시 표시
+
+  if (pins) {
     pins.clearLayers();
-    items.forEach(p=>{
-      const pin=L.circleMarker([p.lat,p.lng],{
-        radius:p.code===selected?10:7,
-        color:"#fff",weight:2,
-        fillColor:bg(p),fillOpacity:1
-      });
-      pin.bindTooltip(`${escapeHtml(p.name)} · ${levelText(p)}`);
-      pin.on("click",()=>choose(p.code));
+
+    items.forEach(p => {
+      const pin = L.circleMarker(
+        [p.lat,p.lng],
+        {
+          radius: p.code === selected ? 10 : 7,
+          color: "#fff6dd",
+          weight: p.code === selected ? 3 : 2,
+          fillColor: pinColor(p),
+          fillOpacity: 1
+        }
+      );
+
+      pin.bindTooltip(
+        `${escapeHtml(p.name)} · ${escapeHtml(levelText(p))}`
+      );
+
+      pin.on("click", () => choose(p.code));
+
       pin.addTo(pins);
     });
   }
-  $("mapCount").textContent=items.length+"개 위치";
+
+  $("mapCount").textContent =
+    items.length + "개 관측 지점";
 }
 
-function choose(code){
-  selected=code;
+// =====================================
+// 6. 장소 선택
+// =====================================
+
+function choose(code) {
+  selected = code;
   redraw();
-  const p=byCode.get(code);
-  if(map&&p)map.flyTo([p.lat,p.lng],13,{duration:.45});
+
+  const p = byCode.get(code);
+
+  if (map && p) {
+    map.flyTo(
+      [p.lat,p.lng],
+      13,
+      {duration:.45}
+    );
+  }
 }
 
-async function refresh(){
-  if(inProgress)return;
-  inProgress=true;
-  $("refresh").disabled=true;
-  $("notice").textContent="GitHub에서 수집한 데이터를 확인하고 있어요...";
+// =====================================
+// 7. GitHub Actions 데이터 불러오기
+// =====================================
 
-  try{
-    const response=await fetch(
-      "./data/crowd.json?t="+Date.now(),
+async function refresh() {
+  if (inProgress) return;
+
+  inProgress = true;
+
+  $("refresh").disabled = true;
+
+  $("notice").textContent =
+    "안내소에서 최신 관측 장부를 확인하는 중입니다…";
+
+  try {
+    const response = await fetch(
+      "./data/crowd.json?t=" + Date.now(),
       {cache:"no-store"}
     );
-    if(!response.ok)
-      throw Error("데이터 파일 없음 (HTTP "+response.status+")");
 
-    const data=await response.json();
-    if(!Array.isArray(data.places))
-      throw Error("데이터 형식 오류");
-
-    for(const info of data.places){
-      const p=byCode.get(info.code);
-      if(p)Object.assign(p,info);
+    if (!response.ok) {
+      throw new Error(
+        "자료 파일을 찾을 수 없습니다 (HTTP " +
+        response.status + ")"
+      );
     }
 
-    const count=places.filter(p=>level(p)>=0).length;
-    const ts=data.generated_at
-      ?new Date(data.generated_at).toLocaleString("ko-KR",{
-        timeZone:"Asia/Seoul"
-      })
-      :"알 수 없음";
+    const data = await response.json();
 
-    $("notice").textContent=
-      `최근 수집: ${ts} (한국시간) · 혼잡도 확인 ${count}/121곳. GitHub Actions가 약 10분 간격으로 수집하며 지연될 수 있습니다.`;
+    if (!Array.isArray(data.places)) {
+      throw new Error(
+        "관측 자료의 형식이 올바르지 않습니다"
+      );
+    }
 
-  }catch(err){
-    $("notice").textContent=
-      "혼잡도 파일을 불러오지 못했습니다: "+
-      err.message+
-      ". GitHub Actions의 마지막 실행 결과와 Pages 배포 설정을 확인하세요.";
-  }finally{
-    inProgress=false;
-    $("refresh").disabled=false;
+    const fields = [
+      "official",
+      "minimum",
+      "maximum",
+      "temperature",
+      "pm25",
+      "time",
+      "message",
+      "error"
+    ];
+
+    for (const info of data.places) {
+      const p = byCode.get(info.code);
+      if (!p) continue;
+
+      for (const field of fields) {
+        if (Object.hasOwn(info,field)) {
+          p[field] = info[field];
+        }
+      }
+    }
+
+    const count = places.filter(
+      p => level(p) >= 0
+    ).length;
+
+    let stamp = "수집 시각 미상";
+    let stale = "";
+
+    if (data.generated_at) {
+      const d = new Date(data.generated_at);
+
+      if (!Number.isNaN(d.getTime())) {
+        stamp = d.toLocaleString(
+          "ko-KR",
+          {timeZone:"Asia/Seoul"}
+        ) + " (한국시간)";
+
+        if (
+          Date.now() - d.getTime() >
+          30 * 60 * 1000
+        ) {
+          stale =
+            " · 수집이 지연된 자료일 수 있습니다";
+        }
+      }
+    }
+
+    $("notice").textContent =
+      `최종 관측 장부: ${stamp} · 혼잡도 ${count}/121곳 확인${stale}. 새로고침은 마지막 수집 파일을 다시 읽습니다.`;
+
+  } catch(err) {
+
+    $("notice").textContent =
+      "관측 장부를 불러오지 못했습니다: " +
+      err.message +
+      ". GitHub Actions 실행과 Pages 배포를 확인해 주세요.";
+
+  } finally {
+    inProgress = false;
+    $("refresh").disabled = false;
     redraw();
   }
 }
 
-$("legend").innerHTML=[...labels,"정보 없음"].map(
-  (v,i)=>`<span><i class="dot" style="background:${i===5?"#9daaa5":colors[i]}"></i>${v}</span>`
-).join("");
+// =====================================
+// 8. 날짜, 범례, 버튼 연결
+// =====================================
 
-$("search").addEventListener("input",redraw);
-$("kind").addEventListener("change",redraw);
-$("sort").addEventListener("change",redraw);
-$("refresh").addEventListener("click",refresh);
+$("today").textContent =
+  new Date().toLocaleDateString(
+    "ko-KR",
+    {
+      timeZone:"Asia/Seoul",
+      year:"numeric",
+      month:"2-digit",
+      day:"2-digit"
+    }
+  );
 
-if(typeof L!=="undefined"){
-  map=L.map("map",{scrollWheelZoom:false}).setView([37.55,126.99],11);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-    attribution:'© OpenStreetMap contributors',
-    maxZoom:18
-  }).addTo(map);
-  pins=L.layerGroup().addTo(map);
-}else{
-  $("map").innerHTML=
-    '<p style="padding:30px">지도 라이브러리를 불러오지 못했습니다.</p>';
+$("legend").innerHTML =
+  [...labels,"정보 없음"].map(
+    (v,i) => `
+      <span>
+        <i style="background:${
+          i === 5 ? "#9c998b" : colors[i]
+        }"></i>
+        ${escapeHtml(v)}
+      </span>
+    `
+  ).join("");
+
+$("search").addEventListener(
+  "input",redraw
+);
+
+$("kind").addEventListener(
+  "change",redraw
+);
+
+$("sort").addEventListener(
+  "change",redraw
+);
+
+$("refresh").addEventListener(
+  "click",refresh
+);
+
+// =====================================
+// 9. 지도 생성
+// =====================================
+
+if (typeof L !== "undefined") {
+
+  map = L.map(
+    "map",
+    {scrollWheelZoom:false}
+  ).setView(
+    [37.55,126.99],
+    11
+  );
+
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      attribution:"© OpenStreetMap contributors",
+      maxZoom:18
+    }
+  ).addTo(map);
+
+  pins = L.layerGroup().addTo(map);
+
+} else {
+
+  $("map").innerHTML =
+    '<p style="padding:24px">지도를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.</p>';
+
 }
 
+// 최초 화면 표시
 redraw();
+
+// 최신 데이터 읽기
 refresh();
+
 </script>
 </body>
 </html>
