@@ -1,1444 +1,885 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#233c35">
-<title>CrowdLess | 경성 전차 안내소</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
-<style>
-:root {
-  --paper: #f3ebd8;
-  --cream: #fff9ec;
-  --ink: #292d28;
-  --forest: #233c35;
-  --forest2: #35594c;
-  --red: #883b32;
-  --brass: #aa8248;
-  --line: #cbbd9f;
-  --muted: #6c6b5d;
-  --shadow: 0 12px 30px #332b1b1a;
-}
-
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-
-body {
-  margin: 0;
-  color: var(--ink);
-  font-family: "Noto Sans KR", sans-serif;
-  background:
-    radial-gradient(circle at 12% 5%, #a17a3f1e, transparent 38%),
-    repeating-linear-gradient(
-      0deg, transparent 0 5px, #5b4d3305 5px 6px
-    ),
-    var(--paper);
-}
-
-button, input, select { font: inherit; }
-button { cursor: pointer; }
-button:disabled { opacity: .55; cursor: not-allowed; }
-
-button:focus-visible,
-input:focus-visible,
-select:focus-visible {
-  outline: 3px solid #bd854e;
-  outline-offset: 2px;
-}
-
-a { color: inherit; }
-
-/* 상단 */
-
-.topbar {
-  background: #182c27;
-  color: #ecdfc4;
-  border-bottom: 3px double #b28c50;
-}
-
-.topbar-inner {
-  max-width: 1240px;
-  margin: auto;
-  padding: 9px 22px;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-  font-size: 11px;
-  letter-spacing: .07em;
-}
-
-.masthead {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 24px 22px 19px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 18px;
-  border-bottom: 1px solid var(--line);
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.seal {
-  height: 62px;
-  width: 62px;
-  border: 3px double var(--brass);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--forest);
-  font: 700 25px Georgia, serif;
-  transform: rotate(-7deg);
-  background: #eee1c2;
-  box-shadow: inset 0 0 0 4px var(--paper);
-}
-
-.eyebrow {
-  font: 700 11px Georgia, serif;
-  letter-spacing: .2em;
-  color: var(--red);
-}
-
-.brand h1 {
-  margin: 3px 0;
-  font: 700 clamp(25px, 3.4vw, 38px) "Gowun Batang", serif;
-  letter-spacing: -.05em;
-}
-
-.brand p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.issue {
-  border: 1px solid var(--brass);
-  padding: 10px 15px;
-  text-align: center;
-  min-width: 130px;
-  color: var(--forest);
-  background: #fffaf0a6;
-}
-
-.issue small { font-size: 10px; display: block; }
-.issue strong { font-size: 12px; }
-
-.wrap {
-  max-width: 1240px;
-  margin: auto;
-  padding: 0 22px 46px;
-}
-
-/* 메인 포스터 */
-
-.hero {
-  display: grid;
-  grid-template-columns: 1.18fr .82fr;
-  min-height: 266px;
-  background: var(--forest);
-  color: #f7ecd3;
-  margin-top: 23px;
-  overflow: hidden;
-  position: relative;
-  border: 6px solid #e6d9bb;
-  outline: 1px solid #9d885f;
-  box-shadow: var(--shadow);
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  border: 1px solid #dfc79045;
-  pointer-events: none;
-}
-
-.hero-copy {
-  padding: 33px 38px;
-  z-index: 1;
-}
-
-.kicker {
-  display: inline-block;
-  font: 700 11px Georgia, serif;
-  letter-spacing: .2em;
-  color: #dbbb83;
-  border-bottom: 1px solid #bda170;
-  padding-bottom: 8px;
-}
-
-.hero h2 {
-  font: 700 clamp(29px, 4.2vw, 50px)/1.35 "Gowun Batang", serif;
-  margin: 14px 0 12px;
-  letter-spacing: -.06em;
-}
-
-.hero p {
-  font-size: 12px;
-  line-height: 1.9;
-  color: #e2dcc7;
-  max-width: 530px;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 9px;
-  flex-wrap: wrap;
-  margin-top: 18px;
-}
-
-.retro-btn {
-  border: 1px solid #bea16a;
-  padding: 10px 15px;
-  background: #e9d4a4;
-  color: #253b33;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.retro-btn.secondary {
-  background: transparent;
-  color: #f3e6c4;
-}
-
-.retro-btn:hover { filter: brightness(1.07); }
-
-.hero-art {
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: radial-gradient(
-    circle at 55% 40%,
-    #59705a,
-    #334b40 60%,
-    transparent 75%
-  );
-  min-width: 0;
-}
-
-.tram-scene {
-  width: 100%;
-  max-width: 370px;
-  text-align: center;
-  overflow: hidden;
-}
-
-.tram-scene svg {
-  width: min(100%, 350px);
-  height: auto;
-  filter: drop-shadow(0 12px 0 #0002);
-}
-
-.tram-scene.tram-running .tram-body {
-  animation: tramRide 1.1s ease-in-out 1;
-}
-
-.tram-scene.tram-running .wheel {
-  animation: wheelTurn .35s linear 3;
-  transform-origin: center;
-  transform-box: fill-box;
-}
-
-@keyframes tramRide {
-  0%,100% { transform: translateX(0); }
-  35% { transform: translateX(20px); }
-  75% { transform: translateX(-8px); }
-}
-
-@keyframes wheelTurn {
-  to { transform: rotate(360deg); }
-}
-
-.art-caption {
-  font: 700 10px Georgia, serif;
-  letter-spacing: .18em;
-  color: #d5b984;
-}
-
-.ribbon {
-  margin: 18px 0;
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  color: var(--red);
-  font: 700 12px "Gowun Batang", serif;
-}
-
-.ribbon::before,
-.ribbon::after {
-  content: "";
-  height: 1px;
-  background: var(--line);
-  flex: 1;
-}
-
-/* 검색과 현황 */
-
-.toolbar {
-  border: 1px solid var(--line);
-  background: var(--cream);
-  padding: 18px;
-  box-shadow: var(--shadow);
-  display: grid;
-  grid-template-columns:
-    minmax(220px, 2fr)
-    repeat(2, minmax(135px, 1fr))
-    auto;
-  gap: 12px;
-  align-items: end;
-}
-
-.field label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--forest);
-  margin-bottom: 7px;
-}
-
-.field input,
-.field select {
-  width: 100%;
-  min-height: 45px;
-  padding: 10px 13px;
-  border: 1px solid #bbaa8a;
-  border-radius: 0;
-  background: #fffdf6;
-  color: var(--ink);
-  font-size: 13px;
-}
-
-#refresh {
-  min-height: 45px;
-  padding: 10px 16px;
-  border: 1px solid #1c312b;
-  background: var(--forest);
-  color: #fff5dc;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.stat {
-  position: relative;
-  background: #e9dbc0;
-  border: 1px solid #c7b48d;
-  padding: 17px 19px 15px;
-  min-height: 105px;
-  overflow: hidden;
-}
-
-.stat::after {
-  content: "";
-  position: absolute;
-  right: -17px;
-  top: -17px;
-  width: 75px;
-  height: 75px;
-  border: 2px solid #97703f2a;
-  border-radius: 50%;
-}
-
-.stat small {
-  font-size: 11px;
-  font-weight: 700;
-  color: #665a45;
-}
-
-.stat strong {
-  display: block;
-  margin-top: 5px;
-  font: 700 36px Georgia, "Gowun Batang", serif;
-  color: var(--forest);
-}
-
-.stat span {
-  display: block;
-  font-size: 10px;
-  color: #897652;
-  margin-top: 3px;
-}
-
-.notice {
-  border-left: 5px solid var(--red);
-  background: #fff8e9;
-  padding: 13px 17px;
-  margin: 17px 0;
-  line-height: 1.8;
-  font-size: 12px;
-  color: #5b5547;
-}
-
-.section-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 16px;
-  margin: 25px 0 12px;
-}
-
-.section-head h3 {
-  margin: 0;
-  font: 700 24px "Gowun Batang", serif;
-  color: var(--forest);
-}
-
-.section-head small {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.legend {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  padding: 0 0 13px;
-}
-
-.legend span {
-  font-size: 11px;
-  color: #5c594a;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.legend i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  border: 1px solid #fff7e6;
-  box-shadow: 0 0 0 1px #ac9c78;
-}
-
-/* 전차 미니게임 */
-
-.game-panel {
-  display: grid;
-  grid-template-columns: minmax(0,1.1fr) minmax(290px,.9fr);
-  gap: 14px;
-}
-
-.game-board {
-  border: 1px solid #b7a078;
-  background: #fff8e8;
-  box-shadow: var(--shadow);
-  padding: 20px;
-  min-width: 0;
-  position: relative;
-}
-
-.game-board.dark {
-  background: var(--forest);
-  color: #f1e5c9;
-  border: 4px double #c0a273;
-}
-
-.game-overline {
-  font: 700 11px Georgia, serif;
-  letter-spacing: .17em;
-  color: var(--red);
-}
-
-.game-board.dark .game-overline {
-  color: #cdb077;
-}
-
-.game-board h4 {
-  font: 700 23px "Gowun Batang", serif;
-  margin: 8px 0;
-}
-
-.game-board p {
-  font-size: 12px;
-  line-height: 1.85;
-  color: #655e50;
-  margin: 8px 0 15px;
-}
-
-.game-board.dark p {
-  color: #d7ceba;
-}
-
-.game-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 14px;
-}
-
-.game-actions button,
-.ticket-actions button,
-.mini-btn {
-  border: 1px solid #8b754f;
-  background: #e6d0a1;
-  color: #283c32;
-  padding: 10px 12px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.game-actions .outline,
-.ticket-actions .outline {
-  background: transparent;
-  color: inherit;
-  border-color: #b8a476;
-}
-
-.game-board button:hover,
-.ticket-actions button:hover {
-  filter: brightness(1.08);
-}
-
-.mission-progress {
-  height: 9px;
-  border: 1px solid #9b8966;
-  background: #d7c5a6;
-  overflow: hidden;
-  margin: 13px 0 8px;
-}
-
-.mission-progress > div {
-  height: 100%;
-  width: 0;
-  background: #b57d46;
-  transition: width .3s;
-}
-
-.mission-stops {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 8px;
-  margin: 12px 0;
-}
-
-.mission-stop {
-  background: #f2e3c3;
-  color: var(--forest);
-  padding: 12px 9px;
-  border: 1px solid #b39a6b;
-  min-width: 0;
-}
-
-.mission-stop b {
-  display: block;
-  font: 700 10px Georgia, serif;
-  color: var(--red);
-  margin-bottom: 7px;
-}
-
-.mission-stop span {
-  font-size: 12px;
-  font-weight: 700;
-  display: block;
-  overflow-wrap: anywhere;
-}
-
-.mission-stop small {
-  display: block;
-  font-size: 10px;
-  color: #75664d;
-  margin-top: 6px;
-}
-
-.mission-stop.done {
-  background: #dce6d5;
-  border-color: #729278;
-}
-
-.game-board.dark .mission-stop {
-  background: #e9ddc3;
-}
-
-.game-board.dark .mission-stop.done {
-  background: #c9dbc5;
-}
-
-.passport-counter {
-  font: 700 27px Georgia, serif;
-  color: #ecd8aa;
-}
-
-.passport-note {
-  font-size: 11px;
-  color: #e1d0af;
-}
-
-.stamp-shelf {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-  min-height: 42px;
-}
-
-.stamp-chip {
-  border: 2px double #b78a58;
-  color: #f1d5a5;
-  border-radius: 50%;
-  min-width: 55px;
-  min-height: 48px;
-  padding: 5px;
-  font: 700 10px "Gowun Batang", serif;
-  transform: rotate(-8deg);
-  display: grid;
-  place-items: center;
-  text-align: center;
-}
-
-.small-note {
-  font-size: 10px !important;
-  opacity: .83;
-}
-
-.game-flash {
-  background: #f9efce;
-  border: 1px dashed #ad8a51;
-  margin-top: 12px;
-  padding: 9px;
-  color: #453f31;
-  font-size: 12px;
-  line-height: 1.65;
-  min-height: 38px;
-}
-
-.game-board.dark .game-flash {
-  background: #253e35;
-  color: #f3dfaf;
-  border-color: #a58c5b;
-}
-
-/* 지도와 장소 목록 */
-
-.layout {
-  display: grid;
-  grid-template-columns:
-    minmax(0,1.45fr)
-    minmax(300px,.83fr);
-  gap: 15px;
-}
-
-.panel {
-  background: #fff9ec;
-  border: 1px solid #b9a781;
-  box-shadow: var(--shadow);
-  min-width: 0;
-}
-
-.panel-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--forest);
-  color: #f2e5ca;
-  padding: 13px 16px;
-  border-bottom: 3px solid var(--brass);
-  gap: 9px;
-}
-
-.panel-title h4 {
-  margin: 0;
-  font: 700 17px "Gowun Batang", serif;
-}
-
-.panel-title small {
-  font: 700 11px Georgia, "Noto Sans KR", sans-serif;
-  color: #d7c6a3;
-}
-
-.map-shell {
-  position: relative;
-  background: #d7d1b7;
-}
-
-#map {
-  height: 510px;
-  width: 100%;
-  z-index: 1;
-}
-
-#map .leaflet-tile-pane {
-  filter: sepia(.33) saturate(.7) contrast(.95);
-}
-
-.map-label {
-  position: absolute;
-  z-index: 500;
-  top: 12px;
-  right: 12px;
-  pointer-events: none;
-  border: 1px solid #53402590;
-  background: #fff9e5eb;
-  padding: 9px 13px;
-  font-size: 11px;
-  color: var(--forest);
-}
-
-.map-label b {
-  display: block;
-  font: 700 17px "Gowun Batang", serif;
-}
-
-.map-label span { font-size: 9px; }
-
-#list {
-  height: 510px;
-  overflow-y: auto;
-  padding: 10px;
-  background: repeating-linear-gradient(
-    0deg,
-    #fff9ec,
-    #fff9ec 45px,
-    #f7efdb 46px
-  );
-}
-
-.stop {
-  display: grid;
-  grid-template-columns: 34px minmax(0,1fr) auto;
-  align-items: center;
-  gap: 9px;
-  width: 100%;
-  text-align: left;
-  background: #fffdf7f0;
-  color: var(--ink);
-  border: 1px solid #d4c6a8;
-  padding: 11px 10px;
-  margin-bottom: 7px;
-}
-
-.stop:hover {
-  background: #f1e3c6;
-  border-color: #ad8b55;
-}
-
-.stop.active {
-  background: #e7d5ad;
-  border-color: #8c6b3f;
-  box-shadow: inset 3px 0 0 var(--red);
-}
-
-.stop-number {
-  font: 700 13px Georgia, serif;
-  text-align: center;
-  color: var(--red);
-  border-right: 1px solid #d3c3a4;
-  padding-right: 7px;
-}
-
-.stop b {
-  display: block;
-  font-size: 12px;
-  line-height: 1.5;
-  word-break: keep-all;
-}
-
-.stop small {
-  font-size: 10px;
-  color: #81745f;
-  display: block;
-  margin-top: 3px;
-}
-
-.status {
-  font-size: 10px;
-  font-weight: 700;
-  white-space: nowrap;
-  border: 1px solid currentColor;
-  padding: 5px 7px;
-  background: #ffffff8f;
-}
-
-.status-0 { color: #236c56; }
-.status-1 { color: #32669a; }
-.status-2 { color: #946313; }
-.status-3 { color: #a14e29; }
-.status-4 { color: #a62d3b; }
-.status-unknown { color: #79796b; }
-
-.empty {
-  padding: 35px 12px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-/* 관측 승차권 */
-
-.ticket {
-  background: #fff9ec;
-  border: 1px solid #b8a17c;
-  position: relative;
-  box-shadow: var(--shadow);
-  margin-top: 16px;
-  overflow: hidden;
-  scroll-margin-top: 20px;
-}
-
-.ticket::before,
-.ticket::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  background: var(--paper);
-  border: 1px solid #b8a17c;
-  top: 80px;
-  z-index: 1;
-}
-
-.ticket::before { left: -12px; }
-.ticket::after { right: -12px; }
-
-.ticket-top {
-  background: #e5d3af;
-  padding: 19px 25px 17px;
-  border-bottom: 2px dashed #b59b70;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-}
-
-.ticket-kicker {
-  font: 700 10px Georgia, serif;
-  color: var(--red);
-  letter-spacing: .16em;
-}
-
-.ticket-top h3 {
-  font: 700 clamp(22px,3vw,32px) "Gowun Batang", serif;
-  letter-spacing: -.06em;
-  margin: 6px 0 0;
-  color: var(--forest);
-}
-
-.ticket-seal {
-  min-width: 64px;
-  height: 64px;
-  border: 3px double var(--red);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  transform: rotate(-12deg);
-  font: 700 11px "Gowun Batang", serif;
-  color: var(--red);
-}
-
-.ticket-content {
-  padding: 20px 25px 24px;
-}
-
-.ticket-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.facts {
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 9px;
-}
-
-.fact {
-  padding: 13px;
-  background: #f2e7d0;
-  border-top: 3px solid var(--brass);
-  min-width: 0;
-}
-
-.fact small {
-  display: block;
-  font-size: 10px;
-  color: #665d4e;
-}
-
-.fact strong {
-  display: block;
-  font-size: 15px;
-  color: var(--forest);
-  margin-top: 6px;
-  overflow-wrap: anywhere;
-}
-
-.ticket p {
-  line-height: 1.9;
-  font-size: 12px;
-  color: #615a4f;
-  margin: 13px 0 0;
-}
-
-.ticket-actions {
-  border-top: 1px dashed #c4a679;
-  padding-top: 15px;
-  margin-top: 17px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.ticket-actions small {
-  font-size: 11px;
-  color: #77664d;
-}
-
-.ticket-actions .outline {
-  border-color: #a08b62;
-  color: var(--forest);
-}
-
-.foot {
-  margin: 27px 0 0;
-  border-top: 3px double #c1ad85;
-  padding: 18px 3px;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.95;
-}
-
-.foot strong {
-  color: var(--forest);
-}
-
-.toast {
-  position: fixed;
-  bottom: 22px;
-  left: 50%;
-  transform: translate(-50%,120px);
-  max-width: min(450px,90vw);
-  background: #233c35;
-  color: #fff0cb;
-  border: 3px double #c4a168;
-  box-shadow: 0 12px 30px #0004;
-  padding: 13px 20px;
-  font-size: 13px;
-  text-align: center;
-  z-index: 1500;
-  opacity: 0;
-  pointer-events: none;
-  transition: transform .25s, opacity .25s;
-}
-
-.toast.show {
-  transform: translate(-50%,0);
-  opacity: 1;
-}
-
-/* 반응형 */
-
-@media(max-width:1050px) {
-  .toolbar {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .toolbar .field:first-child {
-    grid-column: 1/-1;
-  }
-
-  .game-panel,
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  .hero {
-    grid-template-columns: 1fr .7fr;
-  }
-
-  #map { height: 460px; }
-  #list { height: 300px; }
-}
-
-@media(max-width:650px) {
-  .topbar-inner { font-size: 9px; }
-  .masthead { padding: 19px 15px; }
-  .issue { display: none; }
-
-  .seal {
-    width: 49px;
-    height: 49px;
-    font-size: 20px;
-  }
-
-  .wrap { padding: 0 13px 30px; }
-
-  .hero {
-    grid-template-columns: 1fr;
-    margin-top: 15px;
-  }
-
-  .hero-copy {
-    padding: 24px 23px 5px;
-  }
-
-  .hero-art {
-    min-height: 140px;
-    padding: 0;
-  }
-
-  .tram-scene svg {
-    max-width: 235px;
-  }
-
-  .art-caption { display: none; }
-
-  .toolbar {
-    grid-template-columns: 1fr;
-  }
-
-  .toolbar .field:first-child {
-    grid-column: auto;
-  }
-
-  .stats {
-    grid-template-columns: repeat(2,1fr);
-  }
-
-  .stat strong { font-size: 30px; }
-
-  .section-head {
-    align-items: start;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .mission-stops {
-    grid-template-columns: 1fr;
-  }
-
-  .game-board { padding: 16px; }
-  .legend { gap: 10px; }
-
-  .facts {
-    grid-template-columns: repeat(2,1fr);
-  }
-
-  .ticket-top,
-  .ticket-content {
-    padding-left: 17px;
-    padding-right: 17px;
-  }
-
-  #map { height: 395px; }
-
-  .map-label {
-    font-size: 9px;
-    padding: 6px 8px;
-  }
-}
-
-@media(prefers-reduced-motion:reduce) {
-  html { scroll-behavior: auto; }
-
-  *, *:before, *:after {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CrowdLess Adventure</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --bg:#f6f8f4;
+      --paper:#fffdf7;
+      --green:#1f6b57;
+      --green2:#2d8d73;
+      --mint:#dff4ea;
+      --line:#dfe8e2;
+      --text:#18352b;
+      --sub:#6a7e74;
+      --gold:#d2a753;
+      --rose:#cf6f7c;
+      --blue:#6b8fd6;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,"Malgun Gothic",sans-serif;
+      background:linear-gradient(180deg,#eef5f0 0%, #f8fbf9 100%);
+      color:var(--text);
+    }
+    button,input,select{font:inherit}
+    .app{
+      max-width:1400px;
+      margin:0 auto;
+      padding:20px;
+    }
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+      background:white;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px 18px;
+      box-shadow:var(--shadow);
+    }
+    .brand{
+      font-size:26px;
+      font-weight:900;
+      letter-spacing:-1px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .brand-badge{
+      width:38px;height:38px;border-radius:12px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--green),var(--green2));
+      color:white;font-size:20px;
+    }
+    .nav-mini{
+      display:flex;gap:8px;flex-wrap:wrap;
+    }
+    .nav-mini button{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      border-radius:999px;
+      padding:10px 14px;
+      cursor:pointer;
+    }
+    .nav-mini button.active{
+      background:var(--green);
+      color:white;
+      border-color:var(--green);
+    }
+
+    .scene{
+      display:none;
+      background:white;
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      margin-bottom:18px;
+    }
+    .scene.active{display:block}
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:0;
+      min-height:560px;
+    }
+    .hero-left{
+      padding:48px 42px;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,.45), transparent 35%),
+        linear-gradient(135deg,#143d33 0%, #245d4d 45%, #3f8a73 100%);
+      color:white;
+    }
+    .hero-left h1{
+      font-size:clamp(34px,5vw,58px);
+      line-height:1.22;
+      margin:0 0 14px;
+      letter-spacing:-1.5px;
+    }
+    .hero-left p{
+      margin:0 0 18px;
+      line-height:1.8;
+      color:#dcf3ea;
+      max-width:650px;
+      font-size:15px;
+    }
+    .hero-tags{
+      display:flex;flex-wrap:wrap;gap:10px;
+      margin:22px 0 28px;
+    }
+    .hero-tags span{
+      padding:10px 14px;
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:999px;
+      font-size:13px;
+    }
+    .cta-row{
+      display:flex;gap:12px;flex-wrap:wrap;
+    }
+    .btn-main,.btn-sub,.btn-ghost{
+      border:none;
+      border-radius:14px;
+      padding:14px 18px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .btn-main{
+      background:#fff;
+      color:var(--green);
+    }
+    .btn-sub{
+      background:#e8fff5;
+      color:#155847;
+    }
+    .btn-ghost{
+      background:transparent;
+      border:1px solid rgba(255,255,255,.35);
+      color:#fff;
+    }
+    .hero-right{
+      background:
+        linear-gradient(180deg,#fffaf0 0%, #fffdf9 100%);
+      padding:30px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:16px;
+    }
+    .poster-card{
+      background:var(--paper);
+      border:1px solid #eadfcb;
+      border-radius:22px;
+      padding:22px;
+      box-shadow:0 8px 28px rgba(100,70,10,.08);
+      position:relative;
+      overflow:hidden;
+    }
+    .poster-card::before{
+      content:"";
+      position:absolute;
+      inset:auto -40px -40px auto;
+      width:180px;height:180px;border-radius:50%;
+      background:rgba(210,167,83,.12);
+    }
+    .poster-title{
+      font-size:14px;
+      color:#8a6d2f;
+      font-weight:800;
+      letter-spacing:.04em;
+      margin-bottom:8px;
+    }
+    .poster-card h2{
+      margin:0 0 10px;
+      font-size:28px;
+      line-height:1.35;
+      color:#433717;
+    }
+    .poster-card p{
+      margin:0;
+      line-height:1.8;
+      color:#6c6145;
+      font-size:14px;
+    }
+    .mini-stat-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+    .mini-stat{
+      background:white;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+    }
+    .mini-stat small{color:var(--sub)}
+    .mini-stat strong{
+      display:block;
+      margin-top:8px;
+      font-size:24px;
+    }
+
+    .scene-head{
+      padding:22px 24px 10px;
+    }
+    .scene-head small{
+      display:block;
+      color:var(--sub);
+      margin-bottom:8px;
+      font-weight:700;
+    }
+    .scene-head h2{
+      margin:0;
+      font-size:30px;
+      letter-spacing:-1px;
+    }
+    .scene-body{
+      padding:20px 24px 24px;
+    }
+
+    .mood-grid{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:14px;
+    }
+    .mood-card{
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:20px;
+      background:linear-gradient(180deg,#ffffff 0%, #f8fbf9 100%);
+      cursor:pointer;
+      transition:.2s ease;
+    }
+    .mood-card:hover{transform:translateY(-3px)}
+    .mood-card.active{
+      border-color:var(--green2);
+      box-shadow:0 0 0 3px rgba(45,141,115,.12);
+      background:#ecfbf5;
+    }
+    .mood-emoji{font-size:30px}
+    .mood-card h3{margin:8px 0 8px;font-size:19px}
+    .mood-card p{margin:0;color:var(--sub);font-size:13px;line-height:1.7}
+
+    .map-layout{
+      display:grid;
+      grid-template-columns:380px 1fr;
+      gap:16px;
+    }
+    .side-panel{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fcfffd;
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height:660px;
+    }
+    .controls{
+      display:grid;
+      gap:10px;
+    }
+    .controls input,.controls select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px 13px;
+      background:white;
+    }
+    .small-toolbar{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .small-toolbar button{
+      border:1px solid var(--line);
+      background:white;
+      border-radius:12px;
+      padding:10px 12px;
+      cursor:pointer;
+    }
+    .small-toolbar button.primary{
+      background:var(--green);
+      color:white;
+      border-color:var(--green);
+    }
+    .place-list{
+      overflow:auto;
+      display:grid;
+      gap:8px;
+      padding-right:2px;
+    }
+    .place-item{
+      text-align:left;
+      width:100%;
+      border:1px solid var(--line);
+      background:white;
+      border-radius:14px;
+      padding:12px;
+      cursor:pointer;
+    }
+    .place-item.active{
+      border-color:var(--green2);
+      background:#eefaf5;
+    }
+    .place-item b{display:block}
+    .place-item small{
+      display:block;
+      color:var(--sub);
+      margin-top:6px;
+      line-height:1.6;
+    }
+
+    .map-panel{
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:white;
+      min-height:660px;
+      display:flex;
+      flex-direction:column;
+    }
+    .map-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:16px;
+      border-bottom:1px solid var(--line);
+      flex-wrap:wrap;
+    }
+    .legend{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      font-size:12px;
+      color:var(--sub);
+    }
+    .legend span{
+      display:flex;align-items:center;gap:6px;
+    }
+    .dot{
+      width:11px;height:11px;border-radius:50%;
+      display:inline-block;
+    }
+    #map{
+      height:660px;
+      background:#edf3ef;
+    }
+
+    .info-grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:16px;
+    }
+    .glass-card{
+      background:linear-gradient(180deg,#ffffff 0%, #f8fbf8 100%);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:18px;
+    }
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+      margin-top:14px;
+    }
+    .stat{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      background:white;
+    }
+    .stat small{color:var(--sub)}
+    .stat strong{
+      display:block;
+      margin-top:7px;
+      font-size:20px;
+    }
+    .badge{
+      display:inline-block;
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:12px;
+      font-weight:800;
+      margin-top:10px;
+    }
+    .compare-list{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+    .compare-item{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      background:white;
+    }
+
+    .ticket-layout{
+      display:grid;
+      grid-template-columns:340px 1fr;
+      gap:16px;
+    }
+    .form-stack{
+      display:grid;
+      gap:10px;
+    }
+    .form-stack input,.form-stack select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px 13px;
+      background:white;
+    }
+    .ticket{
+      position:relative;
+      background:linear-gradient(135deg,#fffaf3 0%, #fffdf9 100%);
+      border:2px dashed #dfc88e;
+      border-radius:24px;
+      padding:26px;
+      min-height:360px;
+      overflow:hidden;
+    }
+    .ticket::before,.ticket::after{
+      content:"";
+      position:absolute;
+      top:50%;
+      width:28px;height:28px;border-radius:50%;
+      background:#f6f8f4;
+      transform:translateY(-50%);
+      border:2px solid #dfc88e;
+    }
+    .ticket::before{left:-16px}
+    .ticket::after{right:-16px}
+    .ticket-top{
+      display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+      border-bottom:1px dashed #d9c393;padding-bottom:16px;margin-bottom:18px;
+    }
+    .ticket-title{font-size:12px;font-weight:900;color:#8c6f30;letter-spacing:.1em}
+    .ticket h3{margin:4px 0 0;font-size:32px;color:#4e411d}
+    .ticket-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+      margin-bottom:16px;
+    }
+    .ticket-cell small{color:#8a7d5d}
+    .ticket-cell strong{display:block;margin-top:6px;font-size:18px;color:#42361c}
+    .qr-box{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:110px 1fr;
+      gap:16px;
+      align-items:center;
+    }
+    .fake-qr{
+      width:110px;height:110px;border-radius:10px;
+      background:
+        linear-gradient(90deg,#000 10px,transparent 10px) 0 0/22px 22px,
+        linear-gradient(#000 10px,transparent 10px) 0 0/22px 22px,
+        linear-gradient(90deg,transparent 12px,#000 12px,#000 18px,transparent 18px) 0 0/22px 22px,
+        linear-gradient(transparent 12px,#000 12px,#000 18px,transparent 18px) 0 0/22px 22px,
+        #fff;
+      border:1px solid #d8c28c;
+    }
+
+    .result-layout{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+    .route-card{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:linear-gradient(180deg,#ffffff 0%, #f8fbf8 100%);
+      padding:18px;
+    }
+    .route-item{
+      border-left:4px solid var(--green2);
+      padding:12px 14px;
+      background:white;
+      border-radius:0 16px 16px 0;
+      margin-top:12px;
+    }
+    .footer-tools{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .hint{
+      font-size:13px;
+      color:var(--sub);
+      line-height:1.8;
+    }
+
+    @media (max-width:1100px){
+      .hero{grid-template-columns:1fr}
+      .mood-grid{grid-template-columns:repeat(2,1fr)}
+      .map-layout,.info-grid,.ticket-layout,.result-layout{grid-template-columns:1fr}
+      .side-panel{min-height:auto}
+      #map{height:500px}
+    }
+    @media (max-width:700px){
+      .mini-stat-grid,.stats-grid,.ticket-grid{grid-template-columns:1fr}
+      .mood-grid{grid-template-columns:1fr}
+      .nav-mini{display:none}
+    }
+  </style>
 </head>
-
 <body>
-
-<div class="topbar">
-  <div class="topbar-inner">
-    <span>京城 電車 案內所 · RETRO CITY GUIDE</span>
-    <span>옛 안내소의 멋으로 읽는 오늘의 서울</span>
-  </div>
-</div>
-
-<header class="masthead">
-  <div class="brand">
-    <div class="seal" aria-hidden="true">CL</div>
-
-    <div>
-      <div class="eyebrow">CROWDLESS · SEOUL EDITION</div>
-      <h1>경성 전차 안내소</h1>
-      <p>서울 군중 관측 안내 · 서울시 공공데이터 기반</p>
-    </div>
-  </div>
-
-  <div class="issue">
-    <small>금일의 안내</small>
-    <strong id="today">SEOUL · TODAY</strong>
-  </div>
-</header>
-
-<main class="wrap">
-
-<section class="hero" aria-label="서비스 소개">
-
-  <div class="hero-copy">
-    <span class="kicker">CITY OBSERVATION · NO. 001</span>
-
-    <h2>
-      북적이는 거리 사이,<br>
-      한가로운 길을 찾아서.
-    </h2>
-
-    <p>
-      오래된 전차 안내소를 닮은 서울 혼잡도 지도.
-      121개 지점의 최신 정보를 읽고,
-      가상의 전차 승차권을 발급받아
-      정류장 도장을 모아 보세요.
-    </p>
-
-    <div class="hero-buttons">
-      <button class="retro-btn" id="hero-ticket" type="button">
-        ✦ 오늘의 승차권 뽑기
-      </button>
-
-      <button class="retro-btn secondary" id="tram-bell" type="button">
-        ♬ 전차 종 울리기
-      </button>
-    </div>
-  </div>
-
-  <div class="hero-art">
-    <div class="tram-scene" id="tram-scene" aria-hidden="true">
-
-      <svg viewBox="0 0 360 210"
-           xmlns="http://www.w3.org/2000/svg">
-
-        <path d="M0 178H360M0 191H360"
-              stroke="#bb9d62" stroke-width="3"/>
-
-        <path d="M45 185h270 M90 178l-10 13
-                 m65-13-10 13 m65-13-10 13
-                 m65-13-10 13"
-              stroke="#e5c88e" stroke-width="3"/>
-
-        <path d="M178 14v43M119 14h118"
-              stroke="#e4cc94"
-              stroke-width="3"
-              fill="none"/>
-
-        <g class="tram-body">
-          <path d="M86 64h188a16 16 0 0 1 16 16v82H70V80a16 16 0 0 1 16-16Z"
-                fill="#e7d5ae"
-                stroke="#c3a06b"
-                stroke-width="5"/>
-
-          <rect x="84" y="78"
-                width="192" height="65" rx="4"
-                fill="#223a33"
-                stroke="#b69050"
-                stroke-width="3"/>
-
-          <path d="M148 78v65M212 78v65"
-                stroke="#c8ad77"
-                stroke-width="5"/>
-
-          <rect x="159" y="48"
-                width="42" height="24" rx="3"
-                fill="#8e4333"
-                stroke="#d3aa6a"
-                stroke-width="2"/>
-
-          <text x="180" y="65"
-                fill="#fff0cf"
-                font-size="13"
-                font-weight="bold"
-                text-anchor="middle">電車</text>
-
-          <rect x="64" y="145"
-                width="232" height="31" rx="7"
-                fill="#8c4235"
-                stroke="#d2ad71"
-                stroke-width="4"/>
-
-          <circle class="wheel"
-                  cx="102" cy="178" r="14"
-                  fill="#222824"
-                  stroke="#c6ab76"
-                  stroke-width="5"/>
-
-          <circle class="wheel"
-                  cx="258" cy="178" r="14"
-                  fill="#222824"
-                  stroke="#c6ab76"
-                  stroke-width="5"/>
-
-          <circle cx="84" cy="161" r="5" fill="#f8e2a8"/>
-          <circle cx="276" cy="161" r="5" fill="#f8e2a8"/>
-        </g>
-      </svg>
-
-      <div class="art-caption">
-        CROWDLESS · A JOURNEY THROUGH SEOUL
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<div class="ribbon">電車案內 · 군중 관측 대장</div>
-
-<section class="toolbar" aria-label="검색과 정렬">
-
-  <div class="field">
-    <label for="search">01 / 정류장 · 장소 찾기</label>
-    <input id="search" type="search"
-           placeholder="예: 강남역, 홍대, 서울숲"
-           autocomplete="off">
-  </div>
-
-  <div class="field">
-    <label for="kind">02 / 장소 종류</label>
-    <select id="kind">
-      <option value="">전체 구역</option>
-      <option>관광특구</option>
-      <option>고궁·문화유산</option>
-      <option>인구밀집지역</option>
-      <option>발달상권</option>
-      <option>공원</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label for="sort">03 / 안내 순서</label>
-    <select id="sort">
-      <option value="name">이름순</option>
-      <option value="quiet">한가로운 순</option>
-      <option value="busy">붐비는 순</option>
-    </select>
-  </div>
-
-  <button id="refresh" type="button">↻ 최신 관측 확인</button>
-</section>
-
-<section class="stats" aria-label="관측 현황">
-
-  <div class="stat">
-    <small>전체 관측 지점</small>
-    <strong id="all">121</strong>
-    <span>TOTAL STOPS</span>
-  </div>
-
-  <div class="stat">
-    <small>현재 안내 구역</small>
-    <strong id="found">121</strong>
-    <span>SEARCH RESULTS</span>
-  </div>
-
-  <div class="stat">
-    <small>관측 자료 확인</small>
-    <strong id="loaded">0</strong>
-    <span>AVAILABLE REPORTS</span>
-  </div>
-
-  <div class="stat">
-    <small>여유로운 장소</small>
-    <strong id="quiet">0</strong>
-    <span>QUIET PLACES</span>
-  </div>
-</section>
-
-<div class="notice" id="notice"
-     role="status" aria-live="polite">
-  오늘의 혼잡도 기록을 확인하는 중입니다…
-</div>
-
-<div class="section-head" id="game-area">
-  <h3>✦ 오늘의 전차 탐방</h3>
-  <small>가상 미니게임 · 실제 이동 경로 및 방문 기록이 아닙니다</small>
-</div>
-
-<section class="game-panel" aria-label="전차 미니게임">
-
-  <div class="game-board">
-    <span class="game-overline">
-      SPECIAL TICKET · THREE STOPS
-    </span>
-
-    <h4>세 정류장 도장 미션</h4>
-
-    <p>
-      혼잡도 자료가 있는 장소 가운데
-      비교적 한산한 세 곳을 뽑아요.
-      정류장을 지도에서 살펴보고
-      <b>가상 도장</b>을 찍으면 승차권이 완성됩니다.
-    </p>
-
-    <div class="mission-progress"
-         role="progressbar"
-         aria-label="미션 달성률"
-         aria-valuemin="0"
-         aria-valuemax="3"
-         aria-valuenow="0"
-         id="progress">
-      <div id="progress-bar"></div>
-    </div>
-
-    <div id="mission-count"
-         style="font-size:11px;color:#75664d">
-      아직 발급한 승차권이 없습니다.
-    </div>
-
-    <div class="mission-stops" id="mission-stops">
-      <div class="empty">
-        승차권을 뽑아 탐방을 시작해 보세요.
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-badge">✦</div>
+      <div>
+        CrowdLess Adventure
+        <div style="font-size:12px;color:var(--sub);font-weight:600;">혼잡도를 피해 떠나는 작은 서울 모험</div>
       </div>
     </div>
-
-    <div class="game-actions">
-      <button id="issue-ticket" type="button">
-        🎫 새 승차권 뽑기
-      </button>
-
-      <button id="next-stop" type="button" class="outline">
-        다음 정류장 보기 →
-      </button>
-    </div>
-
-    <div class="game-flash" id="mission-message"
-         aria-live="polite">
-      지도 탐방은 가상 체험이며
-      실제 전차 노선을 안내하지 않습니다.
+    <div class="nav-mini">
+      <button class="scene-tab active" data-scene="scene1">1 시작</button>
+      <button class="scene-tab" data-scene="scene2">2 스타일</button>
+      <button class="scene-tab" data-scene="scene3">3 지도</button>
+      <button class="scene-tab" data-scene="scene4">4 분석</button>
+      <button class="scene-tab" data-scene="scene5">5 티켓</button>
+      <button class="scene-tab" data-scene="scene6">6 결과</button>
     </div>
   </div>
 
-  <div class="game-board dark">
-    <span class="game-overline">
-      COLLECTOR'S PASSPORT · 2026
-    </span>
-
-    <h4>나의 정류장 도장 수첩</h4>
-
-    <p>
-      지도나 목록에서 정류장을 선택하고
-      상세 승차권의 ‘도장 찍기’를 누르세요.
-      모은 도장은 이 브라우저에만 저장돼요.
-    </p>
-
-    <div class="passport-counter">
-      <span id="stamp-count">0</span>
-      <span style="font-size:17px">/ 121</span>
-    </div>
-
-    <div class="passport-note">수집한 가상 도장</div>
-
-    <div class="stamp-shelf" id="stamp-shelf">
-      <span class="passport-note">
-        아직 수집한 도장이 없어요.
-      </span>
-    </div>
-
-    <div class="game-actions">
-      <button id="surprise-stop" type="button">
-        ✦ 뜻밖의 정류장 찾기
-      </button>
-
-      <button id="clear-stamps" class="outline" type="button">
-        도장 기록 초기화
-      </button>
-    </div>
-
-    <p class="small-note">
-      도장 수첩은 localStorage에 저장됩니다.
-      다른 기기에는 공유되지 않아요.
-    </p>
-  </div>
-</section>
-
-<div class="section-head">
-  <h3>오늘의 경성시내 안내도</h3>
-  <small>복고풍 연출 · 실제 지도와 데이터는 현대 서울 기준</small>
-</div>
-
-<div id="legend" class="legend"
-     aria-label="혼잡도 범례"></div>
-
-<section class="layout">
-
-  <div class="panel">
-    <div class="panel-title">
-      <h4>◈ 혼잡도 노선 안내도</h4>
-      <small id="mapCount">121개 관측 지점</small>
-    </div>
-
-    <div class="map-shell">
-      <div id="map" role="region"
-           aria-label="서울시 혼잡도 지도"></div>
-
-      <div class="map-label">
-        <b>서울시 혼잡 지도</b>
-        <span>MODERN SEOUL · DATA MAP</span>
+  <!-- Scene 1 -->
+  <section class="scene active" id="scene1">
+    <div class="hero">
+      <div class="hero-left">
+        <h1>오늘의 서울,<br>어떻게 놀러갈까?</h1>
+        <p>
+          CrowdLess는 서울시 실시간 도시데이터를 활용해서
+          사람이 너무 많은 곳은 피하고, 지금 가기 좋은 장소를 찾도록 도와주는
+          체험형 웹앱이야. 그냥 조회만 하는 게 아니라,
+          여행 스타일을 고르고, 지도에서 목적지를 정하고,
+          티켓까지 발급받는 방식으로 즐길 수 있어.
+        </p>
+        <div class="hero-tags">
+          <span>서울 121개 주요 장소</span>
+          <span>실시간 혼잡도</span>
+          <span>지도 탐험</span>
+          <span>가상 티켓 발급</span>
+          <span>추천 코스</span>
+        </div>
+        <div class="cta-row">
+          <button class="btn-main" onclick="goScene('scene2')">시작하기</button>
+          <button class="btn-sub" onclick="refreshAll()">실시간 불러오기</button>
+          <button class="btn-ghost" onclick="goScene('scene3')">바로 지도 보기</button>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="poster-card">
+          <div class="poster-title">TODAY'S TRAVEL BOARD</div>
+          <h2>“붐비지 않는 서울을 찾아 떠나는 모험”</h2>
+          <p>
+            산책, 먹방, 혼자 쉬기, 관광, 핫플 탐방까지.
+            네 취향과 현재 혼잡도를 함께 보고 오늘의 목적지를 정해 봐.
+          </p>
+        </div>
+        <div class="mini-stat-grid">
+          <div class="mini-stat">
+            <small>탐험 가능한 장소</small>
+            <strong id="heroTotal">121곳</strong>
+          </div>
+          <div class="mini-stat">
+            <small>현재 선택한 목적지</small>
+            <strong id="heroPlace">강남역</strong>
+          </div>
+          <div class="mini-stat">
+            <small>지금 조회 완료</small>
+            <strong id="heroLoaded">0곳</strong>
+          </div>
+          <div class="mini-stat">
+            <small>추천 모드</small>
+            <strong id="heroMood">자유 탐험</strong>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="panel">
-    <div class="panel-title">
-      <h4>▤ 정류장 안내판</h4>
-      <small>장소를 누르면 자세히 표시</small>
+  <!-- Scene 2 -->
+  <section class="scene" id="scene2">
+    <div class="scene-head">
+      <small>SCENE 02</small>
+      <h2>오늘 어떤 외출을 하고 싶나요?</h2>
     </div>
+    <div class="scene-body">
+      <div class="mood-grid" id="moodGrid">
+        <div class="mood-card active" data-mood="자유 탐험">
+          <div class="mood-emoji">🧭</div>
+          <h3>자유 탐험</h3>
+          <p>특정 분위기에 얽매이지 않고 지금 상황에 맞는 장소를 자유롭게 골라봐.</p>
+        </div>
+        <div class="mood-card" data-mood="산책">
+          <div class="mood-emoji">🌿</div>
+          <h3>산책</h3>
+          <p>공원이나 한강, 자연과 가까운 곳을 우선적으로 추천해주는 모드.</p>
+        </div>
+        <div class="mood-card" data-mood="핫플">
+          <div class="mood-emoji">🔥</div>
+          <h3>핫플</h3>
+          <p>트렌디한 상권, 관광특구, 많이 찾는 지역을 모아서 볼 수 있어.</p>
+        </div>
+        <div class="mood-card" data-mood="혼자 쉬기">
+          <div class="mood-emoji">☕</div>
+          <h3>혼자 쉬기</h3>
+          <p>너무 복잡하지 않고 비교적 여유로운 분위기의 장소를 찾는 모드.</p>
+        </div>
+        <div class="mood-card" data-mood="관광">
+          <div class="mood-emoji">🏛️</div>
+          <h3>관광</h3>
+          <p>고궁, 문화유산, 서울의 대표 관광지를 중심으로 살펴보는 모드.</p>
+        </div>
+      </div>
+      <div class="footer-tools">
+        <button class="btn-main" onclick="goScene('scene3')">다음: 지도에서 목적지 정하기</button>
+      </div>
+    </div>
+  </section>
 
-    <div id="list" aria-label="장소 목록"></div>
-  </div>
-</section>
+  <!-- Scene 3 -->
+  <section class="scene" id="scene3">
+    <div class="scene-head">
+      <small>SCENE 03</small>
+      <h2>지도에서 오늘 가고 싶은 곳을 골라보세요</h2>
+    </div>
+    <div class="scene-body">
+      <div class="map-layout">
+        <div class="side-panel">
+          <div class="controls">
+            <input id="search" type="search" placeholder="장소 검색: 강남, 홍대, 서울숲..." />
+            <select id="filterType">
+              <option value="">모든 유형</option>
+              <option value="관광특구">관광특구</option>
+              <option value="고궁·문화유산">고궁·문화유산</option>
+              <option value="인구밀집지역">인구밀집지역</option>
+              <option value="발달상권">발달상권</option>
+              <option value="공원">공원</option>
+            </select>
+            <select id="sortType">
+              <option value="name">이름순</option>
+              <option value="quiet">덜 붐비는 순</option>
+              <option value="busy">많이 붐비는 순</option>
+            </select>
+          </div>
+          <div class="small-toolbar">
+            <button class="primary" onclick="refreshAll()">실시간 새로고침</button>
+            <button onclick="selectRandomPlace()">랜덤 목적지</button>
+            <button onclick="goScene('scene4')">분석 화면으로</button>
+          </div>
+          <div class="hint">
+            검색창에서 장소를 찾거나, 왼쪽 목록 또는 지도 핀을 눌러 선택할 수 있어.
+          </div>
+          <div class="place-list" id="placeList"></div>
+        </div>
 
-<section class="ticket" id="detail"
-         aria-label="선택한 장소 안내"></section>
+        <div class="map-panel">
+          <div class="map-top">
+            <div>
+              <strong>서울 혼잡도 지도</strong>
+              <div style="font-size:12px;color:var(--sub);margin-top:4px;" id="mapCount">121개 장소 표시 중</div>
+            </div>
+            <div class="legend" id="legend"></div>
+          </div>
+          <div id="map"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<footer class="foot">
-  <strong>CROWDLESS · 경성 전차 안내소</strong>
-  — 옛 전차 안내판에서 영감을 얻은 디자인이며
-  역사적 노선이나 그 시대의 인구를 재현하지 않습니다.
-  모든 혼잡도는 <strong>현대 서울</strong> 데이터입니다.
-  가상 도장과 탐방 승차권은 오락 기능이며
-  방문 인증이 아닙니다.
+  <!-- Scene 4 -->
+  <section class="scene" id="scene4">
+    <div class="scene-head">
+      <small>SCENE 04</small>
+      <h2>지금 출발해도 될까? 목적지 분석실</h2>
+    </div>
+    <div class="scene-body">
+      <div class="info-grid">
+        <div class="glass-card">
+          <small style="color:var(--sub);font-weight:700;">선택한 목적지</small>
+          <h3 id="detailTitle" style="margin:6px 0 0;font-size:32px;">강남역</h3>
+          <div id="detailBadge" class="badge" style="background:#eef1ef;color:#6a7e74;">정보 없음</div>
 
-  <p>
-    자료: 서울특별시 실시간 도시데이터 API.
-    값은 GitHub Actions의 마지막 수집 시점 기준이고
-    초 단위 실시간 데이터가 아닙니다.
-    위치 핀은 대략적인 중심점이며,
-    ‘매우 붐빔’은 공식 설명 문구를 이용한 참고 등급입니다.
-  </p>
-</footer>
+          <div class="stats-grid">
+            <div class="stat">
+              <small>공식 혼잡도</small>
+              <strong id="detailLevel">정보 없음</strong>
+            </div>
+            <div class="stat">
+              <small>추정 인구</small>
+              <strong id="detailPeople">정보 없음</strong>
+            </div>
+            <div class="stat">
+              <small>기온</small>
+              <strong id="detailTemp">정보 없음</strong>
+            </div>
+            <div class="stat">
+              <small>초미세먼지</small>
+              <strong id="detailPm25">정보 없음</strong>
+            </div>
+          </div>
 
-</main>
+          <div class="compare-list">
+            <div class="compare-item">
+              <b>추천 한마디</b>
+              <div id="detailComment" style="margin-top:8px;color:var(--sub);line-height:1.8;">
+                아직 데이터를 불러오는 중이야.
+              </div>
+            </div>
+            <div class="compare-item">
+              <b>서울시 메시지</b>
+              <div id="detailMessage" style="margin-top:8px;color:var(--sub);line-height:1.8;">
+                실시간 데이터를 확인하면 공식 문구가 여기에 나타나.
+              </div>
+            </div>
+          </div>
 
-<div class="toast" id="toast"
-     role="status" aria-live="polite"></div>
+          <div class="footer-tools">
+            <button class="btn-main" onclick="goScene('scene5')">티켓 끊으러 가기</button>
+            <button class="btn-sub" onclick="goScene('scene3')">다른 장소 다시 고르기</button>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <small style="color:var(--sub);font-weight:700;">지금 비슷한 후보</small>
+          <h3 style="margin:6px 0 14px;font-size:26px;">비교해 볼 만한 장소</h3>
+          <div id="compareArea" class="compare-list"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scene 5 -->
+  <section class="scene" id="scene5">
+    <div class="scene-head">
+      <small>SCENE 05</small>
+      <h2>가상 티켓 발급소</h2>
+    </div>
+    <div class="scene-body">
+      <div class="ticket-layout">
+        <div class="glass-card">
+          <h3 style="margin-top:0;">티켓 정보 입력</h3>
+          <div class="form-stack">
+            <input id="userName" placeholder="탑승자 이름 (예: TY)" />
+            <select id="departure">
+              <option>서울역</option>
+              <option>강남역</option>
+              <option>홍대입구역</option>
+              <option>신촌·이대역</option>
+              <option>잠실새내역</option>
+              <option>용산역</option>
+            </select>
+            <select id="travelTheme">
+              <option>느긋한 외출</option>
+              <option>즉흥 탐험</option>
+              <option>핫플 원정대</option>
+              <option>혼자 힐링 여행</option>
+              <option>사진 찍기 좋은 코스</option>
+            </select>
+            <input id="departTime" type="time" value="14:30" />
+          </div>
+          <div class="footer-tools">
+            <button class="btn-main" onclick="makeTicket()">티켓 생성하기</button>
+            <button class="btn-sub" onclick="goScene('scene6')">결과 화면으로</button>
+          </div>
+          <p class="hint">
+            실제 교통 예매가 아니라, 선택한 장소를 기반으로 한 놀이형 탑승권이 만들어져.
+          </p>
+        </div>
+
+        <div class="ticket" id="ticketCard">
+          <div class="ticket-top">
+            <div>
+              <div class="ticket-title">CROWDLESS URBAN PASS</div>
+              <h3 id="ticketDestination">강남역</h3>
+            </div>
+            <div style="text-align:right;color:#826c38;font-size:13px;">
+              <div>NO. <span id="ticketNo">CL-2401</span></div>
+              <div style="margin-top:6px;">혼잡도 여행권</div>
+            </div>
+          </div>
+
+          <div class="ticket-grid">
+            <div class="ticket-cell">
+              <small>출발지</small>
+              <strong id="ticketFrom">서울역</strong>
+            </div>
+            <div class="ticket-cell">
+              <small>목적지</small>
+              <strong id="ticketTo">강남역</strong>
+            </div>
+            <div class="ticket-cell">
+              <small>탑승자</small>
+              <strong id="ticketUser">TY</strong>
+            </div>
+            <div class="ticket-cell">
+              <small>출발 시각</small>
+              <strong id="ticketTime">14:30</strong>
+            </div>
+            <div class="ticket-cell">
+              <small>추천 테마</small>
+              <strong id="ticketTheme">느긋한 외출</strong>
+            </div>
+            <div class="ticket-cell">
+              <small>현재 상태</small>
+              <strong id="ticketLevelText">정보 없음</strong>
+            </div>
+          </div>
+
+          <div class="qr-box">
+            <div class="fake-qr"></div>
+            <div style="color:#6e6144;line-height:1.8;">
+              <b>오늘의 한 줄 안내</b><br>
+              <span id="ticketLine">서울의 혼잡도를 살피며 나만의 경로로 떠나 보세요.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scene 6 -->
+  <section class="scene" id="scene6">
+    <div class="scene-head">
+      <small>SCENE 06</small>
+      <h2>오늘의 CrowdLess 결과표</h2>
+    </div>
+    <div class="scene-body">
+      <div class="result-layout">
+        <div class="route-card">
+          <small style="color:var(--sub);font-weight:700;">최종 선택</small>
+          <h3 id="finalTitle" style="margin:8px 0 12px;font-size:30px;">강남역</h3>
+          <div id="finalSummary" class="hint">
+            현재 선택한 장소의 혼잡도와 추천 이유가 여기에 표시돼.
+          </div>
+          <div class="route-item">
+            <b>오늘의 추천 코멘트</b>
+            <div id="finalComment" style="margin-top:8px;color:var(--sub);line-height:1.8;"></div>
+          </div>
+          <div class="route-item">
+            <b>선택한 여행 스타일</b>
+            <div id="finalMood" style="margin-top:8px;color:var(--sub);line-height:1.8;">자유 탐험</div>
+          </div>
+          <div class="route-item">
+            <b>티켓 상태</b>
+            <div id="finalTicket" style="margin-top:8px;color:var(--sub);line-height:1.8;">아직 생성되지 않았어.</div>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <small style="color:var(--sub);font-weight:700;">대안 목적지</small>
+          <h3 style="margin:8px 0 12px;font-size:28px;">같이 볼 만한 곳</h3>
+          <div id="resultAlternatives"></div>
+          <div class="footer-tools">
+            <button class="btn-main" onclick="goScene('scene1')">처음으로 돌아가기</button>
+            <button class="btn-sub" onclick="goScene('scene3')">다시 지도 탐험하기</button>
+            <button class="btn-sub" onclick="refreshAll()">실시간 새로고침</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-// =====================================
-// 1. 서울시 주요 121개 장소
-// =====================================
-
-// server.py가 아래 POI 코드를 읽으므로
-// 목록 형식은 그대로 유지해야 합니다.
-
 const raw = `POI001|강남 MICE 관광특구|0|37.513|127.059
 POI002|동대문 관광특구|0|37.568|127.01
 POI003|명동 관광특구|0|37.5636|126.9845
@@ -1468,7 +909,7 @@ POI026|미아사거리역|2|37.6134|127.0301
 POI027|발산역|2|37.5587|126.8378
 POI028|북한산우이역|2|37.662|127.0128
 POI029|사당역|2|37.4765|126.9816
-POI030|삼각지역|2|37.5344|126.973
+POI030|삼각지역|2|37.5344|126.9734
 POI031|서울대입구역|2|37.4812|126.9527
 POI032|서울식물원·마곡나루역|2|37.568|126.8295
 POI033|서울역|2|37.5547|126.9706
@@ -1561,1011 +1002,341 @@ POI123|보라매공원|4|37.4924|126.9198
 POI125|안양천|4|37.5175|126.868
 POI126|여의서로|4|37.5276|126.9258`;
 
-// =====================================
-// 2. 데이터 기본 설정
-// =====================================
-
-const $ = id => document.getElementById(id);
-
-const typeNames = [
-  "관광특구",
-  "고궁·문화유산",
-  "인구밀집지역",
-  "발달상권",
-  "공원"
-];
-
-const colors = [
-  "#278363",
-  "#4675a3",
-  "#c28b2a",
-  "#c46a3f",
-  "#b43f4c"
-];
-
-const labels = [
-  "여유",
-  "보통",
-  "약간 붐빔",
-  "붐빔",
-  "매우 붐빔"
-];
-
-const places = raw.trim().split("\n").map(line => {
-  const [code,name,t,lat,lng] = line.split("|");
-
+const typeNames = ["관광특구","고궁·문화유산","인구밀집지역","발달상권","공원"];
+const colors = ["#24b689","#5d91e0","#d9b247","#ea8b43","#cc4a6c"];
+const labels = ["여유","보통","약간 붐빔","붐빔","매우 붐빔"];
+const places = raw.trim().split("\n").map(line=>{
+  const [code,name,t,lat,lng]=line.split("|");
   return {
-    code,
-    name,
-    kind: typeNames[Number(t)],
-    lat: Number(lat),
-    lng: Number(lng),
-    official: "정보 없음",
-    minimum: null,
-    maximum: null,
-    temperature: null,
-    pm25: null,
-    time: null,
-    message: null,
-    error: null
+    code,name,
+    kind:typeNames[Number(t)],
+    lat:Number(lat),lng:Number(lng),
+    official:"정보 없음",
+    minimum:null,maximum:null,temperature:null,pm25:null,
+    time:null,message:null,error:null
   };
 });
+const byCode = new Map(places.map(p=>[p.code,p]));
 
-const byCode = new Map(
-  places.map(p => [p.code,p])
-);
+let selectedCode = "POI014";
+let selectedMood = "자유 탐험";
+let ticketMade = false;
+let map, markerLayer;
+const $ = id => document.getElementById(id);
 
-let map;
-let pins;
-let selected = "POI014";
-let inProgress = false;
-
-// =====================================
-// 3. 브라우저 게임 기록
-// =====================================
-
-function loadSaved(key,fallback) {
-  try {
-    const value = JSON.parse(localStorage.getItem(key));
-    return value ?? fallback;
-  } catch {
-    return fallback;
-  }
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function levelIndex(place){
+  if(place.official==="붐빔" && /매우\s*(붐|혼잡)|극심한\s*혼잡/.test(place.message||"")) return 4;
+  return ["여유","보통","약간 붐빔","붐빔"].indexOf(place.official);
 }
-
-function save(key,value) {
-  try {
-    localStorage.setItem(key,JSON.stringify(value));
-  } catch {
-    // 저장이 차단되어도 지도 기능은 유지
-  }
+function levelText(place){
+  const i = levelIndex(place);
+  return i >= 0 ? labels[i] : "정보 없음";
 }
-
-const stored = loadSaved("crowdless_stamps_v1",[]);
-
-let stamps = new Set(
-  Array.isArray(stored)
-    ? stored.filter(code => byCode.has(code))
-    : []
-);
-
-let mission = loadSaved("crowdless_mission_v1",null);
-
-if (
-  !mission ||
-  !Array.isArray(mission.stops) ||
-  mission.stops.length !== 3 ||
-  !mission.stops.every(c => byCode.has(c)) ||
-  new Set(mission.stops).size !== 3
-) {
-  mission = null;
+function levelColor(place){
+  const i = levelIndex(place);
+  return i >= 0 ? colors[i] : "#9daaa5";
 }
-
-let toastTimer;
-
-function toast(message) {
-  const el = $("toast");
-
-  el.textContent = message;
-  el.classList.add("show");
-
-  clearTimeout(toastTimer);
-
-  toastTimer = setTimeout(
-    () => el.classList.remove("show"),
-    2700
-  );
+function peopleText(place){
+  if(place.minimum==null || place.maximum==null) return "정보 없음";
+  return `${place.minimum.toLocaleString("ko-KR")} ~ ${place.maximum.toLocaleString("ko-KR")}명`;
 }
+function selectedPlace(){ return byCode.get(selectedCode); }
 
-// =====================================
-// 4. 혼잡도 판정
-// =====================================
-
-function level(p) {
-  if (
-    p.official === "붐빔" &&
-    /매우\s*(붐|혼잡)|극심한\s*혼잡/.test(p.message || "")
-  ) {
-    return 4;
-  }
-
-  return [
-    "여유",
-    "보통",
-    "약간 붐빔",
-    "붐빔"
-  ].indexOf(p.official);
-}
-
-function levelText(p) {
-  const n = level(p);
-  return n < 0 ? "정보 없음" : labels[n];
-}
-
-function pinColor(p) {
-  const n = level(p);
-  return n < 0 ? "#9c998b" : colors[n];
-}
-
-function escapeHtml(s) {
-  return String(s ?? "").replace(
-    /[&<>"']/g,
-    c => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "\"": "&quot;",
-      "'": "&#39;"
-    }[c])
-  );
-}
-
-function people(p) {
-  if (p.minimum == null || p.maximum == null) {
-    return "정보 없음";
-  }
-
-  return (
-    Number(p.minimum).toLocaleString("ko-KR") +
-    " ~ " +
-    Number(p.maximum).toLocaleString("ko-KR") +
-    "명"
-  );
-}
-
-function badge(p) {
-  const n = level(p);
-
-  return `
-    <span class="status status-${n < 0 ? "unknown" : n}">
-      ${escapeHtml(levelText(p))}
-    </span>
-  `;
-}
-
-// =====================================
-// 5. 기존 검색 및 정렬
-// =====================================
-
-function subset() {
-  const q = $("search").value.trim().toLocaleLowerCase("ko");
-  const k = $("kind").value;
-  const sort = $("sort").value;
-
-  const list = places.filter(p =>
-    (!k || p.kind === k) &&
-    (
-      p.name.toLocaleLowerCase("ko").includes(q) ||
-      p.code.toLowerCase().includes(q) ||
-      p.kind.includes(q)
-    )
-  );
-
-  if (sort === "name") {
-    list.sort((a,b) => a.name.localeCompare(b.name,"ko"));
-  } else {
-    list.sort((a,b) => {
-      const ia = level(a);
-      const ib = level(b);
-
-      const aa = ia < 0 ? 99 :
-        sort === "quiet" ? ia : -ia;
-
-      const bb = ib < 0 ? 99 :
-        sort === "quiet" ? ib : -ib;
-
-      return aa - bb || a.name.localeCompare(b.name,"ko");
-    });
-  }
-
-  return list;
-}
-
-// =====================================
-// 6. 지도, 목록, 관측 승차권 표시
-// =====================================
-
-function redraw() {
-  const items = subset();
-
-  $("all").textContent = places.length;
-  $("found").textContent = items.length;
-
-  $("loaded").textContent = places.filter(
-    p => level(p) >= 0
-  ).length;
-
-  $("quiet").textContent = places.filter(
-    p => p.official === "여유"
-  ).length;
-
-  if (
-    items.length &&
-    !items.some(p => p.code === selected)
-  ) {
-    selected = items[0].code;
-  }
-
-  $("list").innerHTML = items.length
-    ? items.map((p,i) => `
-      <button
-        class="stop ${p.code === selected ? "active" : ""}"
-        data-code="${p.code}"
-        aria-pressed="${p.code === selected}"
-      >
-        <span class="stop-number">
-          ${String(i+1).padStart(2,"0")}
-        </span>
-
-        <span>
-          <b>
-            ${escapeHtml(p.name)}
-            ${stamps.has(p.code) ? " ✦" : ""}
-          </b>
-          <small>
-            ${escapeHtml(p.kind)} · ${p.code}
-          </small>
-        </span>
-
-        ${badge(p)}
-      </button>
-    `).join("")
-    : `
-      <div class="empty">
-        조건에 맞는 장소가 없습니다.<br>
-        다른 검색어를 입력해 주세요.
-      </div>
-    `;
-
-  $("list").querySelectorAll("[data-code]").forEach(b => {
-    b.addEventListener(
-      "click",
-      () => choose(b.dataset.code)
-    );
+function filteredPlaces(){
+  const q = $("search").value.trim().toLowerCase();
+  const kind = $("filterType").value;
+  const sort = $("sortType").value;
+  let items = places.filter(p=>{
+    const matchQuery = !q || p.name.toLowerCase().includes(q) || p.kind.toLowerCase().includes(q) || p.code.toLowerCase().includes(q);
+    const matchKind = !kind || p.kind===kind;
+    const matchMood =
+      selectedMood==="자유 탐험" ? true :
+      selectedMood==="산책" ? p.kind==="공원" :
+      selectedMood==="핫플" ? (p.kind==="관광특구" || p.kind==="발달상권") :
+      selectedMood==="혼자 쉬기" ? (p.kind==="공원" || p.kind==="고궁·문화유산") :
+      selectedMood==="관광" ? (p.kind==="관광특구" || p.kind==="고궁·문화유산") :
+      true;
+    return matchQuery && matchKind && matchMood;
   });
 
-  const p = items.find(p => p.code === selected);
-
-  $("detail").innerHTML = p
-    ? `
-      <div class="ticket-top">
-        <div>
-          <div class="ticket-kicker">
-            CROWDLESS · OBSERVATION TICKET
-          </div>
-          <h3>${escapeHtml(p.name)}</h3>
-        </div>
-
-        <div class="ticket-seal" aria-hidden="true">
-          관측<br>기록
-        </div>
-      </div>
-
-      <div class="ticket-content">
-        <div class="ticket-info">
-          <span>
-            ${escapeHtml(p.kind)} · ${p.code}
-          </span>
-          ${badge(p)}
-        </div>
-
-        <div class="facts">
-          <div class="fact">
-            <small>공식 혼잡도</small>
-            <strong>${escapeHtml(p.official)}</strong>
-          </div>
-
-          <div class="fact">
-            <small>추정 인구</small>
-            <strong>${escapeHtml(people(p))}</strong>
-          </div>
-
-          <div class="fact">
-            <small>기온</small>
-            <strong>
-              ${p.temperature == null
-                ? "정보 없음"
-                : escapeHtml(p.temperature) + "°C"}
-            </strong>
-          </div>
-
-          <div class="fact">
-            <small>초미세먼지 PM2.5</small>
-            <strong>
-              ${p.pm25 == null
-                ? "정보 없음"
-                : escapeHtml(p.pm25) + "㎍/㎥"}
-            </strong>
-          </div>
-        </div>
-
-        <p>
-          <b>관측 시각</b> ·
-          ${escapeHtml(p.time || "정보 없음")}
-        </p>
-
-        <p>
-          ${escapeHtml(
-            p.message ||
-            p.error ||
-            "해당 장소의 최신 관측 자료가 없습니다."
-          )}
-        </p>
-
-        <div class="ticket-actions">
-          <button
-            id="stamp-btn"
-            type="button"
-            ${stamps.has(p.code) ? "disabled" : ""}
-          >
-            ${stamps.has(p.code)
-              ? "✓ 도장 수집 완료"
-              : "✦ 이 정류장 가상 도장 찍기"}
-          </button>
-
-          <button id="ticket-game"
-                  class="outline"
-                  type="button">
-            나의 도장 수첩 보기
-          </button>
-
-          <small>
-            실제 방문 여부와 관계없는
-            웹 탐방 도장입니다.
-          </small>
-        </div>
-      </div>
-    `
-    : `
-      <div class="ticket-content">
-        <h3>선택한 장소가 없습니다.</h3>
-        <p>검색 조건을 변경해 주세요.</p>
-      </div>
-    `;
-
-  if (p) {
-    $("stamp-btn").addEventListener(
-      "click",
-      () => stamp(p.code)
-    );
-
-    $("ticket-game").addEventListener(
-      "click",
-      () => $("game-area").scrollIntoView({
-        behavior:"smooth"
-      })
-    );
-  }
-
-  // 지도 마커 갱신
-
-  if (pins) {
-    pins.clearLayers();
-
-    items.forEach(p => {
-      const pin = L.circleMarker(
-        [p.lat,p.lng],
-        {
-          radius: p.code === selected ? 10 : 7,
-          color: "#fff6dd",
-          weight: p.code === selected ? 3 : 2,
-          fillColor: pinColor(p),
-          fillOpacity: 1
-        }
-      );
-
-      pin.bindTooltip(
-        `${escapeHtml(p.name)} ·
-         ${escapeHtml(levelText(p))}`
-      );
-
-      pin.on("click",() => choose(p.code));
-      pin.addTo(pins);
+  if(sort==="name"){
+    items.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+  }else{
+    items.sort((a,b)=>{
+      const av = levelIndex(a) < 0 ? 99 : levelIndex(a);
+      const bv = levelIndex(b) < 0 ? 99 : levelIndex(b);
+      if(sort==="quiet") return av - bv || a.name.localeCompare(b.name,"ko");
+      return bv - av || a.name.localeCompare(b.name,"ko");
     });
   }
-
-  $("mapCount").textContent =
-    items.length + "개 관측 지점";
+  return items;
 }
 
-// =====================================
-// 7. 정류장 선택
-// =====================================
+function updateTabs(sceneId){
+  document.querySelectorAll(".scene-tab").forEach(btn=>{
+    btn.classList.toggle("active", btn.dataset.scene===sceneId);
+  });
+}
+function goScene(id){
+  document.querySelectorAll(".scene").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  updateTabs(id);
+  if(id==="scene4") renderDetail();
+  if(id==="scene5") makeTicket(false);
+  if(id==="scene6") renderFinal();
+  if(id==="scene3" && map) setTimeout(()=>map.invalidateSize(),150);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".scene-tab").forEach(btn=>{
+  btn.addEventListener("click",()=>goScene(btn.dataset.scene));
+});
 
-function choose(code,goDetail=false) {
-  if (!byCode.has(code)) return;
+document.querySelectorAll(".mood-card").forEach(card=>{
+  card.addEventListener("click",()=>{
+    document.querySelectorAll(".mood-card").forEach(c=>c.classList.remove("active"));
+    card.classList.add("active");
+    selectedMood = card.dataset.mood;
+    $("heroMood").textContent = selectedMood;
+    renderPlaces();
+  });
+});
 
-  // 미션 버튼을 누른 경우에는
-  // 검색 필터를 해제하여 목표 장소를 보여 줌
-  if (goDetail) {
-    $("search").value = "";
-    $("kind").value = "";
+function commentFor(place){
+  const lv = levelIndex(place);
+  if(lv===-1) return "아직 실시간 정보가 없어. 새로고침 후 다시 확인해 봐.";
+  if(selectedMood==="산책"){
+    if(place.kind==="공원" && lv<=1) return "산책 모드에 잘 어울리는 비교적 쾌적한 장소야.";
+    if(place.kind==="공원") return "산책 장소로는 좋지만 지금은 사람이 조금 있는 편이야.";
   }
-
-  selected = code;
-  redraw();
-
-  const p = byCode.get(code);
-
-  if (map) {
-    map.flyTo(
-      [p.lat,p.lng],
-      13,
-      {duration:.45}
-    );
+  if(selectedMood==="핫플"){
+    if(lv<=1) return "핫플 느낌도 있으면서 지금은 너무 붐비지 않아 노려볼 만해.";
+    if(lv>=3) return "정말 인기 많은 곳이지만 지금은 꽤 붐빌 수 있어.";
   }
-
-  if (goDetail) {
-    $("detail").scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
+  if(selectedMood==="혼자 쉬기"){
+    if(lv<=1) return "혼자 쉬기 좋은 여유로운 분위기의 후보야.";
+    return "지금은 조금 복잡할 수 있으니 대안 장소와 비교해 보는 걸 추천해.";
   }
+  if(lv===0) return "지금 가기 가장 부담이 적은 편이야.";
+  if(lv===1) return "무난하게 방문할 수 있는 상태야.";
+  if(lv===2) return "조금 붐빌 수 있지만 충분히 방문 가능해.";
+  if(lv===3) return "현재 사람이 많은 편이야. 시간대를 바꾸면 더 좋을 수 있어.";
+  if(lv===4) return "매우 붐비는 상태로, 한적한 외출을 원한다면 다른 후보도 살펴보자.";
+  return "현재 상황을 기준으로 비교해 보며 결정하면 좋아.";
 }
 
-// =====================================
-// 8. 가상 도장 찍기
-// =====================================
-
-function stamp(code) {
-  if (!byCode.has(code) || stamps.has(code)) {
-    return;
-  }
-
-  stamps.add(code);
-
-  save(
-    "crowdless_stamps_v1",
-    [...stamps]
-  );
-
-  renderGame();
-  redraw();
-
-  const done = mission &&
-    mission.stops.every(c => stamps.has(c));
-
-  toast(
-    done
-      ? "🎊 세 정류장 도장 미션 완성!"
-      : `✦ ${byCode.get(code).name} 가상 도장 획득!`
-  );
-
-  if (done) {
-    $("mission-message").textContent =
-      "축하해요! 세 정류장의 관측 도장을 모두 모았어요. 새로운 승차권도 뽑을 수 있어요.";
-  }
-}
-
-// =====================================
-// 9. 게임 화면 갱신
-// =====================================
-
-function renderGame() {
-  const completed = mission
-    ? mission.stops.filter(c => stamps.has(c)).length
-    : 0;
-
-  $("progress").setAttribute(
-    "aria-valuenow",
-    completed
-  );
-
-  $("progress-bar").style.width =
-    (completed / 3 * 100) + "%";
-
-  $("mission-count").textContent = mission
-    ? `${completed} / 3개 도장 · ${
-        completed === 3
-          ? "탐방 완료!"
-          : "지도에서 장소를 확인하고 도장을 찍으세요."
-      }`
-    : "아직 발급한 승차권이 없습니다.";
-
-  $("mission-stops").innerHTML = mission
-    ? mission.stops.map((code,i) => {
-      const p = byCode.get(code);
-
-      return `
-        <button
-          class="mission-stop ${stamps.has(code) ? "done" : ""}"
-          data-mission="${code}"
-          type="button"
-        >
-          <b>
-            STOP 0${i+1}
-            ${stamps.has(code) ? "✓" : "○"}
-          </b>
-
-          <span>${escapeHtml(p.name)}</span>
-
-          <small>
-            ${escapeHtml(levelText(p))}
-            · 위치 보기 ↗
-          </small>
-        </button>
-      `;
-    }).join("")
-    : `
-      <div class="empty">
-        승차권을 뽑아 탐방을 시작해 보세요.
-      </div>
-    `;
-
-  $("mission-stops")
-    .querySelectorAll("[data-mission]")
-    .forEach(b => {
-      b.addEventListener(
-        "click",
-        () => choose(b.dataset.mission,true)
-      );
-    });
-
-  $("next-stop").disabled =
-    !mission || completed === 3;
-
-  $("stamp-count").textContent = stamps.size;
-
-  const last = [...stamps].slice(-8).reverse();
-
-  $("stamp-shelf").innerHTML = last.length
-    ? last.map(code => `
-      <span class="stamp-chip"
-            title="${escapeHtml(byCode.get(code).name)}">
-        ${escapeHtml(
-          byCode.get(code).name.length > 7
-            ? byCode.get(code).name.slice(0,6) + "…"
-            : byCode.get(code).name
-        )}
-      </span>
-    `).join("")
-    : `
-      <span class="passport-note">
-        아직 수집한 도장이 없어요.
-      </span>
-    `;
-}
-
-// =====================================
-// 10. 무작위 장소 추첨
-// =====================================
-
-function randomPick(list,n) {
-  const arr = [...list];
-
-  for (let i = arr.length-1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
-  }
-
-  return arr.slice(0,n);
-}
-
-// =====================================
-// 11. 전차 애니메이션
-// =====================================
-
-function playTram() {
-  const el = $("tram-scene");
-
-  el.classList.remove("tram-running");
-
-  // 애니메이션을 다시 시작
-  void el.offsetWidth;
-
-  el.classList.add("tram-running");
-}
-
-// =====================================
-// 12. 승차권 발급 게임
-// =====================================
-
-function issueMission() {
-  const available = places
-    .filter(p => level(p) >= 0)
-    .sort((a,b) => level(a)-level(b));
-
-  if (available.length < 3) {
-    $("mission-message").textContent =
-      "혼잡도 정보가 3곳 이상 필요해요. 데이터 수집 후 다시 시도해 주세요.";
-
-    toast("관측 데이터가 아직 부족해요.");
-    return;
-  }
-
-  const pool = available.filter(
-    p => level(p) <= 2
-  );
-
-  if (pool.length < 3) {
-    $("mission-message").textContent =
-      "여유~약간 붐빔 단계 장소가 3곳 미만이라 승차권을 발급할 수 없어요.";
-
-    toast("한산한 장소 데이터가 부족해요.");
-    return;
-  }
-
-  const quiet = pool.filter(
-    p => level(p) <= 1
-  );
-
-  const candidates =
-    quiet.length >= 3 ? quiet : pool;
-
-  const selectedPlaces = randomPick(candidates,3);
-
-  mission = {
-    stops: selectedPlaces.map(p => p.code)
-  };
-
-  save(
-    "crowdless_mission_v1",
-    mission
-  );
-
-  renderGame();
-
-  $("mission-message").textContent =
-    "새 승차권 발행 완료! 각 정류장을 눌러 지도에서 둘러보고 가상 도장을 모아 보세요.";
-
-  playTram();
-
-  toast("🎫 새 승차권 발행! 세 정류장을 확인해 보세요.");
-}
-
-// =====================================
-// 13. 다음 미션 장소로 이동
-// =====================================
-
-function nextStop() {
-  if (!mission) return;
-
-  const code = mission.stops.find(
-    c => !stamps.has(c)
-  );
-
-  if (code) {
-    choose(code,true);
-    toast("승차권의 다음 정류장으로 이동했어요.");
-  } else {
-    toast("이 승차권의 탐방을 완료했어요!");
-  }
-}
-
-// =====================================
-// 14. 뜻밖의 정류장
-// =====================================
-
-function surpriseStop() {
-  const candidates = places.filter(
-    p => level(p) >= 0 && level(p) <= 1
-  );
-
-  if (!candidates.length) {
-    toast("현재 여유/보통 데이터가 없어 정류장을 고를 수 없어요.");
-    return;
-  }
-
-  const p = randomPick(candidates,1)[0];
-
-  choose(p.code,true);
-  playTram();
-
-  toast(`✦ ${p.name}을(를) 발견했어요!`);
-}
-
-// =====================================
-// 15. 전차 종소리
-// =====================================
-
-// 사용자가 직접 버튼을 눌렀을 때만
-// 짧은 효과음을 생성합니다.
-
-function ringBell() {
-  playTram();
-
-  try {
-    const Ctx =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-    if (!Ctx) {
-      toast("전차가 출발했어요!");
-      return;
-    }
-
-    const ctx = new Ctx();
-    const now = ctx.currentTime;
-
-    [880,1320].forEach((f,i) => {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-
-      o.type = "sine";
-
-      o.frequency.setValueAtTime(
-        f,
-        now+i*.14
-      );
-
-      g.gain.setValueAtTime(
-        .0001,
-        now+i*.14
-      );
-
-      g.gain.exponentialRampToValueAtTime(
-        .10,
-        now+i*.14+.015
-      );
-
-      g.gain.exponentialRampToValueAtTime(
-        .0001,
-        now+i*.14+.7
-      );
-
-      o.connect(g);
-      g.connect(ctx.destination);
-
-      o.start(now+i*.14);
-      o.stop(now+i*.14+.75);
-    });
-
-    setTimeout(() => ctx.close(),1500);
-
-  } catch {
-    // 오디오가 지원되지 않는 환경에서는
-    // 시각 효과만 보여 줍니다.
-  }
-
-  toast("딸랑딸랑! 전차가 출발합니다.");
-}
-
-// =====================================
-// 16. 기존 GitHub 데이터 연결
-// =====================================
-
-async function refresh() {
-  if (inProgress) return;
-
-  inProgress = true;
-  $("refresh").disabled = true;
-
-  $("notice").textContent =
-    "안내소에서 최신 관측 장부를 확인하는 중입니다…";
-
-  try {
-    const response = await fetch(
-      "./data/crowd.json?t=" + Date.now(),
-      {cache:"no-store"}
-    );
-
-    if (!response.ok) {
-      throw Error(
-        "자료 파일을 찾을 수 없습니다 (HTTP " +
-        response.status + ")"
-      );
-    }
-
-    const data = await response.json();
-
-    if (!Array.isArray(data.places)) {
-      throw Error("관측 자료 형식 오류");
-    }
-
-    const fields = [
-      "official",
-      "minimum",
-      "maximum",
-      "temperature",
-      "pm25",
-      "time",
-      "message",
-      "error"
-    ];
-
-    for (const info of data.places) {
-      const p = byCode.get(info.code);
-
-      if (!p) continue;
-
-      for (const f of fields) {
-        if (
-          Object.prototype.hasOwnProperty.call(info,f)
-        ) {
-          p[f] = info[f];
-        }
+function renderPlaces(){
+  const items = filteredPlaces();
+  $("heroPlace").textContent = selectedPlace()?.name || "-";
+  $("heroLoaded").textContent = places.filter(p=>levelIndex(p)>=0).length;
+  $("heroTotal").textContent = places.length;
+  $("mapCount").textContent = `${items.length}개 장소 표시 중`;
+
+  const listHtml = items.length ? items.map(p=>`
+    <button class="place-item ${p.code===selectedCode?'active':''}" data-code="${p.code}">
+      <b>${escapeHtml(p.name)}</b>
+      <small>${escapeHtml(p.kind)} · ${escapeHtml(p.code)}<br>${escapeHtml(levelText(p))}</small>
+    </button>
+  `).join("") : `<div class="hint">검색 결과가 없어요.</div>`;
+  $("placeList").innerHTML = listHtml;
+
+  document.querySelectorAll(".place-item").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      selectedCode = btn.dataset.code;
+      renderPlaces();
+      renderDetail();
+      makeTicket(false);
+      renderFinal();
+      const p = selectedPlace();
+      if(map && p){
+        map.flyTo([p.lat,p.lng],13,{duration:.5});
       }
-    }
+    });
+  });
 
-    const count = places.filter(
-      p => level(p) >= 0
-    ).length;
-
-    let stamp = "수집 시각 미상";
-    let stale = "";
-
-    if (data.generated_at) {
-      const d = new Date(data.generated_at);
-
-      if (!Number.isNaN(d.getTime())) {
-        stamp = d.toLocaleString(
-          "ko-KR",
-          {timeZone:"Asia/Seoul"}
-        ) + " (한국시간)";
-
-        if (
-          Date.now()-d.getTime() > 30*60*1000
-        ) {
-          stale =
-            " · 수집이 지연된 자료일 수 있습니다";
-        }
-      }
-    }
-
-    $("notice").textContent =
-      `최종 관측 장부: ${stamp} · 혼잡도 ${count}/121곳 확인${stale}. 새로고침은 마지막 수집 파일을 다시 읽습니다.`;
-
-  } catch(err) {
-    $("notice").textContent =
-      "관측 장부를 불러오지 못했습니다: " +
-      err.message +
-      ". GitHub Actions와 Pages 배포를 확인해 주세요.";
-
-  } finally {
-    inProgress = false;
-    $("refresh").disabled = false;
-
-    redraw();
-    renderGame();
+  if(markerLayer){
+    markerLayer.clearLayers();
+    items.forEach(p=>{
+      const marker = L.circleMarker([p.lat,p.lng],{
+        radius: p.code===selectedCode ? 10 : 7,
+        color:"#fff",
+        weight:2,
+        fillColor:levelColor(p),
+        fillOpacity:1
+      });
+      marker.bindTooltip(`${p.name} · ${levelText(p)}`);
+      marker.on("click",()=>{
+        selectedCode = p.code;
+        renderPlaces();
+        renderDetail();
+        makeTicket(false);
+        renderFinal();
+      });
+      marker.addTo(markerLayer);
+    });
   }
 }
 
-// =====================================
-// 17. 날짜 및 범례
-// =====================================
+function renderDetail(){
+  const p = selectedPlace();
+  if(!p) return;
+  $("detailTitle").textContent = p.name;
+  $("detailLevel").textContent = p.official || "정보 없음";
+  $("detailPeople").textContent = peopleText(p);
+  $("detailTemp").textContent = p.temperature==null ? "정보 없음" : `${p.temperature}°C`;
+  $("detailPm25").textContent = p.pm25==null ? "정보 없음" : `${p.pm25}㎍/㎥`;
+  $("detailMessage").textContent = p.message || p.error || "실시간 데이터를 조회하면 공식 안내 문구가 여기에 표시돼.";
+  $("detailComment").textContent = commentFor(p);
 
-$("today").textContent =
-  new Date().toLocaleDateString(
-    "ko-KR",
-    {
-      timeZone:"Asia/Seoul",
-      year:"numeric",
-      month:"2-digit",
-      day:"2-digit"
+  const c = levelColor(p);
+  $("detailBadge").textContent = levelText(p);
+  $("detailBadge").style.background = c + "22";
+  $("detailBadge").style.color = c;
+
+  const similar = filteredPlaces()
+    .filter(x=>x.code!==p.code)
+    .sort((a,b)=>{
+      const av = Math.abs((levelIndex(a)<0?9:levelIndex(a)) - (levelIndex(p)<0?9:levelIndex(p)));
+      const bv = Math.abs((levelIndex(b)<0?9:levelIndex(b)) - (levelIndex(p)<0?9:levelIndex(p)));
+      return av-bv;
+    })
+    .slice(0,4);
+
+  $("compareArea").innerHTML = similar.map(x=>`
+    <div class="compare-item">
+      <b>${escapeHtml(x.name)}</b><br>
+      <span style="color:${levelColor(x)};font-weight:800;">${escapeHtml(levelText(x))}</span>
+      <div style="margin-top:6px;color:var(--sub);line-height:1.7;">
+        ${escapeHtml(x.kind)} · ${escapeHtml(peopleText(x))}
+      </div>
+    </div>
+  `).join("") || `<div class="hint">비교할 장소를 불러오는 중이야.</div>`;
+}
+
+function makeTicket(markCreated=true){
+  const p = selectedPlace();
+  const name = $("userName").value.trim() || "TY";
+  const from = $("departure").value;
+  const theme = $("travelTheme").value;
+  const time = $("departTime").value || "14:30";
+
+  $("ticketDestination").textContent = p.name;
+  $("ticketFrom").textContent = from;
+  $("ticketTo").textContent = p.name;
+  $("ticketUser").textContent = name;
+  $("ticketTime").textContent = time;
+  $("ticketTheme").textContent = theme;
+  $("ticketLevelText").textContent = levelText(p);
+  $("ticketLine").textContent = `${commentFor(p)} (${selectedMood} 모드 기준)`;
+  $("ticketNo").textContent = "CL-" + Math.floor(1000 + Math.random()*9000);
+
+  if(markCreated) ticketMade = true;
+  renderFinal();
+}
+
+function renderFinal(){
+  const p = selectedPlace();
+  $("finalTitle").textContent = p.name;
+  $("finalSummary").textContent =
+    `${p.kind} 유형의 장소이며, 현재 혼잡도는 ${levelText(p)} 상태야. ` +
+    `${peopleText(p)} 정도로 추정되고, 오늘의 여행 스타일은 ${selectedMood}이야.`;
+  $("finalComment").textContent = commentFor(p);
+  $("finalMood").textContent = selectedMood;
+  $("finalTicket").textContent = ticketMade
+    ? `${$("ticketUser").textContent} 이름으로 ${$("ticketFrom").textContent} → ${$("ticketTo").textContent} 티켓이 생성되었어.`
+    : "아직 티켓이 생성되지 않았어.";
+
+  const alts = filteredPlaces()
+    .filter(x=>x.code!==p.code)
+    .sort((a,b)=>{
+      const av = levelIndex(a)<0?99:levelIndex(a);
+      const bv = levelIndex(b)<0?99:levelIndex(b);
+      return av-bv;
+    })
+    .slice(0,4);
+
+  $("resultAlternatives").innerHTML = alts.map(x=>`
+    <div class="route-item">
+      <b>${escapeHtml(x.name)}</b><br>
+      <span style="color:${levelColor(x)};font-weight:800;">${escapeHtml(levelText(x))}</span>
+      <div style="margin-top:8px;color:var(--sub);line-height:1.8;">
+        ${escapeHtml(x.kind)} · ${escapeHtml(commentFor(x))}
+      </div>
+    </div>
+  `).join("") || `<div class="hint">추천 후보를 불러오지 못했어.</div>`;
+}
+
+function selectRandomPlace(){
+  const items = filteredPlaces();
+  if(!items.length) return;
+  const pick = items[Math.floor(Math.random()*items.length)];
+  selectedCode = pick.code;
+  renderPlaces();
+  renderDetail();
+  makeTicket(false);
+  renderFinal();
+}
+
+async function fetchBatch(codes){
+  const res = await fetch("/api/places?codes=" + codes.join(","), {cache:"no-store"});
+  if(!res.ok) throw new Error("서버 응답 오류: " + res.status);
+  const data = await res.json();
+  if(!data.configured) throw new Error("SEOUL_API_KEY가 설정되지 않았어.");
+  if(!Array.isArray(data.places)) throw new Error("응답 형식이 올바르지 않아.");
+  data.places.forEach(info=>{
+    const p = byCode.get(info.code);
+    if(p) Object.assign(p, info);
+  });
+}
+
+async function refreshAll(){
+  if(location.protocol==="file:"){
+    alert("index.html 파일만 직접 열면 실시간 데이터를 불러올 수 없어. server.py가 실행되는 주소에서 열어야 해.");
+    return;
+  }
+  try{
+    const batches = [];
+    for(let i=0;i<places.length;i+=8){
+      batches.push(places.slice(i,i+8).map(p=>p.code));
     }
-  );
+    for(const batch of batches){
+      await fetchBatch(batch);
+      renderPlaces();
+      renderDetail();
+      renderFinal();
+    }
+  }catch(err){
+    alert("실시간 조회 중 오류가 발생했어: " + err.message);
+  }
+}
 
-$("legend").innerHTML =
-  [...labels,"정보 없음"].map((v,i) => `
-    <span>
-      <i style="background:${
-        i === 5 ? "#9c998b" : colors[i]
-      }"></i>
-      ${escapeHtml(v)}
-    </span>
+function initLegend(){
+  const arr = [...labels, "정보 없음"];
+  $("legend").innerHTML = arr.map((t,i)=>`
+    <span><i class="dot" style="background:${i===5 ? '#9daaa5' : colors[i]}"></i>${t}</span>
   `).join("");
-
-// =====================================
-// 18. 버튼 이벤트 연결
-// =====================================
-
-$("search").addEventListener("input",redraw);
-$("kind").addEventListener("change",redraw);
-$("sort").addEventListener("change",redraw);
-$("refresh").addEventListener("click",refresh);
-
-$("issue-ticket").addEventListener(
-  "click",
-  issueMission
-);
-
-$("hero-ticket").addEventListener(
-  "click",
-  () => {
-    issueMission();
-
-    $("game-area").scrollIntoView({
-      behavior:"smooth"
-    });
-  }
-);
-
-$("next-stop").addEventListener(
-  "click",
-  nextStop
-);
-
-$("surprise-stop").addEventListener(
-  "click",
-  surpriseStop
-);
-
-$("tram-bell").addEventListener(
-  "click",
-  ringBell
-);
-
-$("clear-stamps").addEventListener(
-  "click",
-  () => {
-    if (!stamps.size) {
-      toast("초기화할 도장이 없어요.");
-      return;
-    }
-
-    if (
-      confirm(
-        "모은 가상 도장을 모두 지울까요? 현재 승차권은 유지됩니다."
-      )
-    ) {
-      stamps.clear();
-
-      save("crowdless_stamps_v1",[]);
-
-      renderGame();
-      redraw();
-
-      toast("도장 수첩을 초기화했어요.");
-    }
-  }
-);
-
-// =====================================
-// 19. Leaflet 지도 생성
-// =====================================
-
-if (typeof L !== "undefined") {
-  map = L.map(
-    "map",
-    {scrollWheelZoom:false}
-  ).setView(
-    [37.55,126.99],
-    11
-  );
-
-  L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      attribution:"© OpenStreetMap contributors",
-      maxZoom:18
-    }
-  ).addTo(map);
-
-  pins = L.layerGroup().addTo(map);
-
-} else {
-  $("map").innerHTML =
-    '<p style="padding:24px">지도 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.</p>';
 }
 
-// =====================================
-// 20. 웹앱 실행
-// =====================================
+function initMap(){
+  map = L.map("map",{scrollWheelZoom:false}).setView([37.55,126.99],11);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+    attribution:"© OpenStreetMap contributors",
+    maxZoom:18
+  }).addTo(map);
+  markerLayer = L.layerGroup().addTo(map);
+}
 
-redraw();
-renderGame();
-refresh();
+$("search").addEventListener("input", renderPlaces);
+$("filterType").addEventListener("change", renderPlaces);
+$("sortType").addEventListener("change", renderPlaces);
 
+initLegend();
+initMap();
+renderPlaces();
+renderDetail();
+makeTicket(false);
+renderFinal();
+refreshAll();
 </script>
 </body>
 </html>
