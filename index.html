@@ -315,4 +315,47 @@ $("pass-from").addEventListener("change",renderPass);$("pass-theme").addEventLis
 $("tram-bell").onclick=()=>ringBell(true);$("clear-stamps").onclick=()=>{if(confirm("가상 도장 기록을 초기화할까요?")){stamps.clear();save("crowdless_stamps_v1",[]);renderPassport();redraw();toast("도장 수첩을 비웠어요.");}};
 if(typeof L!=="undefined"){map=L.map("map",{scrollWheelZoom:false}).setView([37.55,126.99],11);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors",maxZoom:18}).addTo(map);pins=L.layerGroup().addTo(map);}else $("map").innerHTML='<div class="empty">지도를 불러올 수 없습니다. 인터넷 연결을 확인해 주세요.</div>';
 redraw();renderDetail();renderMission();renderPass();renderPassport();refresh();
-</script></body></html>
+</script>
+<!-- 다른 프로젝트 바로가기: 기존 CrowdLess 기능과 독립적인 작은 고정 버튼 -->
+<style>
+  .cl-neon-shortcut {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    z-index: 2000;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 12px;
+    border: 1px solid #aa8248;
+    border-radius: 7px;
+    background: rgba(35, 60, 53, 0.95);
+    color: #f6e7c8;
+    font: 700 11px "Noto Sans KR", sans-serif;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(30, 25, 14, 0.25);
+    transition: background-color .18s, transform .18s;
+  }
+  .cl-neon-shortcut:hover {
+    background: #35594c;
+    color: #fff5db;
+    transform: translateY(-2px);
+  }
+  .cl-neon-shortcut:focus-visible {
+    outline: 3px solid #d3a96b;
+    outline-offset: 3px;
+  }
+  @media (max-width: 600px) {
+    .cl-neon-shortcut { right: 10px; bottom: 10px; padding: 8px 10px; font-size: 10px; }
+  }
+  @media print { .cl-neon-shortcut { display: none !important; } }
+</style>
+<a class="cl-neon-shortcut"
+   href="https://ty0806.github.io/neon-protocol/"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Neon Protocol 웹사이트 새 창으로 열기"
+   title="Neon Protocol로 이동">
+  <span aria-hidden="true">✦</span> NEON PROTOCOL ↗
+</a>
+</body></html>
