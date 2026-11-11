@@ -1,361 +1,871 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#233c35"><title>CrowdLess · 경성 전차 안내소</title><link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet"><link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"><style>
-:root{--paper:#f3ebd8;--cream:#fff9ec;--ink:#292d28;--forest:#233c35;--forest2:#35594c;--red:#883b32;--brass:#aa8248;--line:#cbbd9f;--muted:#6c6b5d;--shadow:0 12px 30px #332b1b1a}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:"Noto Sans KR",sans-serif;background:radial-gradient(circle at 12% 5%,#a17a3f1e,transparent 38%),repeating-linear-gradient(0deg,transparent 0 5px,#5b4d3305 5px 6px),var(--paper)}
-button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #bd854e;outline-offset:2px}a{color:inherit}
-.topbar{background:#182c27;color:#ecdfc4;border-bottom:3px double #b28c50}.topbar-inner{max-width:1240px;margin:auto;padding:9px 22px;display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:11px;letter-spacing:.07em}
-.masthead{max-width:1240px;margin:0 auto;padding:24px 22px 19px;display:flex;justify-content:space-between;align-items:center;gap:18px;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:15px}.seal{height:62px;width:62px;border:3px double var(--brass);border-radius:50%;display:grid;place-items:center;color:var(--forest);font:700 25px Georgia,serif;transform:rotate(-7deg);background:#eee1c2;box-shadow:inset 0 0 0 4px var(--paper)}.eyebrow{font:700 11px Georgia,serif;letter-spacing:.2em;color:var(--red)}.brand h1{margin:3px 0;font:700 clamp(25px,3.4vw,38px) "Gowun Batang",serif;letter-spacing:-.05em}.brand p{margin:0;color:var(--muted);font-size:11px}.issue{border:1px solid var(--brass);padding:10px 15px;text-align:center;min-width:130px;color:var(--forest);background:#fffaf0a6}.issue small{font-size:10px;display:block}.issue strong{font-size:12px}
-.wrap{max-width:1240px;margin:auto;padding:0 22px 46px}.hero{display:grid;grid-template-columns:1.18fr .82fr;min-height:266px;background:var(--forest);color:#f7ecd3;margin-top:23px;overflow:hidden;position:relative;border:6px solid #e6d9bb;outline:1px solid #9d885f;box-shadow:var(--shadow)}.hero:before{content:"";position:absolute;inset:8px;border:1px solid #dfc79045;pointer-events:none}.hero-copy{padding:33px 38px;z-index:1}.kicker{display:inline-block;font:700 11px Georgia,serif;letter-spacing:.2em;color:#dbbb83;border-bottom:1px solid #bda170;padding-bottom:8px}.hero h2{font:700 clamp(29px,4.2vw,50px)/1.35 "Gowun Batang",serif;margin:14px 0 12px;letter-spacing:-.06em}.hero p{font-size:12px;line-height:1.9;color:#e2dcc7;max-width:530px}.hero-buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.retro-btn{border:1px solid #bea16a;padding:10px 15px;background:#e9d4a4;color:#253b33;font-size:12px;font-weight:700}.retro-btn.secondary{background:transparent;color:#f3e6c4}.retro-btn:hover{filter:brightness(1.07)}.hero-art{display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 55% 40%,#59705a,#334b40 60%,transparent 75%);min-width:0}.tram-scene{width:100%;max-width:370px;text-align:center;overflow:hidden}.tram-scene svg{width:min(100%,350px);height:auto;filter:drop-shadow(0 12px 0 #0002)}.tram-scene.tram-running .tram-body{animation:tramRide 1.1s ease-in-out 1}.tram-scene.tram-running .wheel{animation:wheelTurn .35s linear 3;transform-origin:center;transform-box:fill-box}@keyframes tramRide{0%,100%{transform:translateX(0)}35%{transform:translateX(20px)}75%{transform:translateX(-8px)}}@keyframes wheelTurn{to{transform:rotate(360deg)}}.art-caption{font:700 10px Georgia,serif;letter-spacing:.18em;color:#d5b984}
-.ribbon{margin:18px 0;display:flex;align-items:center;gap:13px;color:var(--red);font:700 12px "Gowun Batang",serif}.ribbon:before,.ribbon:after{content:"";height:1px;background:var(--line);flex:1}
-.toolbar{border:1px solid var(--line);background:var(--cream);padding:18px;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(220px,2fr) repeat(2,minmax(135px,1fr)) auto;gap:12px;align-items:end}.field label{display:block;font-size:11px;font-weight:700;color:var(--forest);margin-bottom:7px}.field input,.field select{width:100%;min-height:45px;padding:10px 13px;border:1px solid #bbaa8a;border-radius:0;background:#fffdf6;color:var(--ink);font-size:13px}#refresh{min-height:45px;padding:10px 16px;border:1px solid #1c312b;background:var(--forest);color:#fff5dc;font-weight:700;white-space:nowrap}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}.stat{position:relative;background:#e9dbc0;border:1px solid #c7b48d;padding:17px 19px 15px;min-height:105px;overflow:hidden}.stat:after{content:"";position:absolute;right:-17px;top:-17px;width:75px;height:75px;border:2px solid #97703f2a;border-radius:50%}.stat small{font-size:11px;font-weight:700;color:#665a45}.stat strong{display:block;margin-top:5px;font:700 36px Georgia,"Gowun Batang",serif;color:var(--forest)}.stat span{display:block;font-size:10px;color:#897652;margin-top:3px}.notice{border-left:5px solid var(--red);background:#fff8e9;padding:13px 17px;margin:17px 0;line-height:1.8;font-size:12px;color:#5b5547}
-.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:25px 0 12px}.section-head h3{margin:0;font:700 24px "Gowun Batang",serif;color:var(--forest)}.section-head small{font-size:11px;color:var(--muted)}.legend{display:flex;gap:14px;flex-wrap:wrap;padding:0 0 13px}.legend span{font-size:11px;color:#5c594a;display:flex;align-items:center;gap:6px}.legend i{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid #fff7e6;box-shadow:0 0 0 1px #ac9c78}
-/* 가상 전차 놀이 */
-.game-panel{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(290px,.9fr);gap:14px}.game-board{border:1px solid #b7a078;background:#fff8e8;box-shadow:var(--shadow);padding:20px;min-width:0;position:relative}.game-board.dark{background:var(--forest);color:#f1e5c9;border:4px double #c0a273}.game-overline{font:700 11px Georgia,serif;letter-spacing:.17em;color:var(--red)}.game-board.dark .game-overline{color:#cdb077}.game-board h4{font:700 23px "Gowun Batang",serif;margin:8px 0}.game-board p{font-size:12px;line-height:1.85;color:#655e50;margin:8px 0 15px}.game-board.dark p{color:#d7ceba}.game-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.game-actions button,.ticket-actions button,.mini-btn{border:1px solid #8b754f;background:#e6d0a1;color:#283c32;padding:10px 12px;font-size:12px;font-weight:700}.game-actions .outline,.ticket-actions .outline{background:transparent;color:inherit;border-color:#b8a476}.game-board button:hover,.ticket-actions button:hover{filter:brightness(1.08)}.mission-progress{height:9px;border:1px solid #9b8966;background:#d7c5a6;overflow:hidden;margin:13px 0 8px}.mission-progress>div{height:100%;width:0;background:#b57d46;transition:width .3s}.mission-stops{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.mission-stop{background:#f2e3c3;color:var(--forest);padding:12px 9px;border:1px solid #b39a6b;min-width:0}.mission-stop b{display:block;font:700 10px Georgia,serif;color:var(--red);margin-bottom:7px}.mission-stop span{font-size:12px;font-weight:700;display:block;overflow-wrap:anywhere}.mission-stop small{display:block;font-size:10px;color:#75664d;margin-top:6px}.mission-stop.done{background:#dce6d5;border-color:#729278}.game-board.dark .mission-stop{background:#e9ddc3}.game-board.dark .mission-stop.done{background:#c9dbc5}.passport-counter{font:700 27px Georgia,serif;color:#ecd8aa}.passport-note{font-size:11px;color:#e1d0af}.stamp-shelf{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;min-height:42px}.stamp-chip{border:2px double #b78a58;color:#f1d5a5;border-radius:50%;min-width:55px;min-height:48px;padding:5px;font:700 10px "Gowun Batang",serif;transform:rotate(-8deg);display:grid;place-items:center;text-align:center}.small-note{font-size:10px!important;opacity:.83}.game-flash{background:#f9efce;border:1px dashed #ad8a51;margin-top:12px;padding:9px;color:#453f31;font-size:12px;line-height:1.65;min-height:38px}.game-board.dark .game-flash{background:#253e35;color:#f3dfaf;border-color:#a58c5b}
-/* 지도와 목록 */
-.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.83fr);gap:15px}.panel{background:#fff9ec;border:1px solid #b9a781;box-shadow:var(--shadow);min-width:0}.panel-title{display:flex;justify-content:space-between;align-items:center;background:var(--forest);color:#f2e5ca;padding:13px 16px;border-bottom:3px solid var(--brass);gap:9px}.panel-title h4{margin:0;font:700 17px "Gowun Batang",serif}.panel-title small{font:700 11px Georgia,"Noto Sans KR",sans-serif;color:#d7c6a3}.map-shell{position:relative;background:#d7d1b7}#map{height:510px;width:100%;z-index:1}#map .leaflet-tile-pane{filter:sepia(.33) saturate(.7) contrast(.95)}.map-label{position:absolute;z-index:500;top:12px;right:12px;pointer-events:none;border:1px solid #53402590;background:#fff9e5eb;padding:9px 13px;font-size:11px;color:var(--forest)}.map-label b{display:block;font:700 17px "Gowun Batang",serif}.map-label span{font-size:9px}#list{height:510px;overflow-y:auto;padding:10px;background:repeating-linear-gradient(0deg,#fff9ec,#fff9ec 45px,#f7efdb 46px)}.stop{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:9px;width:100%;text-align:left;background:#fffdf7f0;color:var(--ink);border:1px solid #d4c6a8;padding:11px 10px;margin-bottom:7px}.stop:hover{background:#f1e3c6;border-color:#ad8b55}.stop.active{background:#e7d5ad;border-color:#8c6b3f;box-shadow:inset 3px 0 0 var(--red)}.stop-number{font:700 13px Georgia,serif;text-align:center;color:var(--red);border-right:1px solid #d3c3a4;padding-right:7px}.stop b{display:block;font-size:12px;line-height:1.5;word-break:keep-all}.stop small{font-size:10px;color:#81745f;display:block;margin-top:3px}.status{font-size:10px;font-weight:700;white-space:nowrap;border:1px solid currentColor;padding:5px 7px;background:#ffffff8f}.status-0{color:#236c56}.status-1{color:#32669a}.status-2{color:#946313}.status-3{color:#a14e29}.status-4{color:#a62d3b}.status-unknown{color:#79796b}.empty{padding:35px 12px;text-align:center;color:var(--muted);font-size:13px}
-/* 관측 승차권 */
-.ticket{background:#fff9ec;border:1px solid #b8a17c;position:relative;box-shadow:var(--shadow);margin-top:16px;overflow:hidden;scroll-margin-top:20px}.ticket:before,.ticket:after{content:"";position:absolute;border-radius:50%;width:22px;height:22px;background:var(--paper);border:1px solid #b8a17c;top:80px;z-index:1}.ticket:before{left:-12px}.ticket:after{right:-12px}.ticket-top{background:#e5d3af;padding:19px 25px 17px;border-bottom:2px dashed #b59b70;display:flex;justify-content:space-between;align-items:center;gap:15px}.ticket-kicker{font:700 10px Georgia,serif;color:var(--red);letter-spacing:.16em}.ticket-top h3{font:700 clamp(22px,3vw,32px) "Gowun Batang",serif;letter-spacing:-.06em;margin:6px 0 0;color:var(--forest)}.ticket-seal{min-width:64px;height:64px;border:3px double var(--red);border-radius:50%;display:grid;place-items:center;text-align:center;transform:rotate(-12deg);font:700 11px "Gowun Batang",serif;color:var(--red)}.ticket-content{padding:20px 25px 24px}.ticket-info{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-size:11px;color:var(--muted)}.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.fact{padding:13px;background:#f2e7d0;border-top:3px solid var(--brass);min-width:0}.fact small{display:block;font-size:10px;color:#665d4e}.fact strong{display:block;font-size:15px;color:var(--forest);margin-top:6px;overflow-wrap:anywhere}.ticket p{line-height:1.9;font-size:12px;color:#615a4f;margin:13px 0 0}.ticket-actions{border-top:1px dashed #c4a679;padding-top:15px;margin-top:17px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.ticket-actions small{font-size:11px;color:#77664d}.ticket-actions .outline{border-color:#a08b62;color:var(--forest)}.foot{margin:27px 0 0;border-top:3px double #c1ad85;padding:18px 3px;color:var(--muted);font-size:11px;line-height:1.95}.foot strong{color:var(--forest)}
-/* 도장 획득 알림 */
-.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,120px);max-width:min(450px,90vw);background:#233c35;color:#fff0cb;border:3px double #c4a168;box-shadow:0 12px 30px #0004;padding:13px 20px;font-size:13px;text-align:center;z-index:1500;opacity:0;pointer-events:none;transition:transform .25s,opacity .25s}.toast.show{transform:translate(-50%,0);opacity:1}
-@media(max-width:1050px){.toolbar{grid-template-columns:1fr 1fr}.toolbar .field:first-child{grid-column:1/-1}.game-panel,.layout{grid-template-columns:1fr}.hero{grid-template-columns:1fr .7fr}#map{height:460px}#list{height:300px}}
-@media(max-width:650px){.topbar-inner{font-size:9px}.masthead{padding:19px 15px}.issue{display:none}.seal{width:49px;height:49px;font-size:20px}.wrap{padding:0 13px 30px}.hero{grid-template-columns:1fr;margin-top:15px}.hero-copy{padding:24px 23px 5px}.hero-art{min-height:140px;padding:0}.tram-scene svg{max-width:235px}.art-caption{display:none}.toolbar{grid-template-columns:1fr}.toolbar .field:first-child{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}.stat strong{font-size:30px}.section-head{align-items:start;flex-direction:column;gap:5px}.mission-stops{grid-template-columns:1fr}.game-board{padding:16px}.legend{gap:10px}.facts{grid-template-columns:repeat(2,1fr)}.ticket-top,.ticket-content{padding-left:17px;padding-right:17px}#map{height:395px}.map-label{font-size:9px;padding:6px 8px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
-
-/* 장면 전환: 화면은 한 번에 하나만 보입니다. */
-.scene{display:none;min-height:520px;animation:sceneIn .24s ease}.scene.active{display:block}
-@keyframes sceneIn{from{opacity:.3;transform:translateY(10px)}to{opacity:1;transform:none}}
-.scene-nav{max-width:1240px;margin:10px auto 0;padding:0 22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.scene-nav button{border:1px solid #bca67d;background:#f8efd9;color:var(--forest);padding:8px 13px;font-size:12px;font-weight:700}
-.scene-nav button.current{background:var(--forest);color:#fff0c9}.scene-nav .step{margin-left:auto;font:700 11px Georgia,serif;color:#735a3a;letter-spacing:.1em}
-.scene-top{display:flex;justify-content:space-between;align-items:center;margin:20px 0 14px;gap:12px}.scene-top small{color:var(--red);font:700 11px Georgia,serif;letter-spacing:.15em}
-.scene-top h2{font:700 clamp(24px,3.5vw,35px) "Gowun Batang",serif;margin:5px 0;color:var(--forest)}
-.scene-top p{margin:5px 0;font-size:12px;color:var(--muted);line-height:1.8}
-.action{border:1px solid #79613e;background:var(--forest);color:#fdf1d3;padding:12px 17px;font-size:12px;font-weight:700;cursor:pointer}
-.action.alt{background:#ebdcbb;color:var(--forest)}.action.light{background:transparent;color:var(--forest)}.action:hover{filter:brightness(1.10)}
-.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
-.choice{background:var(--cream);color:var(--forest);border:1px solid #c1ad87;text-align:left;min-height:186px;padding:20px;position:relative;box-shadow:var(--shadow)}
-.choice:before{content:"";position:absolute;inset:6px;border:1px dashed #c9b48b;pointer-events:none}.choice .num{font:700 11px Georgia,serif;color:var(--red)}
-.choice .emoji{font-size:29px;display:block;margin:14px 0 6px}.choice b{font:700 23px "Gowun Batang",serif;display:block}.choice p{font-size:12px;line-height:1.75;color:var(--muted)}.choice:hover{background:#ecdcb9;transform:translateY(-2px)}
-.dispatch{padding:16px;background:#e3d1aa;border-left:5px solid var(--red);font-size:12px;line-height:1.8;margin:12px 0}
-.feature-shell{background:#fff9ec;border:1px solid var(--line);box-shadow:var(--shadow);padding:22px;margin-top:16px;min-height:280px}
-.feature-shell h3{font:700 24px "Gowun Batang",serif;color:var(--forest);margin:0 0 9px}.feature-shell p{font-size:13px;line-height:1.9;color:var(--muted)}
-.envelope{max-width:610px;margin:25px auto;min-height:250px;background:linear-gradient(160deg,#f1d9a8,#e7bc77);border:3px double #9f7247;box-shadow:0 16px 35px #3d301b24;display:grid;place-items:center;text-align:center;padding:28px;position:relative}
-.envelope:before{content:"✦";position:absolute;top:10px;left:15px;font-size:23px;color:#8b4834}.envelope .big{font:700 clamp(24px,4vw,40px) "Gowun Batang",serif;color:var(--forest);line-height:1.45}.envelope .small{font-size:12px;color:#675334;margin-top:12px;line-height:1.9}
-.surprise-actions,.inline-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
-.ledger{padding:18px;border:1px dashed #aa8d5b;background:#f6ead0;margin:15px 0;font-size:13px;line-height:1.8;color:var(--forest)}
-.ticket-form{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:12px}.ticket-form label{display:grid;gap:6px;font-size:11px;font-weight:700}.ticket-form input,.ticket-form select{min-width:0;width:100%;border:1px solid #bbaa8a;background:#fffdf8;padding:11px}
-.pass-card{border:3px double #b79662;background:linear-gradient(135deg,#fffaf0,#efe0bd);box-shadow:var(--shadow);padding:24px;max-width:800px;margin:18px auto;position:relative}
-.pass-card:before{content:"電車 · CROWDLESS";color:#9c6d36;font:700 11px Georgia,serif;letter-spacing:.17em}.pass-title{font:700 34px "Gowun Batang",serif;margin:14px 0;color:var(--forest)}
-.pass-route{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px dashed #aa8d5b;border-bottom:1px dashed #aa8d5b;padding:15px 0}.pass-route b{font:700 22px "Gowun Batang",serif}.pass-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;font-size:12px}
-.quiz-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.quiz-options button{background:#f7ebd2;border:2px solid #bca377;padding:21px;text-align:left;color:var(--forest);font:700 19px "Gowun Batang",serif;min-height:120px}.quiz-options button:hover{background:#ead7ae}
-.quiz-options button small{display:block;margin-top:8px;font:400 11px "Noto Sans KR",sans-serif;color:#706453}
-.score{font:700 25px Georgia,serif;color:var(--red);padding:13px;background:#f0dfb9;display:inline-block}
-.notebook{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);gap:14px;margin-top:18px}
-#data-error{font-size:12px}.tiny{font-size:11px;color:var(--muted);line-height:1.75}
-@media(max-width:880px){.choices{grid-template-columns:repeat(2,1fr)}.notebook{grid-template-columns:1fr}}
-@media(max-width:600px){.scene-nav{padding:0 13px}.scene-nav .step{display:none}.choices{grid-template-columns:1fr}.scene-top{align-items:start}.ticket-form{grid-template-columns:1fr}.quiz-options{grid-template-columns:1fr}.pass-meta{grid-template-columns:1fr}.pass-route b{font-size:17px}.feature-shell{padding:16px}}
-@media print{.masthead,.topbar,.scene-nav,.scene-top,.inline-actions,.foot,.toast{display:none!important}.scene{display:none!important}#scene-ticket{display:block!important}.pass-card{margin:0;box-shadow:none}}
-</style></head><body>
-<div class="topbar"><div class="topbar-inner"><span>京城 電車 案內所 · RETRO CITY GUIDE</span><span>옛 안내소의 멋으로 읽는 오늘의 서울</span></div></div>
-<header class="masthead"><div class="brand"><div class="seal">CL</div><div><div class="eyebrow">CROWDLESS · SEOUL EDITION</div><h1>경성 전차 안내소</h1><p>현대 서울의 실시간 인구 혼잡도 · 가상의 전차 탐험</p></div></div><div class="issue"><small>금일의 안내</small><strong id="today">SEOUL · TODAY</strong></div></header>
-<nav class="scene-nav" aria-label="화면 이동"><button data-go="home" class="current">⌂ 처음</button><button data-go="map">▤ 혼잡 지도</button><button data-go="games">✦ 놀이 안내</button><button data-go="passport">◈ 도장 수첩</button><span class="step" id="step-label">01 / WELCOME</span></nav>
-<main class="wrap">
-<section id="scene-home" class="scene active">
-  <section class="hero"><div class="hero-copy"><span class="kicker">CROWDLESS · ELECTRIC TRAM · NO. 001</span><h2>북적이는 거리 사이,<br>한가로운 길을 찾아서.</h2><p>서울의 121개 관측 지점을 여행으로 바꾸었어요. 모든 화면을 한꺼번에 펼치지 않고, 한 가지 활동을 마칠 때마다 다음 정류장이 열립니다.</p><div class="hero-buttons"><button class="retro-btn" data-go="games">✦ 전차 탐험 시작하기 →</button><button class="retro-btn secondary" id="tram-bell">♬ 전차 종 울리기</button></div></div><div class="hero-art"><div aria-hidden="true" class="tram-scene" id="tram-scene"><svg viewbox="0 0 360 210" xmlns="http://www.w3.org/2000/svg"><path d="M0 178H360M0 191H360" stroke="#bb9d62" stroke-width="3"></path><path d="M45 185h270 M90 178l-10 13 m65-13-10 13 m65-13-10 13 m65-13-10 13" stroke="#e5c88e" stroke-width="3"></path><path d="M178 14v43M119 14h118" fill="none" stroke="#e4cc94" stroke-width="3"></path><g class="tram-body"><path d="M86 64h188a16 16 0 0 1 16 16v82H70V80a16 16 0 0 1 16-16Z" fill="#e7d5ae" stroke="#c3a06b" stroke-width="5"></path><rect fill="#223a33" height="65" rx="4" stroke="#b69050" stroke-width="3" width="192" x="84" y="78"></rect><path d="M148 78v65M212 78v65" stroke="#c8ad77" stroke-width="5"></path><rect fill="#8e4333" height="24" rx="3" stroke="#d3aa6a" stroke-width="2" width="42" x="159" y="48"></rect><text fill="#fff0cf" font-size="13" font-weight="bold" text-anchor="middle" x="180" y="65">電車</text><rect fill="#8c4235" height="31" rx="7" stroke="#d2ad71" stroke-width="4" width="232" x="64" y="145"></rect><circle class="wheel" cx="102" cy="178" fill="#222824" r="14" stroke="#c6ab76" stroke-width="5"></circle><circle class="wheel" cx="258" cy="178" fill="#222824" r="14" stroke="#c6ab76" stroke-width="5"></circle><circle cx="84" cy="161" fill="#f8e2a8" r="5"></circle><circle cx="276" cy="161" fill="#f8e2a8" r="5"></circle></g></svg><div class="art-caption">CROWDLESS · A JOURNEY THROUGH SEOUL</div></div></div></section>
-  <div class="ribbon">京城 電車 · 특별 운행 안내</div>
-  <section class="choices"><button class="choice" data-go="map"><span class="num">ROUTE 01</span><span class="emoji">🗺️</span><b>서울 탐방 지도</b><p>지도에서 목적지를 고르고 실제 혼잡도를 조사하기</p></button><button class="choice" data-go="surprise"><span class="num">ROUTE 02</span><span class="emoji">✉️</span><b>뜻밖의 정류장</b><p>봉인된 여행 편지를 열어 예상치 못한 목적지 발견하기</p></button><button class="choice" data-go="games"><span class="num">ROUTE 03</span><span class="emoji">🎲</span><b>전차 놀이방</b><p>혼잡도 탐정 · 세 정류장 탐험 · 도장 수집</p></button></section>
-  <div class="dispatch" id="home-status">오늘의 관측 장부를 확인하는 중입니다…</div>
-</section>
-<section id="scene-games" class="scene">
-  <div class="scene-top"><div><small>STATION 02 · CHOOSE YOUR ADVENTURE</small><h2>오늘은 어떤 의뢰를 받을까요?</h2><p>하나를 고르면 그 놀이 화면만 열려요. 완료하면 다른 놀이로 넘어갈 수 있어요.</p></div></div>
-  <section class="choices"><button class="choice" data-go="surprise"><span class="num">MISSION A · SECRET LETTER</span><span class="emoji">✉️</span><b>뜻밖의 정류장 찾기</b><p>전차 안내원이 숨겨둔 장소를 추첨해요.</p></button><button class="choice" data-go="mission"><span class="num">MISSION B · THREE STOPS</span><span class="emoji">🎫</span><b>세 정류장 도장 미션</b><p>세 곳을 돌아보며 도장을 채워 승차권 완성하기.</p></button><button class="choice" data-go="detective"><span class="num">MISSION C · CROWD DETECTIVE</span><span class="emoji">🔎</span><b>혼잡도 탐정</b><p>두 목적지 중 어느 곳이 덜 붐빌지 맞혀 봐요.</p></button></section>
-  <div class="dispatch">◈ 도장과 미션 진척도는 같은 브라우저에 저장돼요. 가상 탐험이며 실제 방문 기록은 아닙니다.</div>
-  <div class="inline-actions"><button class="action alt" data-go="map">미니게임 대신 지도에서 고르기 →</button></div>
-</section>
-<section id="scene-surprise" class="scene">
-  <div class="scene-top"><div><small>STATION 03 · SEALED LETTER</small><h2>✦ 뜻밖의 정류장 찾기</h2><p>봉투 안의 장소를 열기 전에는 어디로 갈지 몰라요.</p></div><button class="action light" data-go="games">← 놀이 선택</button></div>
-  <div class="envelope"><div><div style="font-size:42px" id="surprise-icon">✉</div><div class="big" id="surprise-title">오늘의 비밀 정류장</div><div class="small" id="surprise-text">가장 마음에 드는 여행은 때로 계획 밖에 있지요.<br>봉투를 개봉해 뜻밖의 정류장을 찾아보세요.</div></div></div>
-  <div class="surprise-actions"><button class="action" id="surprise-stop">✦ 비밀 봉투 개봉하기</button><button class="action alt" id="surprise-detail" disabled>발견한 정류장 살펴보기 →</button><button class="action light" data-go="map">전체 지도에서 찾기</button></div>
-  <p class="tiny" id="surprise-note">혼잡도 확인이 가능하면 '여유/보통' 중 추첨하고, 자료가 부족하면 무작위 장소를 골라 미확인이라고 표시합니다.</p>
-</section>
-<section id="scene-map" class="scene">
-  <div class="scene-top"><div><small>STATION 04 · SEOUL OBSERVATION MAP</small><h2>오늘의 경성시내 안내도</h2><p>기존 지도를 그대로 유지했어요. 목록이나 지도의 핀을 누르면 별도 장소 안내 화면으로 넘어갑니다.</p></div><button class="action alt" data-go="games">✦ 다른 놀이</button></div>
-  <section class="toolbar"><div class="field"><label for="search">01 / 정류장 · 장소 찾기</label><input id="search" type="search" placeholder="예: 강남역, 홍대, 서울숲"></div><div class="field"><label for="kind">02 / 장소 종류</label><select id="kind"><option value="">전체 구역</option><option>관광특구</option><option>고궁·문화유산</option><option>인구밀집지역</option><option>발달상권</option><option>공원</option></select></div><div class="field"><label for="sort">03 / 안내 순서</label><select id="sort"><option value="name">이름순</option><option value="quiet">한가로운 순</option><option value="busy">붐비는 순</option></select></div><button id="refresh">↻ 최신 관측 확인</button></section>
-  <section class="stats"><div class="stat"><small>전체 관측 지점</small><strong id="all">121</strong><span>TOTAL STOPS</span></div><div class="stat"><small>현재 안내 구역</small><strong id="found">121</strong><span>SEARCH RESULTS</span></div><div class="stat"><small>관측 자료 확인</small><strong id="loaded">0</strong><span>AVAILABLE REPORTS</span></div><div class="stat"><small>여유로운 장소</small><strong id="quiet">0</strong><span>QUIET PLACES</span></div></section>
-  <div class="notice" id="notice" role="status" aria-live="polite">관측 데이터를 찾는 중…</div><div id="legend" class="legend"></div>
-  <section class="layout"><div class="panel"><div class="panel-title"><h4>◈ 혼잡도 노선 안내도</h4><small id="mapCount">121개 관측 지점</small></div><div class="map-shell"><div id="map" role="region" aria-label="서울시 혼잡도 지도"></div><div class="map-label"><b>서울시 혼잡 지도</b><span>MODERN SEOUL · DATA MAP</span></div></div></div><div class="panel"><div class="panel-title"><h4>▤ 정류장 안내판</h4><small>클릭하면 장소 안내로 전환</small></div><div id="list" aria-label="장소 목록"></div></div></section>
-</section>
-<section id="scene-detail" class="scene"><div class="scene-top"><div><small>STATION 05 · OBSERVATION RECORD</small><h2>선택한 정류장 관측기록</h2><p>실제 혼잡도 · 추정 인구 · 기온 · 초미세먼지 정보를 확인하세요.</p></div><button class="action light" data-go="map">← 지도로</button></div>
-  <section id="detail" class="ticket" aria-label="선택한 장소 안내"></section>
-  <div class="inline-actions"><button class="action" data-go="ticket">🎫 이 장소로 가상 승차권 만들기 →</button><button class="action alt" data-go="surprise">✉ 또 다른 정류장 발견</button></div>
-</section>
-<section id="scene-ticket" class="scene"><div class="scene-top"><div><small>STATION 06 · TICKET OFFICE</small><h2>경성 전차 승차권 발급소</h2><p>실제 교통권이 아닌 가상의 여행 기념 승차권입니다. 실제 열차 시간표나 노선을 뜻하지 않습니다.</p></div><button class="action light" data-go="detail">← 관측기록</button></div>
-  <div class="feature-shell"><h3>승차권 제작</h3><div class="ticket-form"><label>탑승객 이름<input id="pass-name" maxlength="20" placeholder="여행자"></label><label>출발 안내소<select id="pass-from"><option>서울역</option><option>강남역</option><option>홍대입구역</option><option>용산역</option><option>잠실새내역</option></select></label><label>여행 느낌<select id="pass-theme"><option>조용한 거리 수집가</option><option>즉흥 탐험가</option><option>서울 풍경 관측가</option><option>도장 수집가</option></select></label></div><div class="inline-actions"><button class="action" id="make-pass">✦ 기념 승차권 발행</button><button class="action alt" id="print-pass">승차권 인쇄</button></div></div>
-  <div class="pass-card" id="pass-card"><div class="pass-title">도시 탐험 기념 승차권</div><div class="pass-route"><b id="pass-origin">서울역</b><span>⟶</span><b id="pass-destination">강남역</b></div><div class="pass-meta"><span>탑승객<br><b id="pass-traveler">여행자</b></span><span>테마<br><b id="pass-style">조용한 거리 수집가</b></span><span>현재 혼잡도<br><b id="pass-crowd">정보 없음</b></span></div><p class="tiny">CROWDLESS · 실제 교통 운임/탑승권이 아닙니다.</p></div>
-  <div class="inline-actions"><button class="action" data-go="passport">도장 수첩 확인하기 →</button><button class="action alt" data-go="games">다른 놀이 선택</button></div>
-</section>
-<section id="scene-mission" class="scene"><div class="scene-top"><div><small>STATION 07 · COLLECT THREE STAMPS</small><h2>세 정류장 도장 미션</h2><p>세 곳이 적힌 탐방 승차권을 뽑고, 지도의 관측기록에서 도장을 찍어 보세요.</p></div><button class="action light" data-go="games">← 놀이 선택</button></div>
-  <div class="feature-shell"><span class="game-overline">SPECIAL TICKET · THREE STOPS</span><h3>도장 세 개를 모아 완성하기</h3><p>자료가 있으면 혼잡도가 낮은 곳 위주로 뽑고, 자료가 없으면 임의의 3곳을 뽑아 게임을 진행합니다.</p><div class="mission-progress" role="progressbar" aria-label="미션 달성률" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" id="progress"><div id="progress-bar"></div></div><div id="mission-count">아직 발급한 승차권이 없습니다.</div><div class="mission-stops" id="mission-stops"></div><div class="game-actions"><button id="issue-ticket">🎫 새 승차권 뽑기</button><button id="next-stop" class="outline">다음 정류장으로 가기 →</button></div><div class="game-flash" id="mission-message">실제 방문 기록이 아니라 가상의 정류장 미션입니다.</div></div>
-  <div class="inline-actions"><button class="action alt" data-go="passport">현재 도장 수첩 보기</button></div>
-</section>
-<section id="scene-detective" class="scene"><div class="scene-top"><div><small>STATION 08 · CROWD DETECTIVE</small><h2>🔎 혼잡도 탐정</h2><p>두 정류장 중 누가 더 여유로울까? 공공데이터를 읽는 미니게임입니다.</p></div><button class="action light" data-go="games">← 놀이 선택</button></div>
-  <div class="feature-shell"><div class="score">맞힌 문제: <span id="quiz-score">0</span> / <span id="quiz-total">0</span></div><h3 id="quiz-title" style="margin-top:20px">여유로운 장소를 찾아라!</h3><p id="quiz-explain">비교할 수 있는 관측 데이터가 있다면 서울시 혼잡도를 이용해 문제를 냅니다.</p><div class="quiz-options" id="quiz-options"></div><div class="ledger" id="quiz-feedback" aria-live="polite">두 선택지 중 하나를 눌러 보세요.</div><div class="inline-actions"><button class="action" id="quiz-next">새 문제 뽑기 →</button><button class="action alt" data-go="surprise">뜻밖의 정류장 도전</button></div></div>
-</section>
-<section id="scene-passport" class="scene"><div class="scene-top"><div><small>STATION 09 · COLLECTOR'S PASSPORT</small><h2>나의 정류장 도장 수첩</h2><p>탐험 도장을 모아가는 수집 기록. 이 기기의 브라우저에 저장됩니다.</p></div><button class="action light" data-go="home">⌂ 처음으로</button></div>
-  <div class="notebook"><div class="game-board dark"><span class="game-overline">COLLECTOR'S PASSPORT · SEOUL</span><h4>나의 수집 여권</h4><div class="passport-counter"><span id="stamp-count">0</span> <span style="font-size:17px">/ 121</span></div><p>최근 획득한 가상 도장</p><div class="stamp-shelf" id="stamp-shelf"></div><div class="game-actions"><button id="clear-stamps" class="outline">도장 기록 초기화</button><button data-go="map">지도에서 도장 더 모으기 →</button></div></div><div class="game-board"><span class="game-overline">FIELD GUIDE</span><h4>다음 탐험은?</h4><p id="passport-mission">세 정류장 승차권 미션을 시작해 보세요.</p><div class="game-actions"><button data-go="mission">세 정류장 미션</button><button data-go="surprise">뜻밖의 정류장</button><button data-go="detective">혼잡도 탐정</button></div></div></div>
-</section>
-<footer class="foot"><strong>CROWDLESS · 경성 전차 안내소</strong> — 레트로 전차 테마는 디자인 연출이며 역사적 노선을 안내하지 않습니다. 서울시 121개 주요 장소의 대략적 위치와 최신 관측값을 표시합니다. 혼잡도는 보행자만의 수치가 아닌 지역 인구 추정치입니다. '매우 붐빔'은 CrowdLess가 공식 설명을 기반으로 구분한 참고 등급입니다. 정류장, 승차권, 도장은 가상의 체험입니다.</footer>
-</main><div id="toast" class="toast" role="status" aria-live="polite"></div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
-const raw = `POI001|강남 MICE 관광특구|0|37.513|127.059
-POI002|동대문 관광특구|0|37.568|127.01
-POI003|명동 관광특구|0|37.5636|126.9845
-POI004|이태원 관광특구|0|37.5345|126.9946
-POI005|잠실 관광특구|0|37.5133|127.1001
-POI006|종로·청계 관광특구|0|37.5705|126.995
-POI007|홍대 관광특구|0|37.5554|126.9236
-POI008|경복궁|1|37.5796|126.977
-POI009|광화문·덕수궁|1|37.5712|126.9769
-POI010|보신각|1|37.5699|126.9836
-POI011|서울 암사동 유적|1|37.5591|127.1291
-POI012|창덕궁·종묘|1|37.5805|126.9923
-POI013|가산디지털단지역|2|37.4817|126.8829
-POI014|강남역|2|37.4979|127.0276
-POI015|건대입구역|2|37.5404|127.0692
-POI016|고덕역|2|37.555|127.1544
-POI017|고속터미널역|2|37.5049|127.0049
-POI018|교대역|2|37.4934|127.0145
-POI019|구로디지털단지역|2|37.4853|126.9014
-POI020|구로역|2|37.5032|126.8821
-POI021|군자역|2|37.5571|127.0804
-POI022|남구로역|2|37.4851|126.8873
-POI023|대림역|2|37.4929|126.8965
-POI024|동대문역|2|37.5714|127.0097
-POI025|뚝섬역|2|37.547|127.0474
-POI026|미아사거리역|2|37.6134|127.0301
-POI027|발산역|2|37.5587|126.8378
-POI028|북한산우이역|2|37.662|127.0128
-POI029|사당역|2|37.4765|126.9816
-POI030|삼각지역|2|37.5344|126.973
-POI031|서울대입구역|2|37.4812|126.9527
-POI032|서울식물원·마곡나루역|2|37.568|126.8295
-POI033|서울역|2|37.5547|126.9706
-POI034|선릉역|2|37.5046|127.0491
-POI035|성신여대입구역|2|37.5927|127.0165
-POI036|수유역|2|37.6381|127.0258
-POI037|신논현역·논현역|2|37.505|127.0239
-POI038|신도림역|2|37.5089|126.891
-POI039|신림역|2|37.4843|126.9297
-POI040|신촌·이대역|2|37.5573|126.939
-POI041|양재역|2|37.4844|127.0345
-POI042|역삼역|2|37.5007|127.0365
-POI043|연신내역|2|37.6185|126.9213
-POI044|오목교역·목동운동장|2|37.5231|126.8753
-POI045|왕십리역|2|37.5615|127.0377
-POI046|용산역|2|37.5298|126.9649
-POI047|이태원역|2|37.5345|126.9946
-POI048|장지역|2|37.4787|127.1269
-POI049|장한평역|2|37.5613|127.0647
-POI050|천호역|2|37.5384|127.1239
-POI051|총신대입구(이수)역|2|37.4862|126.982
-POI052|충정로역|2|37.5598|126.9636
-POI053|합정역|2|37.5496|126.9139
-POI054|혜화역|2|37.5822|127.0019
-POI055|홍대입구역(2호선)|2|37.557|126.9237
-POI056|회기역|2|37.5895|127.0576
-POI057|4·19 카페거리|3|37.6505|127.013
-POI058|가락시장|3|37.4927|127.1176
-POI059|가로수길|3|37.5195|127.0223
-POI060|광장(전통)시장|3|37.57|126.9985
-POI061|김포공항|3|37.5587|126.8016
-POI062|낙산공원·이화마을|3|37.5795|127.0079
-POI063|노량진|3|37.5135|126.9428
-POI064|덕수궁길·정동길|3|37.5667|126.971
-POI065|방배역 먹자골목|3|37.481|126.997
-POI066|북촌한옥마을|3|37.5826|126.9831
-POI067|서촌|3|37.579|126.969
-POI068|성수카페거리|3|37.5446|127.0567
-POI069|수유리 먹자골목|3|37.6406|127.027
-POI070|쌍문동 맛집거리|3|37.6539|127.0373
-POI071|압구정로데오거리|3|37.5275|127.0406
-POI072|여의도|3|37.5219|126.9248
-POI073|연남동|3|37.5661|126.9253
-POI074|영등포 타임스퀘어|3|37.517|126.9034
-POI075|외대앞|3|37.5957|127.0593
-POI076|용리단길|3|37.5315|126.9725
-POI077|이태원 앤틱가구거리|3|37.5344|126.9937
-POI078|인사동·익선동|3|37.5735|126.986
-POI079|창동 신경제 중심지|3|37.6537|127.0475
-POI080|청담동 명품거리|3|37.5245|127.0465
-POI081|청량리 제기동 일대 전통시장|3|37.5808|127.039
-POI082|해방촌·경리단길|3|37.5412|126.987
-POI083|DDP(동대문디자인플라자)|3|37.5671|127.0097
-POI084|DMC(디지털미디어시티)|3|37.5785|126.8902
-POI085|강서한강공원|4|37.5886|126.8192
-POI086|고척돔|4|37.4982|126.867
-POI087|광나루한강공원|4|37.5521|127.1191
-POI088|광화문광장|4|37.5719|126.9768
-POI089|국립중앙박물관·용산가족공원|4|37.5239|126.9802
-POI090|난지한강공원|4|37.5675|126.8749
-POI091|남산공원|4|37.5511|126.9899
-POI092|노들섬|4|37.5166|126.9583
-POI093|뚝섬한강공원|4|37.531|127.0666
-POI094|망원한강공원|4|37.5522|126.8997
-POI095|반포한강공원|4|37.5109|126.9957
-POI096|북서울꿈의숲|4|37.6204|127.0403
-POI097|불광천|4|37.6042|126.9293
-POI098|서리풀공원·몽마르뜨공원|4|37.4939|127.002
-POI099|서울광장|4|37.5655|126.978
-POI100|서울대공원|4|37.434|127.0158
-POI101|서울숲공원|4|37.5445|127.0374
-POI102|아차산|4|37.5669|127.103
-POI103|양화한강공원|4|37.545|126.8983
-POI104|어린이대공원|4|37.5498|127.0818
-POI105|여의도한강공원|4|37.5284|126.9325
-POI106|월드컵공원|4|37.5666|126.8896
-POI107|응봉산|4|37.5476|127.0308
-POI108|이촌한강공원|4|37.5193|126.9684
-POI109|잠실종합운동장|4|37.5157|127.0731
-POI110|잠실한강공원|4|37.5204|127.0914
-POI111|잠원한강공원|4|37.5181|127.019
-POI112|청계산|4|37.415|127.05
-POI113|청와대|4|37.5866|126.9749
-POI114|북창동 먹자골목|3|37.562|126.978
-POI115|남대문시장|3|37.5581|126.9773
-POI116|익선동|3|37.572|126.9892
-POI118|잠실새내역|2|37.511|127.086
-POI122|신촌 스타광장|3|37.557|126.935
-POI123|보라매공원|4|37.4924|126.9198
-POI125|안양천|4|37.5175|126.868
-POI126|여의서로|4|37.5276|126.9258`;
-
-const $=id=>document.getElementById(id);
-const typeNames=["관광특구","고궁·문화유산","인구밀집지역","발달상권","공원"];
-const colors=["#278363","#4675a3","#c28b2a","#c46a3f","#b43f4c"];
-const labels=["여유","보통","약간 붐빔","붐빔","매우 붐빔"];
-const places=raw.trim().split("\n").map(line=>{const [code,name,t,lat,lng]=line.split("|");return {code,name,kind:typeNames[+t],lat:+lat,lng:+lng,official:"정보 없음",minimum:null,maximum:null,temperature:null,pm25:null,time:null,message:null,error:null};});
-const byCode=new Map(places.map(p=>[p.code,p]));
-let selected="POI014",map,pins,active="home",busy=false,mission=null,surprise=null,quiz=null,quizScore=0,quizTotal=0;
-const saved=(key,fall)=>{try{return JSON.parse(localStorage.getItem(key))??fall;}catch{return fall;}};
-const save=(key,val)=>{try{localStorage.setItem(key,JSON.stringify(val));}catch{}};
-const stamps=new Set((saved("crowdless_stamps_v1",[])||[]).filter(code=>byCode.has(code)));
-mission=saved("crowdless_mission_v1",null);
-if(!mission||!Array.isArray(mission.stops)||mission.stops.length!==3||!mission.stops.every(c=>byCode.has(c)))mission=null;
-const escapeHtml=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function level(p){if(p.official==="붐빔"&&/매우\s*(붐|혼잡)|극심한\s*혼잡/.test(p.message||""))return 4;return ["여유","보통","약간 붐빔","붐빔"].indexOf(p.official);}
-function levelText(p){return level(p)<0?"정보 없음":labels[level(p)];}
-function color(p){return level(p)<0?"#9c998b":colors[level(p)];}
-function people(p){return p.minimum==null||p.maximum==null?"정보 없음":Number(p.minimum).toLocaleString("ko-KR")+" ~ "+Number(p.maximum).toLocaleString("ko-KR")+"명";}
-function badge(p){return `<span class="status status-${level(p)<0?"unknown":level(p)}">${escapeHtml(levelText(p))}</span>`;}
-function randomOf(a){return a[Math.floor(Math.random()*a.length)];}
-function pickN(list,n){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a.slice(0,n);}
-let timer;function toast(msg){const e=$("toast");e.textContent=msg;e.classList.add("show");clearTimeout(timer);timer=setTimeout(()=>e.classList.remove("show"),2600);}
-function show(scene){
- active=scene;document.querySelectorAll(".scene").forEach(s=>s.classList.toggle("active",s.id==="scene-"+scene));
- document.querySelectorAll("[data-go]").forEach(b=>b.classList.toggle("current",b.dataset.go===scene));
- const names={home:"01 / WELCOME",games:"02 / SELECT A MISSION",surprise:"03 / SECRET LETTER",map:"04 / SEOUL MAP",detail:"05 / OBSERVATION",ticket:"06 / TICKET",mission:"07 / THREE STOPS",detective:"08 / DETECTIVE",passport:"09 / PASSPORT"};
- $("step-label").textContent=names[scene]||"CROWDLESS";
- if(scene==="map")setTimeout(()=>{if(map)map.invalidateSize();},80);
- if(scene==="detail")renderDetail();if(scene==="ticket")renderPass();if(scene==="passport")renderPassport();if(scene==="mission")renderMission();if(scene==="detective"&&!quiz)newQuiz();
- window.scrollTo({top:0,behavior:"smooth"});
-}
-document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>show(b.dataset.go)));
-function subset(){const q=$("search").value.trim().toLowerCase(),k=$("kind").value,sort=$("sort").value;
- const a=places.filter(p=>(!k||p.kind===k)&&(!q||p.name.toLowerCase().includes(q)||p.kind.includes(q)||p.code.toLowerCase().includes(q)));
- if(sort==="name")a.sort((x,y)=>x.name.localeCompare(y.name,"ko"));else a.sort((x,y)=>{const x0=level(x)<0?99:(sort==="quiet"?level(x):-level(x));const y0=level(y)<0?99:(sort==="quiet"?level(y):-level(y));return x0-y0||x.name.localeCompare(y.name,"ko");});return a;}
-function redraw(){const items=subset();$("all").textContent=places.length;$("found").textContent=items.length;$("loaded").textContent=places.filter(p=>level(p)>=0).length;$("quiet").textContent=places.filter(p=>p.official==="여유").length;$("mapCount").textContent=items.length+"개 관측 지점";
- $("list").innerHTML=items.length?items.map((p,i)=>`<button class="stop ${p.code===selected?"active":""}" data-code="${p.code}"><span class="stop-number">${String(i+1).padStart(2,"0")}</span><span><b>${escapeHtml(p.name)}${stamps.has(p.code)?" ✦":""}</b><small>${escapeHtml(p.kind)} · ${p.code}</small></span>${badge(p)}</button>`).join(""):'<div class="empty">검색 결과가 없습니다. 필터를 바꿔 주세요.</div>';
- $("list").querySelectorAll("[data-code]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.code)));
- if(pins){pins.clearLayers();items.forEach(p=>{const pin=L.circleMarker([p.lat,p.lng],{radius:p.code===selected?10:7,color:"#fff6dd",weight:2,fillColor:color(p),fillOpacity:1});pin.bindTooltip(`${escapeHtml(p.name)} · ${escapeHtml(levelText(p))}`);pin.on("click",()=>choose(p.code));pin.addTo(pins);});}
-}
-function choose(code){if(!byCode.has(code))return;selected=code;redraw();renderDetail();show("detail");}
-function viewOnMap(code){if(code)selected=code;$("search").value="";$("kind").value="";redraw();show("map");const p=byCode.get(selected);if(map&&p)setTimeout(()=>map.flyTo([p.lat,p.lng],13,{duration:.5}),130);}
-function renderDetail(){const p=byCode.get(selected);$("detail").innerHTML=`<div class="ticket-top"><div><div class="ticket-kicker">CROWDLESS · OBSERVATION TICKET</div><h3>${escapeHtml(p.name)}</h3></div><div class="ticket-seal">관측<br>기록</div></div><div class="ticket-content"><div class="ticket-info"><span>${escapeHtml(p.kind)} · ${p.code}</span>${badge(p)}</div><div class="facts"><div class="fact"><small>공식 혼잡도</small><strong>${escapeHtml(p.official)}</strong></div><div class="fact"><small>추정 인구</small><strong>${people(p)}</strong></div><div class="fact"><small>기온</small><strong>${p.temperature==null?"정보 없음":escapeHtml(p.temperature)+"°C"}</strong></div><div class="fact"><small>초미세먼지</small><strong>${p.pm25==null?"정보 없음":escapeHtml(p.pm25)+"㎍/㎥"}</strong></div></div><p><b>관측 시각</b> · ${escapeHtml(p.time||"정보 없음")}</p><p>${escapeHtml(p.message||p.error||"최신 관측 자료가 없습니다. 아래 지도의 갱신 상태를 확인해 주세요.")}</p><div class="ticket-actions"><button id="stamp-btn" ${stamps.has(p.code)?"disabled":""}>${stamps.has(p.code)?"✓ 이미 모은 도장":"✦ 이 정류장 가상 도장 찍기"}</button><button id="go-map-p" class="outline">지도에서 위치 보기</button><button id="go-passport-p" class="outline">도장 수첩 보기</button><small>실제 방문 여부와 관계없는 가상 도장입니다.</small></div></div>`;
- $("stamp-btn").onclick=()=>{if(stamps.has(p.code))return;stamps.add(p.code);save("crowdless_stamps_v1",[...stamps]);renderDetail();renderMission();renderPassport();redraw();toast("✦ " + p.name + " 도장을 얻었어요!");};
- $("go-map-p").onclick=()=>viewOnMap(p.code);$("go-passport-p").onclick=()=>show("passport");}
-function renderMission(){const done=mission?mission.stops.filter(c=>stamps.has(c)).length:0;$("progress").setAttribute("aria-valuenow",done);$("progress-bar").style.width=(done*100/3)+"%";$("mission-count").textContent=mission?`${done}/3곳 도장 완성${done===3?" · 임무 성공!":""}`:"아직 발급한 승차권이 없습니다.";
- $("mission-stops").innerHTML=mission?mission.stops.map((code,i)=>{const p=byCode.get(code);return `<button class="mission-stop ${stamps.has(code)?"done":""}" data-mission="${code}"><b>STOP 0${i+1}</b><span>${escapeHtml(p.name)} ${stamps.has(code)?"✓":"○"}</span><small>${escapeHtml(levelText(p))} · 관측하러 가기 →</small></button>`;}).join(""):'<div class="empty">새 승차권을 뽑으면 세 정류장이 나타납니다.</div>';
- $("mission-stops").querySelectorAll("[data-mission]").forEach(b=>b.onclick=()=>choose(b.dataset.mission));$("next-stop").disabled=!mission||done===3;
- if(mission&&done===3)$("mission-message").textContent="축하합니다! 세 정류장의 도장을 전부 획득했어요.";
- $("passport-mission").textContent=mission?`현재 세 정류장 미션 ${done}/3 완료. ${done===3?"미션을 완수했습니다!":"다음 정류장으로 떠나 보세요."}`:"새 미션을 시작하면 여기에도 기록됩니다.";}
-function issueMission(){const known=places.filter(p=>level(p)>=0&&level(p)<=2);const pool=known.length>=3?known:places;const selectedStops=pickN(pool,3);mission={stops:selectedStops.map(p=>p.code)};save("crowdless_mission_v1",mission);$("mission-message").textContent=known.length>=3?"비교적 여유로운 장소 3곳을 선정했어요. 각 장소를 눌러 도장을 모으세요.":"관측 데이터가 부족하여 미니게임용 무작위 세 장소를 골랐어요. 여유롭다는 뜻은 아닙니다.";renderMission();ringBell(false);toast("🎫 세 정류장 승차권을 뽑았어요!");}
-function nextStop(){if(!mission)return;const code=mission.stops.find(c=>!stamps.has(c));if(code)choose(code);else toast("이 승차권의 모든 도장을 획득했어요!");}
-function surpriseStop(){const quiet=places.filter(p=>level(p)>=0&&level(p)<=1);const pool=quiet.length?quiet:places.filter(p=>p.code!==surprise?.code);surprise=randomOf(pool.length?pool:places);$("surprise-icon").textContent="✦";$("surprise-title").textContent=surprise.name;$("surprise-text").textContent=quiet.length?`현재 혼잡도: ${levelText(surprise)} · 숨겨진 정류장을 발견했어요!`:`관측 데이터가 부족해 무작위로 고른 정류장입니다. 현재 혼잡도는 ${levelText(surprise)}.`;$("surprise-detail").disabled=false;ringBell(false);}
-function renderPass(){const p=byCode.get(selected);$("pass-destination").textContent=p.name;$("pass-crowd").textContent=levelText(p);$("pass-origin").textContent=$("pass-from").value;$("pass-traveler").textContent=$("pass-name").value.trim()||"여행자";$("pass-style").textContent=$("pass-theme").value;}
-function renderPassport(){const arr=[...stamps].reverse();$("stamp-count").textContent=arr.length;$("stamp-shelf").innerHTML=arr.length?arr.slice(0,40).map(c=>`<span class="stamp-chip" title="${escapeHtml(byCode.get(c).name)}">${escapeHtml(byCode.get(c).name.slice(0,7))}</span>`).join(""):'<span class="passport-note">아직 모은 도장이 없어요.</span>';renderMission();}
-function newQuiz(){const known=places.filter(p=>level(p)>=0);let a,b,answer,mode;if(known.length>=2){const groups=pickN(known,Math.min(known.length,12));const pair=[];for(let i=0;i<groups.length;i++)for(let j=i+1;j<groups.length;j++)if(level(groups[i])!==level(groups[j]))pair.push([groups[i],groups[j]]);if(pair.length){[a,b]=randomOf(pair);answer=level(a)<level(b)?0:1;mode="real";}}
- if(!mode){mode="learn";a={name:"장소의 혼잡도는 정확한 보행자 수다"};b={name:"통신 기반 인구 추정값이다"};answer=1;}
- quiz={a,b,answer,mode,answered:false};$("quiz-title").textContent=mode==="real"?"어느 정류장이 더 여유로울까요?":"관측 장부가 없을 땐 상식 퀴즈!";$("quiz-explain").textContent=mode==="real"?"서울시가 제공한 공식 혼잡도 단계로 비교해 보세요.":"실제 두 장소를 비교할 데이터가 없어, 인구 혼잡도의 의미를 묻는 퀴즈로 전환했어요.";
- $("quiz-options").innerHTML=[a,b].map((p,i)=>`<button data-answer="${i}">${escapeHtml(p.name)}<small>${mode==="real"?"이 장소가 더 여유롭다":"이 설명이 더 정확하다"}</small></button>`).join("");$("quiz-options").querySelectorAll("[data-answer]").forEach(x=>x.onclick=()=>answerQuiz(+x.dataset.answer));$("quiz-feedback").textContent="정답을 골라 주세요.";}
-function answerQuiz(i){if(!quiz||quiz.answered)return;quiz.answered=true;quizTotal++;const yes=i===quiz.answer;if(yes)quizScore++;$("quiz-total").textContent=quizTotal;$("quiz-score").textContent=quizScore;$("quiz-options").querySelectorAll("button").forEach(b=>b.disabled=true);
- $("quiz-feedback").textContent=(yes?"정답! ":"아쉽지만 오답! ")+(quiz.mode==="real"?`${quiz.a.name}: ${levelText(quiz.a)} / ${quiz.b.name}: ${levelText(quiz.b)} (공식 혼잡도 기준)`:"서울시 실시간 도시데이터는 통신 데이터를 활용한 지역별 인구 추정치이며 보행자만 직접 세는 방식이 아니에요.");}
-function ringBell(withToast=true){const el=$("tram-scene");el.classList.remove("tram-running");void el.offsetWidth;el.classList.add("tram-running");try{const C=window.AudioContext||window.webkitAudioContext;if(C){const ctx=new C(),t=ctx.currentTime;[784,1176].forEach((freq,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=freq;g.gain.setValueAtTime(.0001,t+i*.13);g.gain.exponentialRampToValueAtTime(.08,t+i*.13+.02);g.gain.exponentialRampToValueAtTime(.0001,t+i*.13+.45);o.connect(g);g.connect(ctx.destination);o.start(t+i*.13);o.stop(t+i*.13+.5);});setTimeout(()=>ctx.close(),1200);}}catch{}if(withToast)toast("딸랑딸랑! 오늘의 전차가 출발해요.");}
-// Github Pages는 Python 서버를 실행하지 않으므로 정적 JSON 파일을 우선 확인합니다.
-// data/crowd.json이 없으면 서버 API와 다른 흔한 저장 위치도 순서대로 시도합니다.
-async function refresh(){if(busy)return;busy=true;$("refresh").disabled=true;const isGithub=location.hostname.endsWith("github.io"),candidates=["./data/crowd.json","./crowd.json","./data.json"];
- if(!isGithub&&location.protocol!=="file:")candidates.push("/api/places");let loaded=false,errors=[];
- $("notice").textContent="서울시 마지막 관측 자료를 찾는 중입니다…";
- for(const path of candidates){try{let result;if(path==="/api/places"){
-  let arr=[];for(let i=0;i<places.length;i+=8){const batch=places.slice(i,i+8).map(p=>p.code).join(",");const res=await fetch("/api/places?codes="+batch,{cache:"no-store"});if(!res.ok)throw Error("HTTP "+res.status);const json=await res.json();if(!json.configured)throw Error("서버의 API 인증키가 미설정됨");if(!Array.isArray(json.places))throw Error("장소 정보 없음");arr.push(...json.places);}result={places:arr};
- }else{const res=await fetch(path+"?v="+Date.now(),{cache:"no-store"});if(!res.ok)throw Error("HTTP "+res.status);result=await res.json();}
- const entries=Array.isArray(result)?result:result.places;if(!Array.isArray(entries))throw Error("JSON 형식 불일치");let hits=0;
- for(const info of entries){const p=byCode.get(info.code);if(!p)continue;for(const f of ["official","minimum","maximum","temperature","pm25","time","message","error"])if(Object.prototype.hasOwnProperty.call(info,f))p[f]=info[f];hits++;}
- if(!hits)throw Error("121개 장소와 일치하는 코드 없음");const count=places.filter(p=>level(p)>=0).length;
- let stamp="",stale="";if(result.generated_at){const t=new Date(result.generated_at);if(!Number.isNaN(t.getTime())){stamp=" · 최종 수집 "+t.toLocaleString("ko-KR",{timeZone:"Asia/Seoul"});if(Date.now()-t.getTime()>30*60000)stale=" · 갱신 지연 가능";}}
- const msg=`관측 장부 연결: ${path} · 혼잡도 ${count}/121곳 확인${stamp}${stale}`;$("notice").textContent=msg;$("home-status").textContent=msg;loaded=true;break;
- }catch(err){errors.push(path+": "+err.message);}}
- if(!loaded){const msg="혼잡도 데이터 파일을 찾지 못했어요. 지도와 미니게임은 정상 이용할 수 있습니다. GitHub Pages의 data/crowd.json 생성 여부를 확인하세요. (404는 데이터 파일이 없다는 뜻입니다.)";$("notice").textContent=msg;$("home-status").textContent=msg;console.warn("CrowdLess data load:",errors.join("; "));}
- busy=false;$("refresh").disabled=false;redraw();renderDetail();renderMission();renderPass();if(active==="surprise"&&surprise)$("surprise-text").textContent="선택 장소의 최신 상태: "+levelText(byCode.get(surprise.code));}
-$("today").textContent=new Date().toLocaleDateString("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"});
-$("legend").innerHTML=[...labels,"정보 없음"].map((v,i)=>`<span><i style="background:${i===5?"#9c998b":colors[i]}"></i>${v}</span>`).join("");
-$("search").addEventListener("input",redraw);$("kind").addEventListener("change",redraw);$("sort").addEventListener("change",redraw);
-$("refresh").onclick=refresh;$("surprise-stop").onclick=surpriseStop;$("surprise-detail").onclick=()=>{if(surprise)choose(surprise.code);};
-$("issue-ticket").onclick=issueMission;$("next-stop").onclick=nextStop;$("quiz-next").onclick=newQuiz;
-$("make-pass").onclick=()=>{renderPass();toast("🎫 기념 승차권을 만들었어요!");};$("print-pass").onclick=()=>window.print();
-$("pass-from").addEventListener("change",renderPass);$("pass-theme").addEventListener("change",renderPass);$("pass-name").addEventListener("input",renderPass);
-$("tram-bell").onclick=()=>ringBell(true);$("clear-stamps").onclick=()=>{if(confirm("가상 도장 기록을 초기화할까요?")){stamps.clear();save("crowdless_stamps_v1",[]);renderPassport();redraw();toast("도장 수첩을 비웠어요.");}};
-if(typeof L!=="undefined"){map=L.map("map",{scrollWheelZoom:false}).setView([37.55,126.99],11);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors",maxZoom:18}).addTo(map);pins=L.layerGroup().addTo(map);}else $("map").innerHTML='<div class="empty">지도를 불러올 수 없습니다. 인터넷 연결을 확인해 주세요.</div>';
-redraw();renderDetail();renderMission();renderPass();renderPassport();refresh();
-</script>
-<!-- 다른 프로젝트 바로가기: 기존 CrowdLess 기능과 독립적인 작은 고정 버튼 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON PROTOCOL // ROGUELIKE RPG UPDATE</title>
 <style>
-  .cl-neon-shortcut {
-    position: fixed;
-    right: 14px;
-    bottom: 14px;
-    z-index: 2000;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 9px 12px;
-    border: 1px solid #aa8248;
-    border-radius: 7px;
-    background: rgba(35, 60, 53, 0.95);
-    color: #f6e7c8;
-    font: 700 11px "Noto Sans KR", sans-serif;
-    text-decoration: none;
-    box-shadow: 0 4px 14px rgba(30, 25, 14, 0.25);
-    transition: background-color .18s, transform .18s;
-  }
-  .cl-neon-shortcut:hover {
-    background: #35594c;
-    color: #fff5db;
-    transform: translateY(-2px);
-  }
-  .cl-neon-shortcut:focus-visible {
-    outline: 3px solid #d3a96b;
-    outline-offset: 3px;
-  }
-  @media (max-width: 600px) {
-    .cl-neon-shortcut { right: 10px; bottom: 10px; padding: 8px 10px; font-size: 10px; }
-  }
-  @media print { .cl-neon-shortcut { display: none !important; } }
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+:root{--cyan:#62f5ff;--pink:#ff5c82;--purple:#b885ff;--gold:#ffd266;--lime:#7fffb0;--orange:#ffb46c;--bg:#080d19;--panel:#0d1629ee;--panel2:#13203aee}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;color:#eef6ff;font-family:Rajdhani,Arial,sans-serif;user-select:none}
+#game{display:block;width:100%;height:100%;cursor:crosshair}
+.hidden{display:none!important}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:4}
+.top{position:absolute;top:18px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.logo{font:900 16px Orbitron;letter-spacing:2px;color:var(--cyan);text-shadow:0 0 18px #45ddff88}.logo small{display:block;margin-top:7px;font:600 10px Rajdhani;letter-spacing:4px;color:#89a6bc}
+.stats{display:flex;gap:18px;text-align:right}.stats span{display:block;font:700 10px Orbitron;letter-spacing:2px;color:#8ba7bc}.stats b{display:block;font:700 20px Orbitron}
+.panel-ui{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid #45657f;box-shadow:0 0 18px #43d9ff11,inset 0 0 20px #3a86ff0d}
+#leftHUD{position:absolute;left:22px;bottom:18px;width:min(380px,34vw);padding:14px 14px 12px;border-radius:10px}
+#rightHUD{position:absolute;right:22px;bottom:18px;width:min(350px,29vw);padding:14px;border-radius:10px}
+#weaponHUD{position:absolute;right:22px;top:90px;width:min(270px,24vw);padding:12px;border-radius:10px}
+.hud-title{font:700 11px Orbitron;letter-spacing:2px;color:#9cd8ff;margin-bottom:8px}
+.meterlabel{display:flex;justify-content:space-between;font:700 12px Rajdhani;letter-spacing:1.4px;margin:5px 0}
+.track{height:9px;background:#243247;overflow:hidden;transform:skew(-10deg);margin-bottom:11px}.fill{height:100%;width:100%;transition:width .16s}.hp{background:var(--pink);box-shadow:0 0 12px var(--pink)}.xp{background:var(--purple);box-shadow:0 0 12px var(--purple)}.energy{background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.help{font:600 12px Rajdhani;letter-spacing:1px;color:#9cb8cf}
+#weaponName{font:800 14px Orbitron;color:var(--cyan)}
+#weaponSub{font:600 12px Rajdhani;color:#adc8db;margin-top:4px}
+#ammoLine{font:900 30px Orbitron;margin-top:6px}#ammoLine small{font-size:13px;color:#8ea7be}
+#weaponSlots{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.weapon-chip{border:1px solid #4a6279;background:#0b1324;padding:6px 8px;font:700 10px Orbitron;color:#8fb1c8;min-width:54px;text-align:center}.weapon-chip.active{border-color:var(--cyan);color:white;box-shadow:0 0 12px #47dcff55}
+#inventory{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}.inv-slot{border:1px solid #4a6279;background:#0b1324;padding:7px 6px;text-align:center;min-height:62px}.inv-slot.active{border-color:var(--gold);box-shadow:0 0 12px #ffd26644}.inv-slot .key{font:700 10px Orbitron;color:#ffd98c}.inv-slot .name{font:700 11px Rajdhani;color:#eef7ff;margin-top:5px;line-height:1}.inv-slot .count{font:700 10px Orbitron;color:#95b8d6;margin-top:4px}
+.tree-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.branch{border:1px solid #475e76;background:#0b1324;padding:8px;border-radius:8px;min-height:88px}.branch.active{border-color:var(--cyan);box-shadow:0 0 12px #4ce1ff33}.branch h4{margin:0 0 6px;font:800 12px Orbitron;letter-spacing:1px}.branch .pt{color:var(--gold);font:700 10px Orbitron;display:block;margin-bottom:5px}.branch ul{margin:0;padding-left:16px;color:#a9c0d6;font-size:12px;line-height:1.2;max-height:64px;overflow:hidden}
+#routeNow{margin-top:8px;font:700 12px Orbitron;color:var(--lime);letter-spacing:1px}
+#blueprintMini{margin-top:9px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.mini-node{padding:4px 5px;border:1px solid #3c5268;background:#0b1324;text-align:center;font:700 9px Orbitron;color:#8fb0c7}.mini-node.on{color:#fff;border-color:var(--cyan);box-shadow:0 0 8px #48dcff44}
+#banner{position:absolute;left:0;top:24%;width:100%;text-align:center;font:900 clamp(22px,5vw,48px) Orbitron;letter-spacing:4px;color:#e9fbff;text-shadow:0 0 22px #54e8ff;opacity:0;transition:opacity .25s}#banner.show{opacity:1}
+#toast{position:absolute;left:50%;bottom:112px;transform:translateX(-50%);font:700 13px Orbitron;color:var(--gold);opacity:0;transition:opacity .2s;white-space:nowrap}#toast.show{opacity:1}
+#pauseBtn{position:absolute;right:22px;top:56px;pointer-events:auto}
+#minimap{position:absolute;left:22px;top:88px;width:142px;height:100px;border:1px solid #45657f;background:#081320cc}
+.tinybtn{background:#15233b;border:1px solid #4f6d86;color:#eef7ff;padding:9px 12px;cursor:pointer;font:700 11px Orbitron}
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#030818dc;backdrop-filter:blur(10px);z-index:10}
+.panel{width:min(94vw,780px);max-height:92vh;overflow:auto;padding:34px;background:linear-gradient(145deg,#172744,#0b1326);border:1px solid #4c7291;text-align:center;clip-path:polygon(0 0,96% 0,100% 7%,100% 100%,4% 100%,0 93%);box-shadow:0 0 70px #39deff22}
+.eyebrow{font:700 10px Orbitron;letter-spacing:4px;color:var(--cyan)}h1{font:900 clamp(28px,5vw,46px) Orbitron;margin:16px 0;color:white;text-shadow:0 0 20px #48dcff66}h1 span{color:var(--cyan)}p{color:#a6bbd0;font-size:16px;line-height:1.5}
+.primary{padding:14px 28px;border:0;background:linear-gradient(90deg,#42d8e7,#749dff);color:#071426;font:900 13px Orbitron;cursor:pointer}.primary:hover,.choice:hover{filter:brightness(1.16);box-shadow:0 0 18px #49ddff55}
+.controls{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:20px 0;text-align:left}.controls div{padding:10px;background:#ffffff0a;border:1px solid #ffffff19;color:#a9c0d7}.controls b{display:block;margin-bottom:3px;color:#f3fbff}
+#choices{display:grid;gap:10px;margin-top:22px}.choice{text-align:left;padding:13px;display:flex;gap:14px;align-items:center;background:#16233d;border:1px solid #4d6b87;color:white;cursor:pointer}.choice .icon{width:42px;font-size:28px;text-align:center}.choice strong{font-size:17px;display:block}.choice small{display:block;color:#a7bfd5;font-size:13px;margin-top:3px}.tag{display:inline-block;font:700 9px Orbitron;letter-spacing:1px;padding:3px 6px;border:1px solid #587290;color:var(--gold);margin-bottom:4px}
+#reticle{position:fixed;z-index:5;pointer-events:none;width:22px;height:22px;border:1px solid #79fbffbb;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px #5dfaff55}#reticle:before,#reticle:after{content:"";position:absolute;background:#bfffff}#reticle:before{width:2px;height:8px;left:9px;top:6px}#reticle:after{height:2px;width:8px;left:6px;top:9px}
+@media(max-width:900px){#leftHUD{width:42vw}#rightHUD,#weaponHUD{width:31vw}}
+@media(max-width:700px){#weaponHUD,#rightHUD{display:none}#leftHUD{width:calc(100vw - 24px);left:12px;right:12px;bottom:12px}#minimap{display:none}.top{left:12px;right:12px;top:12px}.stats{gap:10px}.stats b{font-size:13px}.logo{font-size:11px}#pauseBtn{right:12px;top:48px}.panel{padding:24px}.controls{grid-template-columns:1fr}.primary{width:100%}}
 </style>
-<a class="cl-neon-shortcut"
-   href="https://ty0806.github.io/neon-protocol/"
-   target="_blank"
-   rel="noopener noreferrer"
-   aria-label="Neon Protocol 웹사이트 새 창으로 열기"
-   title="Neon Protocol로 이동">
-  <span aria-hidden="true">✦</span> NEON PROTOCOL ↗
-</a>
-</body></html>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="reticle"></div>
+<div id="hud" class="hidden">
+  <div class="top">
+    <div class="logo">NEON PROTOCOL<small>ROGUELIKE ARMORY // 3.0</small></div>
+    <div class="stats">
+      <div><span>WAVE</span><b id="wave">01</b></div>
+      <div><span>SCORE</span><b id="score">000000</b></div>
+      <div><span>KILLS</span><b id="kills">000</b></div>
+      <div><span>LEVEL</span><b id="levelTop">01</b></div>
+    </div>
+  </div>
+  <button id="pauseBtn" class="tinybtn">Ⅱ PAUSE</button>
+  <canvas id="minimap" width="142" height="100"></canvas>
+  <div id="banner"></div>
+  <div id="toast"></div>
+  <div id="lootPrompt" class="hidden" style="position:absolute;left:50%;bottom:70px;transform:translateX(-50%);background:#0b1728ec;border:1px solid #69dcff;padding:11px 18px;max-width:min(86vw,500px);text-align:center;color:#e6faff;font:700 13px Orbitron;letter-spacing:.5px;box-shadow:0 0 20px #4fd9ff40"></div>
+
+  <div id="weaponHUD" class="panel-ui">
+    <div class="hud-title">PRIMARY LOADOUT</div>
+    <div id="weaponName">PLASMA BLASTER</div>
+    <div id="weaponSub">기본 에너지 블래스터</div>
+    <div id="ammoLine"><span id="ammo">24</span><small> / ∞</small></div>
+    <div class="help" id="reloadInfo">CLICK FIRE · R RELOAD · Z/X SWITCH</div>
+    <div id="weaponSlots"></div>
+  </div>
+
+  <div id="leftHUD" class="panel-ui">
+    <div class="hud-title">OPERATIVE STATUS</div>
+    <div class="meterlabel"><span>HULL INTEGRITY</span><span id="hpText">100/100</span></div>
+    <div class="track"><div class="fill hp" id="hpBar"></div></div>
+    <div class="meterlabel"><span>EXPERIENCE</span><span id="xpText">0/100</span></div>
+    <div class="track"><div class="fill xp" id="xpBar"></div></div>
+    <div class="meterlabel"><span>TACTICAL CHARGE</span><span id="dashText">READY</span></div>
+    <div class="track"><div class="fill energy" id="dashBar"></div></div>
+    <div class="help" id="leftHelp">WASD MOVE · SPACE DASH · TAB TECH TREE</div>
+    <div class="hud-title" style="margin-top:10px">ACTIVE INVENTORY</div>
+    <div id="inventory"></div>
+    <div class="help" style="margin-top:6px">1–4 아이템 선택 · Q 사용 · F 줍기</div>
+    <div class="hud-title" style="margin-top:12px">INDIRECT BLADE / DASH STRIKE</div>
+    <div id="meleeName" style="font:700 13px Orbitron;color:var(--gold)">VALKYRIE AXE</div>
+    <div class="help" id="meleeDesc">Space + 좌클릭: 보조무기 발동</div>
+  </div>
+
+  <div id="rightHUD" class="panel-ui">
+    <div class="hud-title">WEAPON BLUEPRINT / SKILL TREE</div>
+    <div class="tree-grid">
+      <div class="branch" id="branch-assault"><h4>ASSAULT</h4><span class="pt" id="pt-assault">0 PT</span><ul id="list-assault"></ul></div>
+      <div class="branch" id="branch-demo"><h4>DEMOLITION</h4><span class="pt" id="pt-demo">0 PT</span><ul id="list-demo"></ul></div>
+      <div class="branch" id="branch-arc"><h4>ARC / VALKYRIE</h4><span class="pt" id="pt-arc">0 PT</span><ul id="list-arc"></ul></div>
+      <div class="branch" id="branch-support"><h4>SUPPORT</h4><span class="pt" id="pt-support">0 PT</span><ul id="list-support"></ul></div>
+    </div>
+    <div id="routeNow">CURRENT ROUTE : BALANCED PROTOCOL</div>
+    <div id="blueprintMini"></div>
+  </div>
+</div>
+
+<div id="startMenu" class="overlay">
+  <div class="panel">
+    <div class="eyebrow">SYSTEM INITIALIZED // 2089</div>
+    <h1>NEON <span>PROTOCOL</span></h1>
+    <p>네온 아레나에서 살아남는 슈팅 로그라이크 RPG.<br>무기 루트를 타고 스킬 트리를 구축하며 보스를 처치하세요.</p>
+    <div class="controls">
+      <div><b>W A S D</b>이동</div>
+      <div><b>MOUSE</b>조준 / 발사</div>
+      <div><b>SPACE / R</b>대시 / 재장전</div>
+      <div><b>Z / X</b>무기 전환</div>
+      <div><b>1 2 3 4</b>액티브 아이템 슬롯 선택</div>
+      <div><b>Q / TAB / ESC</b>아이템 사용 / 트리 보기 / 일시정지</div>
+      <div><b>F</b>주변 아이템 줍기 / 보조무기 교체</div>
+      <div><b>SPACE + CLICK</b>대시 중 간접무기 특수 공격</div>
+    </div>
+    <button class="primary" id="startBtn">INITIALIZE MISSION</button>
+    <p style="font-size:12px">보스 처치 시 특별 보상 + 액티브 아이템 지급</p>
+  </div>
+</div>
+
+<div id="upgradeMenu" class="overlay hidden">
+  <div class="panel">
+    <div class="eyebrow">EVOLUTION SELECTION</div>
+    <h1>LEVEL <span>UP</span></h1>
+    <p>스킬 트리를 확장하거나 신규 무기 / 액티브를 해금하세요.</p>
+    <div id="choices"></div>
+  </div>
+</div>
+
+<div id="treeMenu" class="overlay hidden">
+  <div class="panel">
+    <div class="eyebrow">TACTICAL BLUEPRINT</div>
+    <h1>SKILL <span>TREE</span></h1>
+    <p>현재 빌드와 루트 진행 상황입니다.</p>
+    <div id="treeSummary" style="text-align:left;color:#dfefff;background:#0d172b;border:1px solid #496782;padding:16px;border-radius:10px;line-height:1.5"></div>
+    <div style="margin-top:18px"><button class="primary" id="closeTreeBtn">RETURN</button></div>
+  </div>
+</div>
+
+<div id="pauseMenu" class="overlay hidden">
+  <div class="panel">
+    <div class="eyebrow">SYSTEM ON HOLD</div>
+    <h1>PAUSED</h1>
+    <p>작전이 중단되었습니다.</p>
+    <button class="primary" id="resumeBtn">RESUME MISSION</button>
+  </div>
+</div>
+
+<div id="endMenu" class="overlay hidden">
+  <div class="panel">
+    <div class="eyebrow" id="endLabel">MISSION ENDED</div>
+    <h1 id="endTitle">SYSTEM <span>OFFLINE</span></h1>
+    <p id="endDescription"></p>
+    <div class="controls" id="endStats"></div>
+    <button class="primary" id="restartBtn">RESTART MISSION</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const canvas=$('game');
+const ctx=canvas.getContext('2d');
+const WORLD={w:2400,h:1700};
+const TAU=Math.PI*2;
+const rand=(a,b)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+let W=0,H=0,dpr=1;
+let mode='menu';
+let player,enemies,bullets,particles,pickups,obstacles,texts,groundLoot=[],bladeEffects=[];
+let lootSpawnClock=14;
+let wave=0,spawnLeft=0,spawnClock=0,between=-1,score=0,kills=0,clock=0,last=0,shake=0,flash=0,bannerTime=0,toastTime=0,uid=1;
+let cam={x:0,y:0};
+let keys={};
+let mouse={x:0,y:0,down:false};
+let audioCtx=null;
+const routeNames={assault:'ASSAULT / MACHINEGUN',demo:'DEMOLITION / EXPLOSIVE',arc:'ARC / VALKYRIE',support:'SUPPORT / SURVIVAL'};
+const weaponData={
+  blaster:{label:'PLASMA BLASTER',sub:'균형형 기본 무기',color:'#68f8ff',mag:24,rate:6.2,speed:900,damage:18,spread:.055,r:4,reload:1.45,shots:1,chain:0,explosion:0,pierce:0},
+  smg:{label:'PULSE SMG',sub:'기관총 루트 전용 연사형',color:'#a5f86d',mag:46,rate:11.5,speed:880,damage:10,spread:.095,r:3,reload:1.7,shots:1,chain:0,explosion:0,pierce:0},
+  cannon:{label:'NOVA CANNON',sub:'폭발 탄환 발사',color:'#ffb061',mag:9,rate:1.8,speed:580,damage:42,spread:.035,r:8,reload:2.0,shots:1,chain:0,explosion:68,pierce:0},
+  arc:{label:'ARC CONDUCTOR',sub:'연쇄 전격 무기',color:'#c996ff',mag:18,rate:3.5,speed:760,damage:18,spread:.06,r:5,reload:1.75,shots:1,chain:2,explosion:0,pierce:0},
+  laser:{label:'PHOTON RIFLE',sub:'정밀 관통형 라이플',color:'#ff7dbd',mag:16,rate:4.2,speed:1250,damage:28,spread:.015,r:3,reload:1.55,shots:1,chain:0,explosion:0,pierce:1}
+};
+const meleeData={
+  valkyrie:{name:'발키리 도끼',color:'#64f5ff',damage:46,reach:138,arcs:2,desc:'넓은 회전 궤도 · 균형형'},
+  katana:{name:'네온 일본도',color:'#c3a3ff',damage:55,reach:165,arcs:1,desc:'긴 궤도 · 집중형'},
+  rapier:{name:'펜싱 레이피어',color:'#79ffd2',damage:68,reach:193,arcs:1,desc:'전방 돌진형 · 긴 사거리'},
+  kitchen:{name:'사이버 식칼',color:'#ffcc78',damage:37,reach:108,arcs:3,desc:'짧은 거리 · 빠른 연타'}
+};
+const activeCatalog={
+  medkit:{name:'회복 물약',short:'POTION',icon:'✚',desc:'즉시 체력 42 회복',color:'#7fffb0'},
+  bomb:{name:'플라즈마 폭탄',short:'BOMB',icon:'✹',desc:'주변 넓은 범위에 큰 피해',color:'#ffb46c'},
+  emp:{name:'EMP 코어',short:'EMP',icon:'⌁',desc:'적을 느리게 하고 피해',color:'#62f5ff'},
+  overdrive:{name:'오버드라이브',short:'BOOST',icon:'⚡',desc:'잠시 공격 속도와 이동 속도 증가',color:'#ffd266'}
+};
+
+function resize(){W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',resize);resize();
+mouse.x=W/2;mouse.y=H/2;
+
+function tone(f=380,d=.08,type='sine',gain=.018){
+  try{
+    audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended')audioCtx.resume();
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type=type;o.frequency.setValueAtTime(f,audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(Math.max(50,f*.55),audioCtx.currentTime+d);
+    g.gain.setValueAtTime(gain,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+d);
+    o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);
+  }catch(e){}
+}
+function showOverlay(id){['startMenu','upgradeMenu','treeMenu','pauseMenu','endMenu'].forEach(name=>$(name).classList.toggle('hidden',name!==id));}
+function banner(msg,t=1.7){$('banner').textContent=msg;$('banner').classList.add('show');bannerTime=t;}
+function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');toastTime=1.7;}
+function pushText(x,y,val,color='#fff'){texts.push({x,y,val,color,life:0.7,max:0.7});}
+
+function cloneWeapon(type){const b=weaponData[type];return {type,ammo:b.mag,mag:b.mag,rate:b.rate,damage:b.damage,speed:b.speed,spread:b.spread,r:b.r,reloadDuration:b.reload,reload:0,fireCd:0,shots:b.shots,chain:b.chain,explosion:b.explosion,pierce:b.pierce,name:b.label,sub:b.sub,color:b.color};}
+
+function resetGame(){
+  player={
+    x:WORLD.w/2,y:WORLD.h/2,r:16,
+    hp:100,maxHp:100,regen:.12,speed:275,
+    xp:0,xpMax:90,level:1,damageMult:1,fireRateMult:1,bulletSpeedMult:1,crit:.08,
+    dashCd:0,dashCdMax:3.2,dashTime:0,dashAngle:0,invuln:0,armor:.04,magnet:120,
+    ownedWeapons:['blaster'],weapons:{blaster:cloneWeapon('blaster')},activeWeapon:0,
+    routes:{assault:0,demo:0,arc:0,support:0},unlocks:{assault:[],demo:[],arc:[],support:[]},
+    indirect:{axes:0,axeDamage:22,axeSpeed:2.1,axeRadius:72,axeTimer:0,orbs:0},
+    melee:'valkyrie',meleeCd:0,meleeHits:new Set(),meleeOwned:new Set(['valkyrie']),
+    actives:[null,null,null,null],selectedItem:0,activeOwned:new Set(),
+    buffs:{overdrive:0,empBurst:0},bossTokens:0
+  };
+  enemies=[];bullets=[];particles=[];pickups=[];obstacles=[];texts=[];groundLoot=[];bladeEffects=[];lootSpawnClock=12;
+  wave=0;spawnLeft=0;spawnClock=0;between=1.2;score=0;kills=0;clock=0;shake=0;flash=0;uid=1;
+  for(let i=0;i<36;i++){
+    let x=rand(120,WORLD.w-120),y=rand(120,WORLD.h-120),r=rand(20,44);
+    if(Math.hypot(x-player.x,y-player.y)<260)continue;
+    if(obstacles.some(o=>Math.hypot(o.x-x,o.y-y)<o.r+r+28))continue;
+    obstacles.push({x,y,r});
+  }
+  mode='playing';showOverlay(null);$('hud').classList.remove('hidden');
+  grantActive('medkit',1);grantActive('bomb',1);
+  // The first wave begins with scattered supplies nearby.
+  dropLoot('medkit',player.x+140,player.y+105);
+  dropLoot('blade',player.x-180,player.y-115,'rapier');
+  startWave();
+  syncHud();
+}
+
+function currentWeapon(){return player.weapons[player.ownedWeapons[player.activeWeapon]];}
+function activeRoute(){
+  let top='balanced',best=-1;
+  for(const k of ['assault','demo','arc','support']){if(player.routes[k]>best){best=player.routes[k];top=k;}}
+  return best<=0?'balanced':top;
+}
+function addUnlock(route,name){if(!player.unlocks[route].includes(name))player.unlocks[route].push(name);}
+function startWave(){
+  wave++;
+  if(wave>1){
+    const heal=Math.min(player.maxHp-player.hp,Math.max(8,Math.round(player.maxHp*.10)));
+    player.hp+=heal;
+    if(heal>0){pushText(player.x,player.y-42,'WAVE RECOVERY +'+Math.round(heal),'#82ffb4');ring(player.x,player.y,'#82ffb4',110);}
+    // Place a couple of supplies around the arena each new wave.
+    for(let i=0;i<2;i++)dropLoot(i===0?'medkit':(Math.random()<.65?'medkit':'blade'));
+  }
+  spawnLeft=8+wave*3;
+  if(wave%5===0)spawnLeft=Math.floor(spawnLeft*.55)+1;
+  spawnClock=.55;between=-1;
+  banner(wave%5===0?'BOSS WAVE '+wave:'WAVE '+String(wave).padStart(2,'0'),2.1);
+  tone(330,.28,'sawtooth',.03);
+}
+function dropLoot(kind,x,y,variant){
+  if(groundLoot.length>=35)return;
+  if(x==null||y==null){
+    for(let t=0;t<24;t++){
+      const a=rand(0,TAU),r=rand(220,620);
+      const nx=clamp(player.x+Math.cos(a)*r,65,WORLD.w-65),ny=clamp(player.y+Math.sin(a)*r,65,WORLD.h-65);
+      if(obstacles.some(o=>Math.hypot(o.x-nx,o.y-ny)<o.r+26))continue;
+      x=nx;y=ny;break;
+    }
+  }
+  if(x==null||y==null)return;
+  const type=kind==='blade'?(variant||Object.keys(meleeData)[Math.floor(Math.random()*Object.keys(meleeData).length)]):null;
+  groundLoot.push({id:uid++,kind,type,x,y,r:15,life:100,bob:rand(0,TAU)});
+}
+function nearbyLoot(){
+  let best=null,min=74;
+  for(const item of groundLoot){const d=dist(player,item);if(d<min){min=d;best=item;}}
+  return best;
+}
+function pickLoot(){
+  if(mode!=='playing')return;
+  const item=nearbyLoot();
+  if(!item){toast('주변에 주울 아이템이 없습니다');return;}
+  if(item.kind==='medkit'){
+    if(grantActive('medkit',1)===false)return;
+  }else{
+    if(item.type===player.melee){toast('이미 같은 보조무기를 장착 중입니다');return;}
+    const previous=player.melee;
+    player.melee=item.type;player.meleeOwned.add(item.type);
+    // Swapped weapon remains on the floor, PUBG-style.
+    item.type=previous;
+    item.life=110;
+    tone(680,.14,'triangle',.028);
+    toast(meleeData[player.melee].name+' 장착 · 이전 장비는 바닥에 남음');
+    syncHud();return;
+  }
+  groundLoot=groundLoot.filter(o=>o.id!==item.id);
+  burst(item.x,item.y,item.kind==='medkit'?'#80ffb8':'#7dcbff',12,105);
+  tone(720,.13,'sine',.025);
+  syncHud();
+}
+function updateLoot(dt){
+  lootSpawnClock-=dt;
+  if(lootSpawnClock<=0){
+    dropLoot(Math.random()<.68?'medkit':'blade');
+    lootSpawnClock=rand(15,23);
+  }
+  groundLoot=groundLoot.filter(o=>(o.life-=dt)>0);
+  for(let i=bladeEffects.length-1;i>=0;i--){bladeEffects[i].life-=dt;if(bladeEffects[i].life<=0)bladeEffects.splice(i,1);}
+}
+function dashBladeAttack(){
+  if(player.meleeCd>0||!player.melee||player.dashTime<=0)return;
+  const m=meleeData[player.melee];
+  player.meleeCd=player.melee==='kitchen'?.11:.17;
+  const direction=Math.atan2(mouse.y-(player.y-cam.y),mouse.x-(player.x-cam.x));
+  const originX=player.x+Math.cos(direction)*Math.min(75,m.reach*.35);
+  const originY=player.y+Math.sin(direction)*Math.min(75,m.reach*.35);
+  bladeEffects.push({x:originX,y:originY,a:direction,reach:m.reach,life:.23,maxLife:.23,color:m.color,type:player.melee});
+  burst(originX,originY,m.color,8,130);
+  for(const e of [...enemies]){
+    const dx=e.x-player.x,dy=e.y-player.y;
+    const distance=Math.hypot(dx,dy);
+    const angle=Math.atan2(dy,dx);
+    const diff=Math.atan2(Math.sin(angle-direction),Math.cos(angle-direction));
+    const cone=player.melee==='rapier'?.40:player.melee==='katana'?.85:player.melee==='kitchen'?1.10:1.35;
+    if(distance<m.reach+e.r&&Math.abs(diff)<cone){
+      damageEnemy(e,m.damage*(1+player.routes.arc*.1),false,true);
+      if(e.hp>0){e.x+=Math.cos(direction)*16;e.y+=Math.sin(direction)*16;}
+    }
+  }
+  shake=Math.max(shake,4);tone(420,.09,'triangle',.024);
+}
+function enemyTemplate(kind){
+  const scale=1+wave*.12;
+  const map={
+    drone:{r:16,hp:42,speed:112,damage:14,color:'#ff587f',xp:18,score:90},
+    runner:{r:12,hp:28,speed:190,damage:12,color:'#ffb864',xp:16,score:85},
+    tank:{r:24,hp:150,speed:68,damage:22,color:'#aa7cff',xp:48,score:160},
+    boss:{r:50,hp:1320+wave*95,speed:78,damage:28,color:'#ff476d',xp:300,score:1200}
+  };
+  const t=map[kind];
+  return {kind,r:t.r,maxHp:t.hp*scale,hp:t.hp*scale,speed:t.speed*(kind==='runner'?1+wave*.015:1+wave*.01),damage:t.damage*(1+wave*.05),color:t.color,xp:t.xp,score:t.score};
+}
+function spawnEnemy(){
+  const a=rand(0,TAU),radius=Math.max(W,H)*.7+80;
+  const x=clamp(player.x+Math.cos(a)*radius,55,WORLD.w-55);
+  const y=clamp(player.y+Math.sin(a)*radius,55,WORLD.h-55);
+  const isBoss=(wave%5===0&&spawnLeft===1);
+  let kind='drone';
+  if(isBoss)kind='boss';
+  else{
+    const r=Math.random();
+    kind=r<.18+Math.min(wave*.01,.18)?'tank':r<.47?'runner':'drone';
+  }
+  const base=enemyTemplate(kind);
+  enemies.push({id:uid++,x,y,phase:rand(0,TAU),attackCd:0,shootCd:rand(.9,1.6),slow:0,hit:0,axeMark:0,...base});
+}
+function burst(x,y,color,count=10,power=160){
+  for(let i=0;i<count;i++){
+    const a=rand(0,TAU),v=rand(25,power);
+    particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:rand(.18,.65),maxLife:.65,r:rand(1.5,4),color,ring:false});
+  }
+  if(particles.length>900)particles.splice(0,particles.length-900);
+}
+function ring(x,y,color,maxR){particles.push({x,y,life:.35,maxLife:.35,radius:maxR,color,ring:true});}
+function collide(obj){
+  obj.x=clamp(obj.x,obj.r,WORLD.w-obj.r);obj.y=clamp(obj.y,obj.r,WORLD.h-obj.r);
+  for(const o of obstacles){
+    const dx=obj.x-o.x,dy=obj.y-o.y,d=Math.hypot(dx,dy),min=obj.r+o.r;
+    if(d<min){const nx=dx/(d||1),ny=dy/(d||1);obj.x+=nx*(min-d);obj.y+=ny*(min-d);}
+  }
+}
+
+function switchWeapon(dir){
+  if(player.ownedWeapons.length<=1)return;
+  player.activeWeapon=(player.activeWeapon+dir+player.ownedWeapons.length)%player.ownedWeapons.length;
+  tone(500,.05,'triangle',.016);syncHud();
+}
+function selectItem(idx){player.selectedItem=clamp(idx,0,3);syncHud();}
+function grantActive(type,amount=1){
+  let slot=player.actives.find(s=>s&&s.type===type);
+  if(slot){slot.count+=amount;toast(activeCatalog[type].name+' +'+amount);return;}
+  let empty=player.actives.findIndex(s=>!s);
+  if(empty!==-1){player.actives[empty]={type,count:amount};player.activeOwned.add(type);toast(activeCatalog[type].name+' 획득');}
+  else{toast('인벤토리가 가득 찼습니다 · Q로 아이템을 사용하세요');return false;} 
+}
+function useActive(){
+  if(mode!=='playing')return;
+  const slot=player.actives[player.selectedItem];
+  if(!slot||slot.count<=0){toast('선택한 아이템이 없습니다');return;}
+  slot.count--;
+  const type=slot.type;
+  if(type==='medkit'){
+    const heal=Math.min(42,player.maxHp-player.hp);player.hp+=heal;burst(player.x,player.y,'#7fffb0',18,180);ring(player.x,player.y,'#7fffb0',110);pushText(player.x,player.y-26,'+'+Math.round(heal),'#7fffb0');tone(760,.15,'sine',.03);
+  }else if(type==='bomb'){
+    explode(player.x,player.y,170,68,null,'#ffb46c');ring(player.x,player.y,'#ffb46c',190);tone(150,.25,'sawtooth',.05);
+  }else if(type==='emp'){
+    ring(player.x,player.y,'#62f5ff',220);burst(player.x,player.y,'#62f5ff',26,220);
+    for(const e of enemies){if(Math.hypot(e.x-player.x,e.y-player.y)<220){e.slow=Math.max(e.slow,2.2);damageEnemy(e,24,false,true);}}
+    tone(220,.23,'square',.03);
+  }else if(type==='overdrive'){
+    player.buffs.overdrive=7;burst(player.x,player.y,'#ffd266',18,180);toast('오버드라이브 활성화');tone(620,.18,'triangle',.03);
+  }
+  if(slot.count<=0)player.actives[player.selectedItem]=null;
+  syncHud();
+}
+
+function reloadCurrent(){const w=currentWeapon();if(w.reload>0||w.ammo===w.mag)return;w.reload=w.reloadDuration;tone(220,.12,'triangle',.016);}
+function fire(){
+  const w=currentWeapon();
+  if(w.reload>0||w.fireCd>0||player.dashTime>0)return;
+  if(w.ammo<=0){reloadCurrent();return;}
+  const px=player.x-cam.x,py=player.y-cam.y;
+  const base=Math.atan2(mouse.y-py,mouse.x-px);
+  w.ammo--;w.fireCd=1/(w.rate*player.fireRateMult*(player.buffs.overdrive>0?1.45:1));
+  const shots=w.shots;
+  for(let i=0;i<shots;i++){
+    const a=base+(i-(shots-1)/2)*0.12+rand(-w.spread,w.spread);
+    bullets.push({x:player.x+Math.cos(a)*25,y:player.y+Math.sin(a)*25,vx:Math.cos(a)*(w.speed*player.bulletSpeedMult),vy:Math.sin(a)*(w.speed*player.bulletSpeedMult),life:1.25,damage:w.damage*player.damageMult*(player.buffs.overdrive>0?1.18:1),crit:Math.random()<player.crit,pierce:w.pierce,chain:w.chain,explosion:w.explosion,r:w.r,color:w.color,enemy:false,hit:new Set()});
+  }
+  burst(player.x+Math.cos(base)*26,player.y+Math.sin(base)*26,w.color,5,95);
+  shake=Math.max(shake,w.type==='cannon'?4:2);tone(w.type==='cannon'?240:420,.06,w.type==='arc'?'triangle':'sawtooth',.018);
+  if(w.ammo<=0)reloadCurrent();
+}
+
+function hurtPlayer(amount){
+  if(player.invuln>0||player.dashTime>0)return;
+  amount=Math.max(1,amount*(1-player.armor));
+  player.hp=Math.max(0,player.hp-amount);
+  player.invuln=.34;shake=10;flash=.18;burst(player.x,player.y,'#ff5c82',14,200);pushText(player.x,player.y-20,'-'+Math.round(amount),'#ff9ab1');tone(160,.2,'sawtooth',.04);
+  if(player.hp<=0)finish(false);
+}
+function removeEnemyById(id){const i=enemies.findIndex(e=>e.id===id);if(i!==-1)enemies.splice(i,1);} 
+function damageEnemy(enemy,amount,crit=false,ignoreExtras=false){
+  if(!enemy||enemy.hp<=0)return;
+  enemy.hit=.12;enemy.hp-=amount;
+  pushText(enemy.x,enemy.y-18,Math.round(amount),crit?'#ffe18a':'#ffffff');
+  if(enemy.hp<=0)killEnemy(enemy,false);
+}
+function killEnemy(enemy,ignoreExtras=false){
+  const boss=enemy.kind==='boss';
+  kills++;score+=enemy.score+(boss?900:0);
+  burst(enemy.x,enemy.y,enemy.color,boss?65:18,boss?360:210);
+  pickups.push({x:enemy.x,y:enemy.y,r:6,kind:'xp',value:boss?enemy.xp+180:enemy.xp,life:28});
+  if(!ignoreExtras){
+    if(boss){
+      player.bossTokens++;
+      score+=1200;
+      for(let i=0;i<3;i++)pickups.push({x:enemy.x+rand(-20,20),y:enemy.y+rand(-20,20),r:7,kind:'xp',value:90,life:30});
+      const rewards=['bomb','medkit','emp','overdrive'];
+      grantActive(rewards[Math.floor(Math.random()*rewards.length)],2);
+      if(Math.random()<.65)grantActive(rewards[Math.floor(Math.random()*rewards.length)],1);
+      toast('보스 보상 획득! 보급품과 대량 XP 지급');
+      banner('BOSS REWARD SECURED',1.8);
+      // Boss guarantees an extra blade drop and a collectible potion.
+      dropLoot('blade',enemy.x+85,enemy.y-50);
+      dropLoot('medkit',enemy.x-72,enemy.y+55);
+    }else if(Math.random()<0.035){
+      grantActive(['bomb','medkit','emp','overdrive'][Math.floor(Math.random()*4)],1);
+    }else if(Math.random()<0.04){
+      pickups.push({x:enemy.x+10,y:enemy.y,r:9,kind:'heal',value:14,life:20});
+    }
+  }
+  removeEnemyById(enemy.id);
+  tone(180+Math.random()*160,.1,'triangle',.015);
+}
+function explode(x,y,radius,damage,excludeId=null,color='#ffb46c'){
+  burst(x,y,color,26,260);ring(x,y,color,radius);
+  for(const e of [...enemies]){
+    const d=Math.hypot(e.x-x,e.y-y);
+    if(d<radius&&e.id!==excludeId){damageEnemy(e,damage*(1-d/radius),false,true);}
+  }
+}
+function chainFrom(source,damage,count){
+  let prev=source;
+  let used=new Set([source.id]);
+  for(let i=0;i<count;i++){
+    let nearest=null,best=99999;
+    for(const e of enemies){if(used.has(e.id))continue;const d=Math.hypot(e.x-prev.x,e.y-prev.y);if(d<170&&d<best){best=d;nearest=e;}}
+    if(!nearest)break;
+    particles.push({chain:true,fromX:prev.x,fromY:prev.y,toX:nearest.x,toY:nearest.y,life:.12,maxLife:.12,color:'#c996ff'});
+    damageEnemy(nearest,damage*.72,false,true);used.add(nearest.id);prev=nearest;
+  }
+}
+function earnXP(v){
+  player.xp+=v;
+  if(player.xp>=player.xpMax){
+    player.xp-=player.xpMax;player.level++;player.xpMax=Math.round(player.xpMax*1.28+8);
+    openUpgrade();
+  }
+}
+
+function choice(tag,icon,title,desc,apply,route=null){return {tag,icon,title,desc,apply,route};}
+function hasWeapon(type){return player.ownedWeapons.includes(type);}
+function grantWeapon(type){if(hasWeapon(type))return;player.ownedWeapons.push(type);player.weapons[type]=cloneWeapon(type);player.activeWeapon=player.ownedWeapons.length-1;toast(weaponData[type].label+' 해금');}
+function improveRoute(route,unlockName){player.routes[route]++;if(unlockName)addUnlock(route,unlockName);} 
+function allUpgradeChoices(){
+  const list=[];
+  if(!hasWeapon('smg'))list.push(choice('WEAPON','▥','PULSE SMG 해금','기관총 루트를 여는 고연사 무기',()=>{grantWeapon('smg');improveRoute('assault','PULSE SMG');},'assault'));
+  if(!hasWeapon('cannon'))list.push(choice('WEAPON','✹','NOVA CANNON 해금','폭발탄을 사용하는 파괴형 무기',()=>{grantWeapon('cannon');improveRoute('demo','NOVA CANNON');},'demo'));
+  if(!hasWeapon('arc'))list.push(choice('WEAPON','⌁','ARC CONDUCTOR 해금','연쇄 전기 공격 무기',()=>{grantWeapon('arc');improveRoute('arc','ARC CONDUCTOR');},'arc'));
+  if(!hasWeapon('laser'))list.push(choice('WEAPON','◈','PHOTON RIFLE 해금','정밀 관통용 라이플',()=>{grantWeapon('laser');improveRoute('support','PHOTON RIFLE');},'support'));
+
+  list.push(choice('ASSAULT','➤','발사 +1','모든 탄환 무기의 기본 발사 수 +1',()=>{for(const k of Object.keys(player.weapons))player.weapons[k].shots=Math.min(player.weapons[k].shots+1,5);improveRoute('assault','발사 +1');},'assault'));
+  list.push(choice('ASSAULT','⚙','고속 급탄','전체 무기 연사 속도 +15%',()=>{player.fireRateMult*=1.15;improveRoute('assault','고속 급탄');},'assault'));
+  list.push(choice('ASSAULT','✦','탄막 제어','기관총/블래스터 정확도 향상 및 탄속 +10%',()=>{player.bulletSpeedMult*=1.1;for(const k of Object.keys(player.weapons))player.weapons[k].spread*=0.88;improveRoute('assault','탄막 제어');},'assault'));
+
+  list.push(choice('DEMOLITION','✸','폭파 탄환','폭발 반경 증가 및 피해 +20%',()=>{for(const k of Object.keys(player.weapons)){if(player.weapons[k].explosion>0)player.weapons[k].explosion+=26;player.weapons[k].damage*=1.08;}improveRoute('demo','폭파 탄환');},'demo'));
+  list.push(choice('DEMOLITION','⬣','중화기 개조','캐논 탄창 +3, 기본 피해 증가',()=>{const w=player.weapons.cannon||cloneWeapon('cannon');w.mag+=3;w.damage*=1.18;if(player.weapons.cannon)player.weapons.cannon=w;improveRoute('demo','중화기 개조');},'demo'));
+  list.push(choice('DEMOLITION','☢','충격파 장갑','폭발이 적을 밀어내고 근접 피해 감소',()=>{player.armor=Math.min(.52,player.armor+.07);improveRoute('demo','충격파 장갑');},'demo'));
+
+  list.push(choice('ARC','🪓','발키리 도끼','회전 도끼 1개가 자동 공격',()=>{player.indirect.axes=Math.min(player.indirect.axes+1,4);improveRoute('arc','발키리 도끼');},'arc'));
+  list.push(choice('ARC','⌬','연쇄 전류','체인 수 +1 및 아크 무기 피해 증가',()=>{for(const k of Object.keys(player.weapons)){if(player.weapons[k].chain>0)player.weapons[k].chain+=1;}player.indirect.axeDamage+=6;improveRoute('arc','연쇄 전류');},'arc'));
+  list.push(choice('ARC','↺','도끼 가속','도끼 회전 속도 및 반경 증가',()=>{player.indirect.axeSpeed+=.45;player.indirect.axeRadius+=10;improveRoute('arc','도끼 가속');},'arc'));
+
+  list.push(choice('SUPPORT','✚','생존 프로토콜','최대 체력 +24, 현재 체력 +24',()=>{player.maxHp+=24;player.hp=Math.min(player.maxHp,player.hp+24);improveRoute('support','생존 프로토콜');},'support'));
+  list.push(choice('SUPPORT','🧪','보급 강화','랜덤 액티브 아이템 1개 지급',()=>{grantActive(['medkit','bomb','emp','overdrive'][Math.floor(Math.random()*4)],1);improveRoute('support','보급 강화');},'support'));
+  list.push(choice('SUPPORT','🛡','나노 재생','초당 체력 회복 +0.08, 자석 범위 증가',()=>{player.regen+=.08;player.magnet+=35;improveRoute('support','나노 재생');},'support'));
+
+  if(!player.activeOwned.has('emp'))list.push(choice('ACTIVE','⌁','EMP 코어 해금','적을 둔화시키는 EMP 아이템 지급',()=>{grantActive('emp',2);improveRoute('support','EMP 코어');},'support'));
+  if(!player.activeOwned.has('overdrive'))list.push(choice('ACTIVE','⚡','오버드라이브 해금','공격 속도 버프 아이템 지급',()=>{grantActive('overdrive',2);improveRoute('assault','오버드라이브');},'assault'));
+  if(!player.activeOwned.has('bomb'))list.push(choice('ACTIVE','✹','플라즈마 폭탄 지급','광역 폭발 아이템 지급',()=>{grantActive('bomb',2);improveRoute('demo','플라즈마 폭탄');},'demo'));
+  if(!player.activeOwned.has('medkit'))list.push(choice('ACTIVE','✚','회복 물약 지급','즉시 회복 아이템 지급',()=>{grantActive('medkit',2);improveRoute('support','회복 물약');},'support'));
+  return list;
+}
+function openUpgrade(){
+  mode='upgrade';showOverlay('upgradeMenu');
+  const pool=allUpgradeChoices().sort(()=>Math.random()-.5).slice(0,3);
+  const root=$('choices');root.innerHTML='';
+  pool.forEach(c=>{
+    const btn=document.createElement('button');btn.className='choice';
+    btn.innerHTML=`<div class="icon">${c.icon}</div><div><span class="tag">${c.tag}${c.route?` · ${c.route.toUpperCase()}`:''}</span><strong>${c.title}</strong><small>${c.desc}</small></div>`;
+    btn.onclick=()=>{c.apply();mode='playing';showOverlay(null);syncHud();tone(820,.25,'sine',.04);toast(c.title+' 선택');};
+    root.append(btn);
+  });
+}
+
+function syncHud(){
+  $('wave').textContent=String(wave).padStart(2,'0');
+  $('score').textContent=String(score).padStart(6,'0');
+  $('kills').textContent=String(kills).padStart(3,'0');
+  $('levelTop').textContent=String(player.level).padStart(2,'0');
+  $('hpText').textContent=Math.ceil(player.hp)+' / '+player.maxHp;
+  $('xpText').textContent=Math.floor(player.xp)+' / '+player.xpMax;
+  $('hpBar').style.width=(player.hp/player.maxHp*100)+'%';
+  $('xpBar').style.width=(player.xp/player.xpMax*100)+'%';
+  const dashFrac=1-clamp(player.dashCd/player.dashCdMax,0,1);
+  $('dashBar').style.width=(dashFrac*100)+'%';
+  $('dashText').textContent=player.dashCd<=0?'READY [SPACE]':'RECHARGE '+player.dashCd.toFixed(1)+'s';
+  const w=currentWeapon();
+  $('weaponName').textContent=w.name;
+  $('weaponSub').textContent=w.sub;
+  $('ammo').textContent=w.ammo;
+  $('reloadInfo').textContent=w.reload>0?'RELOADING '+w.reload.toFixed(1)+'s · Z/X SWITCH':'CLICK FIRE · R RELOAD · Z/X SWITCH';
+
+  $('meleeName').textContent=meleeData[player.melee].name.toUpperCase();
+  $('meleeDesc').textContent=meleeData[player.melee].desc+' · SPACE + CLICK';
+  const ground=nearbyLoot();
+  $('lootPrompt').classList.toggle('hidden',!ground);
+  if(ground){
+    $('lootPrompt').textContent=ground.kind==='medkit'?'[F] 회복 물약 줍기 → 인벤토리 저장':
+      '[F] '+meleeData[ground.type].name+' 장착 (현재: '+meleeData[player.melee].name+')';
+  }
+  $('weaponSlots').innerHTML='';
+  player.ownedWeapons.forEach((type,i)=>{const d=document.createElement('div');d.className='weapon-chip'+(i===player.activeWeapon?' active':'');d.textContent=(i+1)+'. '+weaponData[type].label.split(' ')[0];$('weaponSlots').append(d);});
+
+  $('inventory').innerHTML='';
+  for(let i=0;i<4;i++){
+    const slot=player.actives[i];
+    const d=document.createElement('div');d.className='inv-slot'+(i===player.selectedItem?' active':'');
+    d.innerHTML=`<div class="key">${i+1}</div><div class="name">${slot?activeCatalog[slot.type].short:'EMPTY'}</div><div class="count">${slot?'x'+slot.count:'-'}</div>`;
+    $('inventory').append(d);
+  }
+
+  for(const r of ['assault','demo','arc','support']){
+    $('pt-'+r).textContent=player.routes[r]+' PT';
+    $('list-'+r).innerHTML=(player.unlocks[r].length?player.unlocks[r].slice(-4).map(v=>'<li>'+v+'</li>').join(''):'<li>아직 없음</li>');
+    $('branch-'+r).classList.toggle('active',activeRoute()===r);
+  }
+  $('routeNow').textContent='CURRENT ROUTE : '+(activeRoute()==='balanced'?'BALANCED PROTOCOL':routeNames[activeRoute()]);
+  const mini=[];
+  if(player.routes.assault>=1)mini.push('SMG');
+  if(player.routes.assault>=2)mini.push('+SHOT');
+  if(player.routes.demo>=1)mini.push('BOMB');
+  if(player.routes.demo>=2)mini.push('BLAST');
+  if(player.routes.arc>=1)mini.push('AXE');
+  if(player.routes.arc>=2)mini.push('CHAIN');
+  if(player.routes.support>=1)mini.push('HP');
+  if(player.routes.support>=2)mini.push('AID');
+  if(player.bossTokens>=1)mini.push('BOSS');
+  $('blueprintMini').innerHTML='';
+  const labels=['SMG','+SHOT','BOMB','BLAST','AXE','CHAIN','HP','AID','BOSS'];
+  labels.forEach(l=>{const d=document.createElement('div');d.className='mini-node'+(mini.includes(l)?' on':'');d.textContent=l;$('blueprintMini').append(d);});
+}
+
+function openTreeMenu(){
+  const entries=r=>player.unlocks[r].length?player.unlocks[r].join(', '):'없음';
+  const weapons=player.ownedWeapons.map(t=>weaponData[t].label).join(', ');
+  const actives=player.actives.map((s,i)=>`${i+1}. ${s?activeCatalog[s.type].name+' x'+s.count:'비어 있음'}`).join('<br>');
+  $('treeSummary').innerHTML=`
+    <b>현재 루트:</b> ${activeRoute()==='balanced'?'Balanced Protocol':routeNames[activeRoute()]}<br><br>
+    <b>보유 무기:</b> ${weapons}<br>
+    <b>현재 장착 무기:</b> ${currentWeapon().name}<br>
+    <b>장착 간접무기:</b> ${meleeData[player.melee].name} (${meleeData[player.melee].desc})<br>
+    <b>발키리 보조 코어:</b> ${player.indirect.axes}개 · 피해 ${player.indirect.axeDamage}<br>
+    <b>보스 토큰:</b> ${player.bossTokens}<br><br>
+    <b>ASSAULT (${player.routes.assault}pt)</b><br>${entries('assault')}<br><br>
+    <b>DEMOLITION (${player.routes.demo}pt)</b><br>${entries('demo')}<br><br>
+    <b>ARC / VALKYRIE (${player.routes.arc}pt)</b><br>${entries('arc')}<br><br>
+    <b>SUPPORT (${player.routes.support}pt)</b><br>${entries('support')}<br><br>
+    <b>액티브 인벤토리</b><br>${actives}
+  `;
+  mode='tree';showOverlay('treeMenu');
+}
+function closeTreeMenu(){mode='playing';showOverlay(null);}
+
+function finish(win){
+  if(mode==='ended')return;
+  mode='ended';showOverlay('endMenu');
+  $('endLabel').textContent=win?'MISSION COMPLETE':'SIGNAL LOST';
+  $('endTitle').innerHTML=win?'PROTOCOL <span>CLEARED</span>':'SYSTEM <span>OFFLINE</span>';
+  $('endDescription').textContent=win?'최종 웨이브를 돌파했습니다.':'기체 연결이 종료되었습니다.';
+  let best=0;try{best=Number(localStorage.getItem('neonBestRPG')||0);if(score>best)localStorage.setItem('neonBestRPG',score);}catch(e){}
+  $('endStats').innerHTML=`<div><b>SCORE</b>${score}</div><div><b>BEST</b>${Math.max(best,score)}</div><div><b>WAVE</b>${wave}</div><div><b>KILLS</b>${kills}</div><div><b>ROUTE</b>${activeRoute()==='balanced'?'BALANCED':activeRoute().toUpperCase()}</div><div><b>BOSS TOKENS</b>${player.bossTokens}</div>`;
+}
+
+function updateIndirect(dt){
+  if(player.indirect.axes<=0)return;
+  player.indirect.axeTimer+=dt*player.indirect.axeSpeed;
+  for(let i=0;i<player.indirect.axes;i++){
+    const a=player.indirect.axeTimer+i*(TAU/player.indirect.axes);
+    const ax=player.x+Math.cos(a)*player.indirect.axeRadius;
+    const ay=player.y+Math.sin(a)*player.indirect.axeRadius;
+    for(const e of [...enemies]){
+      if(Math.hypot(e.x-ax,e.y-ay)<e.r+14&&e.axeMark<=0){
+        e.axeMark=.22;damageEnemy(e,player.indirect.axeDamage,false,true);burst(ax,ay,'#6ef0ff',5,80);tone(460,.04,'triangle',.01);
+      }
+    }
+  }
+}
+
+function update(dt){
+  if(mode!=='playing')return;
+  clock+=dt;shake=Math.max(0,shake-dt*35);flash=Math.max(0,flash-dt);bannerTime-=dt;toastTime-=dt;
+  if(bannerTime<=0)$('banner').classList.remove('show');
+  if(toastTime<=0)$('toast').classList.remove('show');
+  updateLoot(dt);player.meleeCd=Math.max(0,player.meleeCd-dt);
+  player.invuln=Math.max(0,player.invuln-dt);player.dashCd=Math.max(0,player.dashCd-dt);player.buffs.overdrive=Math.max(0,player.buffs.overdrive-dt);
+  player.hp=Math.min(player.maxHp,player.hp+player.regen*dt);
+  for(const e of enemies){e.slow=Math.max(0,e.slow-dt);e.axeMark=Math.max(0,e.axeMark-dt);}
+  for(const w of Object.values(player.weapons)){w.fireCd=Math.max(0,w.fireCd-dt);if(w.reload>0){w.reload-=dt;if(w.reload<=0){w.reload=0;w.ammo=w.mag;tone(600,.08);}}}
+
+  let mx=(keys.d||keys.ArrowRight?1:0)-(keys.a||keys.ArrowLeft?1:0);
+  let my=(keys.s||keys.ArrowDown?1:0)-(keys.w||keys.ArrowUp?1:0);
+  const len=Math.hypot(mx,my)||1;mx/=len;my/=len;
+  if(keys[' ']&&player.dashCd<=0&&(mx||my)){
+    player.dashCd=player.dashCdMax;player.dashTime=.17;player.dashAngle=Math.atan2(my,mx);burst(player.x,player.y,'#5cfaff',15,170);tone(640,.18,'sawtooth',.024);
+  }
+  const moveSpeed=player.speed*(player.buffs.overdrive>0?1.25:1);
+  if(player.dashTime>0){player.dashTime-=dt;player.x+=Math.cos(player.dashAngle)*940*dt;player.y+=Math.sin(player.dashAngle)*940*dt;if(Math.random()<.75)burst(player.x,player.y,'#58f8ff',2,40);} 
+  else{player.x+=mx*moveSpeed*dt;player.y+=my*moveSpeed*dt;}
+  collide(player);
+  cam.x=clamp(player.x-W/2,0,Math.max(0,WORLD.w-W));cam.y=clamp(player.y-H/2,0,Math.max(0,WORLD.h-H));
+  if(mouse.down){
+    if(player.dashTime>0)dashBladeAttack();
+    else fire();
+  }
+  updateIndirect(dt);
+
+  if(spawnLeft>0){spawnClock-=dt;if(spawnClock<=0){spawnEnemy();spawnLeft--;spawnClock=Math.max(.22,.95-wave*.03);}}
+  else if(enemies.length===0){
+    if(between<0){between=2.8;banner('SECTOR CLEARED',1.4);} 
+    else{between-=dt;if(between<=0){if(wave>=15){finish(true);return;}startWave();}}
+  }
+
+  for(const e of enemies){
+    const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;
+    let sepX=0,sepY=0;
+    for(const o of enemies){if(o===e)continue;const xx=e.x-o.x,yy=e.y-o.y,dd=Math.hypot(xx,yy)||1;if(dd<e.r+o.r+10){sepX+=xx/dd;sepY+=yy/dd;}}
+    const speedMod=(e.slow>0?.45:1);
+    const vel=e.kind==='boss'?e.speed*(d>210?1:-.25):e.speed;
+    e.x+=(dx/d*vel+sepX*58)*dt*speedMod;e.y+=(dy/d*vel+sepY*58)*dt*speedMod;collide(e);
+    e.attackCd-=dt;e.shootCd-=dt;e.hit=Math.max(0,e.hit-dt);
+    if(d<e.r+player.r+6&&e.attackCd<=0){hurtPlayer(e.damage);e.attackCd=.62;}
+    if(e.kind==='boss'&&e.shootCd<=0){
+      const a=Math.atan2(dy,dx);
+      for(let k=-3;k<=3;k++){
+        const ang=a+k*.18;
+        bullets.push({x:e.x,y:e.y,vx:Math.cos(ang)*340,vy:Math.sin(ang)*340,life:3,damage:16*(1+wave*.05),enemy:true,r:6,color:'#ff6a8d'});
+      }
+      e.shootCd=1.28;tone(180,.17,'square',.016);
+    }
+  }
+
+  for(let i=bullets.length-1;i>=0;i--){
+    const b=bullets[i];b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
+    if(b.life<=0||b.x<0||b.y<0||b.x>WORLD.w||b.y>WORLD.h){bullets.splice(i,1);continue;}
+    if(obstacles.some(o=>Math.hypot(b.x-o.x,b.y-o.y)<o.r+b.r)){burst(b.x,b.y,b.color,5,80);bullets.splice(i,1);continue;}
+    if(b.enemy){if(Math.hypot(player.x-b.x,player.y-b.y)<player.r+b.r){hurtPlayer(b.damage);bullets.splice(i,1);}continue;}
+    let remove=false;
+    for(const e of [...enemies]){
+      if(b.hit.has(e.id))continue;
+      if(Math.hypot(b.x-e.x,b.y-e.y)<e.r+b.r){
+        b.hit.add(e.id);
+        const dmg=b.damage*(b.crit?1.9:1);
+        damageEnemy(e,dmg,b.crit,false);
+        if(e.hp>0&&b.explosion>0)explode(e.x,e.y,b.explosion,dmg*.55,e.id,'#ffb46c');
+        if(e.hp>0&&b.chain>0)chainFrom(e,dmg*.55,b.chain);
+        if(b.pierce>0)b.pierce--;else remove=true;
+        break;
+      }
+    }
+    if(remove)bullets.splice(i,1);
+  }
+
+  for(let i=pickups.length-1;i>=0;i--){
+    const p=pickups[i];p.life-=dt;
+    const d=Math.hypot(p.x-player.x,p.y-player.y);
+    if(d<player.magnet){p.x+=(player.x-p.x)*Math.min(1,dt*7);p.y+=(player.y-p.y)*Math.min(1,dt*7);} 
+    if(d<player.r+12){
+      if(p.kind==='heal'){player.hp=Math.min(player.maxHp,player.hp+(p.value||14));toast('보급 회복 +'+(p.value||14));}
+      else earnXP(p.value||10);
+      pickups.splice(i,1);
+    }else if(p.life<=0)pickups.splice(i,1);
+  }
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];p.life-=dt;
+    if(p.chain){if(p.life<=0)particles.splice(i,1);continue;}
+    if(!p.ring){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.95;p.vy*=.95;}
+    if(p.life<=0)particles.splice(i,1);
+  }
+  for(let i=texts.length-1;i>=0;i--){const t=texts[i];t.life-=dt;t.y-=28*dt;if(t.life<=0)texts.splice(i,1);}  
+  syncHud();
+}
+
+function polygon(x,y,r,n,rot=0){ctx.beginPath();for(let i=0;i<n;i++){const a=rot+i*TAU/n;if(i===0)ctx.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r);else ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r);}ctx.closePath();}
+function glow(c,b=12){ctx.shadowColor=c;ctx.shadowBlur=b;}
+
+function drawBackground(){
+  ctx.fillStyle='#09101f';ctx.fillRect(0,0,W,H);
+  ctx.save();ctx.translate(-cam.x,-cam.y);
+  ctx.fillStyle='#0d1729';ctx.fillRect(0,0,WORLD.w,WORLD.h);
+  ctx.strokeStyle='#23334b55';ctx.lineWidth=1;
+  for(let x=0;x<WORLD.w;x+=66){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke();}
+  for(let y=0;y<WORLD.h;y+=66){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke();}
+  ctx.strokeStyle='#28b6ef75';ctx.lineWidth=4;ctx.strokeRect(8,8,WORLD.w-16,WORLD.h-16);
+  for(let x=110;x<WORLD.w;x+=390)for(let y=120;y<WORLD.h;y+=320){ctx.strokeStyle='#19435f72';ctx.lineWidth=2;ctx.strokeRect(x-35,y-35,70,70);ctx.fillStyle='#2b778955';ctx.fillRect(x-3,y-3,6,6);} 
+  for(const o of obstacles){ctx.fillStyle='#13223b';ctx.strokeStyle='#3e6988';ctx.lineWidth=3;polygon(o.x,o.y,o.r,6,Math.PI/6);ctx.fill();ctx.stroke();ctx.strokeStyle='#66ddff35';polygon(o.x,o.y,o.r*.7,6,Math.PI/6);ctx.stroke();}
+  ctx.restore();
+}
+function drawPlayer(){
+  const a=Math.atan2(mouse.y-(player.y-cam.y),mouse.x-(player.x-cam.x));
+  const w=currentWeapon();
+  ctx.save();ctx.translate(player.x,player.y);ctx.rotate(a);
+  if(player.invuln>0&&Math.sin(clock*40)>0)ctx.globalAlpha=.5;
+  glow(w.color,18);ctx.fillStyle='#17304b';ctx.strokeStyle=w.color;ctx.lineWidth=2.5;polygon(0,0,21,6,Math.PI/6);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#c4ffff';ctx.beginPath();ctx.arc(0,0,7,0,TAU);ctx.fill();
+  ctx.fillStyle='#aaf8ff';ctx.fillRect(6,-5,30,10);ctx.fillStyle='#28445b';ctx.fillRect(11,-4,20,8);ctx.fillStyle=w.color;ctx.fillRect(29,-3,9,6);
+  ctx.restore();ctx.shadowBlur=0;
+  if(player.dashTime>0){ctx.strokeStyle='#55faff88';ctx.lineWidth=4;ctx.beginPath();ctx.arc(player.x,player.y,30,0,TAU);ctx.stroke();}
+}
+function drawIndirect(){
+  if(player.indirect.axes<=0)return;
+  for(let i=0;i<player.indirect.axes;i++){
+    const a=player.indirect.axeTimer+i*(TAU/player.indirect.axes);
+    const ax=player.x+Math.cos(a)*player.indirect.axeRadius;
+    const ay=player.y+Math.sin(a)*player.indirect.axeRadius;
+    ctx.save();ctx.translate(ax,ay);ctx.rotate(a+clock*3);glow('#72efff',12);ctx.fillStyle='#16364d';ctx.strokeStyle='#72efff';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(-8,-10);ctx.lineTo(9,0);ctx.lineTo(-8,10);ctx.lineTo(-2,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+  }
+  ctx.shadowBlur=0;
+}
+function drawEnemy(e){
+  ctx.save();ctx.translate(e.x,e.y);ctx.rotate(clock*(e.kind==='runner'?2:.6)+e.phase);glow(e.color,e.kind==='boss'?24:11);ctx.strokeStyle=e.hit>0?'#fff':e.color;ctx.fillStyle=e.kind==='boss'?'#47263b':'#1a263c';ctx.lineWidth=3;polygon(e.x?0:0,0,e.r,e.kind==='boss'?8:e.kind==='tank'?6:4,Math.PI/4);ctx.fill();ctx.stroke();ctx.rotate(-clock*.7);ctx.fillStyle=e.color;ctx.beginPath();ctx.arc(0,0,e.r*.34,0,TAU);ctx.fill();ctx.restore();ctx.shadowBlur=0;
+  if(e.hp<e.maxHp||e.kind==='boss'){const w=e.r*2.2;ctx.fillStyle='#1d2840';ctx.fillRect(e.x-w/2,e.y-e.r-14,w,4);ctx.fillStyle=e.color;ctx.fillRect(e.x-w/2,e.y-e.r-14,w*Math.max(0,e.hp/e.maxHp),4);} }
+function drawMinimap(){
+  const m=$('minimap').getContext('2d');m.clearRect(0,0,142,100);m.fillStyle='#081320';m.fillRect(0,0,142,100);const sx=142/WORLD.w,sy=100/WORLD.h;
+  for(const o of obstacles){m.fillStyle='#52728c';m.fillRect(o.x*sx,o.y*sy,2,2);} 
+  for(const e of enemies){m.fillStyle=e.color;m.fillRect(e.x*sx,e.y*sy,e.kind==='boss'?5:3,e.kind==='boss'?5:3);} 
+  m.fillStyle='#74fbff';m.beginPath();m.arc(player.x*sx,player.y*sy,3,0,TAU);m.fill();m.strokeStyle='#ffffff44';m.strokeRect(cam.x*sx,cam.y*sy,W*sx,H*sy);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  if(!player){ctx.fillStyle='#080d1a';ctx.fillRect(0,0,W,H);return;}
+  ctx.save();if(shake>0)ctx.translate(rand(-shake,shake),rand(-shake,shake));
+  drawBackground();
+  ctx.save();ctx.translate(-cam.x,-cam.y);
+  for(const item of groundLoot){
+    const bounce=Math.sin(clock*3+item.bob)*4;
+    const color=item.kind==='medkit'?'#78ffb4':meleeData[item.type].color;
+    ctx.save();ctx.translate(item.x,item.y+bounce);
+    glow(color,16);ctx.strokeStyle=color;ctx.fillStyle='#142c39';ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(-16,-16,32,32,6);ctx.fill();ctx.stroke();
+    ctx.fillStyle=color;ctx.font='bold 20px Rajdhani';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(item.kind==='medkit'?'✚':item.type==='valkyrie'?'✦':item.type==='katana'?'⌁':item.type==='rapier'?'↟':'◆',0,0);
+    ctx.shadowBlur=0;ctx.restore();
+  }
+  for(const p of pickups){glow(p.kind==='heal'?'#7fffb0':'#b98cff',14);ctx.fillStyle=p.kind==='heal'?'#7fffb0':'#b98cff';ctx.save();ctx.translate(p.x,p.y+Math.sin(clock*5+p.x)*3);ctx.rotate(Math.PI/4);ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2);ctx.restore();}
+  ctx.shadowBlur=0;
+  for(const b of bullets){glow(b.color,16);ctx.strokeStyle=b.color;ctx.lineWidth=b.r;ctx.beginPath();ctx.moveTo(b.x-b.vx*.022,b.y-b.vy*.022);ctx.lineTo(b.x,b.y);ctx.stroke();}
+  for(const p of particles){
+    if(p.chain){ctx.strokeStyle=p.color;ctx.lineWidth=3;ctx.globalAlpha=p.life/p.maxLife;ctx.beginPath();ctx.moveTo(p.fromX,p.fromY);ctx.lineTo(p.toX,p.toY);ctx.stroke();ctx.globalAlpha=1;continue;}
+    ctx.globalAlpha=clamp(p.life/p.maxLife,0,1);
+    if(p.ring){ctx.strokeStyle=p.color;ctx.lineWidth=5;ctx.beginPath();ctx.arc(p.x,p.y,p.radius*(1-p.life/p.maxLife),0,TAU);ctx.stroke();}
+    else{ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,p.r,p.r);} 
+  }
+  ctx.globalAlpha=1;
+  for(const e of enemies)drawEnemy(e);
+  for(const effect of bladeEffects){
+    ctx.save();ctx.translate(effect.x,effect.y);ctx.rotate(effect.a);
+    ctx.globalAlpha=effect.life/effect.maxLife;glow(effect.color,24);
+    ctx.strokeStyle=effect.color;ctx.lineWidth=9;
+    ctx.beginPath();ctx.arc(0,0,Math.max(28,effect.reach*.5),-.7,.7);ctx.stroke();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(effect.reach,0);ctx.stroke();
+    ctx.restore();
+  }
+  drawIndirect();
+  drawPlayer();
+  for(const t of texts){ctx.globalAlpha=t.life/t.max;ctx.fillStyle=t.color;ctx.font='700 15px Orbitron';ctx.textAlign='center';ctx.fillText(t.val,t.x,t.y);}ctx.globalAlpha=1;
+  ctx.restore();ctx.restore();
+  const grad=ctx.createRadialGradient(W/2,H/2,W*.1,W/2,H/2,Math.max(W,H)*.75);grad.addColorStop(0,'#0000');grad.addColorStop(1,'#000a');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);if(flash>0){ctx.fillStyle='rgba(255,60,96,'+(flash*.45)+')';ctx.fillRect(0,0,W,H);} 
+  drawMinimap();
+}
+function loop(t){const dt=Math.min((t-last)/1000||0,.033);last=t;update(dt);draw();requestAnimationFrame(loop);} 
+
+function togglePause(){if(mode==='playing'){mode='paused';showOverlay('pauseMenu');}else if(mode==='paused'){mode='playing';showOverlay(null);} }
+
+addEventListener('keydown',e=>{
+  const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=true;
+  if([' ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab'].includes(k))e.preventDefault();
+  if(k==='r'&&mode==='playing')reloadCurrent();
+  if(k==='q'&&!e.repeat)useActive();
+  if(k==='f'&&!e.repeat)pickLoot();
+  if(k==='z'&&mode==='playing'&&!e.repeat)switchWeapon(-1);
+  if(k==='x'&&mode==='playing'&&!e.repeat)switchWeapon(1);
+  if(k==='Tab'&&!e.repeat){if(mode==='playing')openTreeMenu();else if(mode==='tree')closeTreeMenu();}
+  if(['1','2','3','4'].includes(k))selectItem(Number(k)-1);
+  if(k==='Escape'){if(mode==='tree')closeTreeMenu();else togglePause();}
+});
+addEventListener('keyup',e=>{keys[e.key.length===1?e.key.toLowerCase():e.key]=false;});
+addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;$('reticle').style.left=mouse.x+'px';$('reticle').style.top=mouse.y+'px';});
+addEventListener('mousedown',e=>{if(e.button===0)mouse.down=true;});
+addEventListener('mouseup',()=>mouse.down=false);
+addEventListener('contextmenu',e=>e.preventDefault());
+addEventListener('blur',()=>{mouse.down=false;keys={};if(mode==='playing')togglePause();});
+$('startBtn').onclick=resetGame;$('restartBtn').onclick=resetGame;$('pauseBtn').onclick=togglePause;$('resumeBtn').onclick=togglePause;$('closeTreeBtn').onclick=closeTreeMenu;
+$('reticle').style.left=mouse.x+'px';$('reticle').style.top=mouse.y+'px';
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
