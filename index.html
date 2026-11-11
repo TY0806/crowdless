@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEON PROTOCOL // ROGUELIKE RPG UPDATE</title>
+<title>NEON PROTOCOL v5.0 // SKILL TREE</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 :root{--cyan:#62f5ff;--pink:#ff5c82;--purple:#b885ff;--gold:#ffd266;--lime:#7fffb0;--orange:#ffb46c;--bg:#080d19;--panel:#0d1629ee;--panel2:#13203aee}
@@ -45,6 +45,32 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
 #reticle{position:fixed;z-index:5;pointer-events:none;width:22px;height:22px;border:1px solid #79fbffbb;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px #5dfaff55}#reticle:before,#reticle:after{content:"";position:absolute;background:#bfffff}#reticle:before{width:2px;height:8px;left:9px;top:6px}#reticle:after{height:2px;width:8px;left:6px;top:9px}
 @media(max-width:900px){#leftHUD{width:42vw}#rightHUD,#weaponHUD{width:31vw}}
 @media(max-width:700px){#weaponHUD,#rightHUD{display:none}#leftHUD{width:calc(100vw - 24px);left:12px;right:12px;bottom:12px}#minimap{display:none}.top{left:12px;right:12px;top:12px}.stats{gap:10px}.stats b{font-size:13px}.logo{font-size:11px}#pauseBtn{right:12px;top:48px}.panel{padding:24px}.controls{grid-template-columns:1fr}.primary{width:100%}}
+
+/* VERSION & INTERACTIVE SKILL BLUEPRINT */
+#versionStamp{position:fixed;left:18px;bottom:16px;z-index:13;font:700 10px Orbitron;letter-spacing:2px;color:#84bcd4;background:#091326bb;border:1px solid #35546d;padding:9px 11px;pointer-events:none}
+#treeMenu .panel{width:min(96vw,1060px);max-height:94vh;clip-path:none;border-radius:12px;padding:24px 24px 18px}
+.tree-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:10px 0 16px;font:700 12px Orbitron;color:#cce5fb}
+.tree-points{color:#ffd266;border:1px solid #9d834a;background:#3d341b55;padding:8px 12px;border-radius:7px}
+#skillDiagram{display:grid;gap:12px;text-align:left}
+.skill-lane{display:grid;grid-template-columns:minmax(95px,132px) repeat(3,minmax(0,1fr));align-items:stretch;gap:17px;padding:10px 12px;border:1px solid #395671;background:#0b1427dd;border-radius:12px;min-height:115px}
+.skill-lane.assault{--route-color:#7cf5b2}.skill-lane.demo{--route-color:#ffbc75}.skill-lane.arc{--route-color:#bd9bff}.skill-lane.support{--route-color:#62e4ff}
+.lane-label{display:flex;flex-direction:column;justify-content:center;gap:7px;color:var(--route-color);font:900 12px Orbitron;letter-spacing:1px}.lane-label small{font:600 11px Rajdhani;letter-spacing:0;color:#9eb9d0}
+.skill-node{position:relative;border:1px solid #41536a;background:#101e32;color:#95a7bc;border-radius:9px;padding:9px 8px;text-align:left;cursor:default;min-height:90px;line-height:1.1;font-family:Rajdhani}
+.skill-node:before{content:"";position:absolute;left:-19px;top:50%;width:18px;border-top:2px solid #45627a}
+.skill-node.ready{border-color:var(--route-color);color:white;cursor:pointer;box-shadow:0 0 15px #ffffff0b;background:#203149}
+.skill-node.ready:hover{filter:brightness(1.2);transform:translateY(-1px)}
+.skill-node.owned{background:#203735;border-color:var(--route-color);color:#efffff;box-shadow:0 0 13px #3aeaff22}
+.skill-node.owned:before{border-color:var(--route-color)}
+.skill-node strong{font:800 12px Orbitron;display:block;margin-bottom:7px;color:inherit}
+.skill-node small{font-size:11px;display:block;color:#a6bed1;line-height:1.15}
+.skill-node .node-status{font:800 10px Orbitron;margin-top:8px;display:block;color:var(--route-color)}
+#skillTreeInfo{margin-top:12px;text-align:left;font-size:13px;color:#a8c5dc;line-height:1.4}
+#treeSummary{display:none!important}
+#treeCloseBar{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:14px}
+#treeOpenHUD{pointer-events:auto;position:absolute;right:22px;bottom:345px;border:1px solid #79dfff;background:#102841;color:#d9faff;border-radius:6px;padding:9px 12px;font:700 11px Orbitron;cursor:pointer}
+#treeOpenHUD:hover{box-shadow:0 0 16px #5ddfff55}
+#treePointsHUD{font:700 11px Orbitron;color:#ffd266;margin-top:5px}
+@media(max-width:760px){.skill-lane{grid-template-columns:1fr;gap:6px}.skill-node:before{display:none}#treeMenu .panel{padding:14px}.skill-lane{min-height:0}.skill-node{min-height:60px}#treeOpenHUD{display:none}}
 </style>
 </head>
 <body>
@@ -52,7 +78,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
 <div id="reticle"></div>
 <div id="hud" class="hidden">
   <div class="top">
-    <div class="logo">NEON PROTOCOL<small>ROGUELIKE ARMORY // 3.0</small></div>
+    <div class="logo">NEON PROTOCOL<small>ROGUELIKE RPG // v5.0</small></div>
     <div class="stats">
       <div><span>WAVE</span><b id="wave">01</b></div>
       <div><span>SCORE</span><b id="score">000000</b></div>
@@ -66,6 +92,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
   <div id="toast"></div>
   <div id="lootPrompt" class="hidden" style="position:absolute;left:50%;bottom:70px;transform:translateX(-50%);background:#0b1728ec;border:1px solid #69dcff;padding:11px 18px;max-width:min(86vw,500px);text-align:center;color:#e6faff;font:700 13px Orbitron;letter-spacing:.5px;box-shadow:0 0 20px #4fd9ff40"></div>
 
+  <button id="treeOpenHUD">⌘ SKILL TREE [TAB]</button>
   <div id="weaponHUD" class="panel-ui">
     <div class="hud-title">PRIMARY LOADOUT</div>
     <div id="weaponName">PLASMA BLASTER</div>
@@ -100,11 +127,13 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
       <div class="branch" id="branch-arc"><h4>ARC / VALKYRIE</h4><span class="pt" id="pt-arc">0 PT</span><ul id="list-arc"></ul></div>
       <div class="branch" id="branch-support"><h4>SUPPORT</h4><span class="pt" id="pt-support">0 PT</span><ul id="list-support"></ul></div>
     </div>
+    <div id="treePointsHUD">SKILL POINTS: 0</div>
     <div id="routeNow">CURRENT ROUTE : BALANCED PROTOCOL</div>
     <div id="blueprintMini"></div>
   </div>
 </div>
 
+<div id="versionStamp">BUILD v5.0.0 · SKILL TREE EDITION</div>
 <div id="startMenu" class="overlay">
   <div class="panel">
     <div class="eyebrow">SYSTEM INITIALIZED // 2089</div>
@@ -116,7 +145,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
       <div><b>SPACE / R</b>대시 / 재장전</div>
       <div><b>Z / X</b>무기 전환</div>
       <div><b>1 2 3 4</b>액티브 아이템 슬롯 선택</div>
-      <div><b>Q / TAB / ESC</b>아이템 사용 / 트리 보기 / 일시정지</div>
+      <div><b>Q / TAB / ESC</b>아이템 사용 / 스킬 트리 투자 / 일시정지</div>
       <div><b>F</b>주변 아이템 줍기 / 보조무기 교체</div>
       <div><b>SPACE + CLICK</b>대시 중 간접무기 특수 공격</div>
     </div>
@@ -138,7 +167,10 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
   <div class="panel">
     <div class="eyebrow">TACTICAL BLUEPRINT</div>
     <h1>SKILL <span>TREE</span></h1>
-    <p>현재 빌드와 루트 진행 상황입니다.</p>
+    <p>레벨업과 보스 격파로 포인트를 획득하고, 왼쪽부터 선행 스킬을 해금하세요.</p>
+    <div class="tree-heading"><span id="treeRouteHeadline">CURRENT ROUTE: BALANCED</span><span class="tree-points" id="treePointCount">SKILL POINTS: 0</span></div>
+    <div id="skillDiagram"></div>
+    <div id="skillTreeInfo">잠긴 노드는 앞 단계 스킬을 먼저 투자해야 해금됩니다.</div>
     <div id="treeSummary" style="text-align:left;color:#dfefff;background:#0d172b;border:1px solid #496782;padding:16px;border-radius:10px;line-height:1.5"></div>
     <div style="margin-top:18px"><button class="primary" id="closeTreeBtn">RETURN</button></div>
   </div>
@@ -219,7 +251,7 @@ function tone(f=380,d=.08,type='sine',gain=.018){
     o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);
   }catch(e){}
 }
-function showOverlay(id){['startMenu','upgradeMenu','treeMenu','pauseMenu','endMenu'].forEach(name=>$(name).classList.toggle('hidden',name!==id));}
+function showOverlay(id){['startMenu','upgradeMenu','treeMenu','pauseMenu','endMenu'].forEach(name=>$(name).classList.toggle('hidden',name!==id));$('versionStamp').classList.toggle('hidden',id!=='startMenu');}
 function banner(msg,t=1.7){$('banner').textContent=msg;$('banner').classList.add('show');bannerTime=t;}
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');toastTime=1.7;}
 function pushText(x,y,val,color='#fff'){texts.push({x,y,val,color,life:0.7,max:0.7});}
@@ -237,7 +269,7 @@ function resetGame(){
     indirect:{axes:0,axeDamage:22,axeSpeed:2.1,axeRadius:72,axeTimer:0,orbs:0},
     melee:'valkyrie',meleeCd:0,meleeHits:new Set(),meleeOwned:new Set(['valkyrie']),
     actives:[null,null,null,null],selectedItem:0,activeOwned:new Set(),
-    buffs:{overdrive:0,empBurst:0},bossTokens:0
+    buffs:{overdrive:0,empBurst:0},bossTokens:0,skillPoints:0,skillNodes:new Set()
   };
   enemies=[];bullets=[];particles=[];pickups=[];obstacles=[];texts=[];groundLoot=[];bladeEffects=[];lootSpawnClock=12;
   wave=0;spawnLeft=0;spawnClock=0;between=1.2;score=0;kills=0;clock=0;shake=0;flash=0;uid=1;
@@ -465,16 +497,19 @@ function killEnemy(enemy,ignoreExtras=false){
   if(!ignoreExtras){
     if(boss){
       player.bossTokens++;
-      score+=1200;
-      for(let i=0;i<3;i++)pickups.push({x:enemy.x+rand(-20,20),y:enemy.y+rand(-20,20),r:7,kind:'xp',value:90,life:30});
+      player.skillPoints+=3;
+      score+=5000+wave*300;
+      // Large guaranteed XP reward, including extra orbs on the ground.
+      for(let i=0;i<8;i++)pickups.push({x:enemy.x+rand(-70,70),y:enemy.y+rand(-70,70),r:7,kind:'xp',value:125+wave*18,life:55});
       const rewards=['bomb','medkit','emp','overdrive'];
+      grantActive('medkit',3);
+      grantActive('bomb',3);
       grantActive(rewards[Math.floor(Math.random()*rewards.length)],2);
-      if(Math.random()<.65)grantActive(rewards[Math.floor(Math.random()*rewards.length)],1);
-      toast('보스 보상 획득! 보급품과 대량 XP 지급');
-      banner('BOSS REWARD SECURED',1.8);
-      // Boss guarantees an extra blade drop and a collectible potion.
-      dropLoot('blade',enemy.x+85,enemy.y-50);
-      dropLoot('medkit',enemy.x-72,enemy.y+55);
+      // Guaranteed collectible items and a selectable melee weapon.
+      for(let i=0;i<3;i++)dropLoot('medkit',clamp(enemy.x+rand(-125,125),50,WORLD.w-50),clamp(enemy.y+rand(-115,115),50,WORLD.h-50));
+      dropLoot('blade',clamp(enemy.x+95,50,WORLD.w-50),clamp(enemy.y-60,50,WORLD.h-50));
+      toast('BOSS JACKPOT: +3 SKILL POINTS / XP / SUPPLIES');
+      banner('LEGENDARY BOSS REWARD',2.5);
     }else if(Math.random()<0.035){
       grantActive(['bomb','medkit','emp','overdrive'][Math.floor(Math.random()*4)],1);
     }else if(Math.random()<0.04){
@@ -505,7 +540,7 @@ function chainFrom(source,damage,count){
 function earnXP(v){
   player.xp+=v;
   if(player.xp>=player.xpMax){
-    player.xp-=player.xpMax;player.level++;player.xpMax=Math.round(player.xpMax*1.28+8);
+    player.xp-=player.xpMax;player.level++;player.skillPoints++;player.xpMax=Math.round(player.xpMax*1.28+8);
     openUpgrade();
   }
 }
@@ -550,7 +585,7 @@ function openUpgrade(){
   pool.forEach(c=>{
     const btn=document.createElement('button');btn.className='choice';
     btn.innerHTML=`<div class="icon">${c.icon}</div><div><span class="tag">${c.tag}${c.route?` · ${c.route.toUpperCase()}`:''}</span><strong>${c.title}</strong><small>${c.desc}</small></div>`;
-    btn.onclick=()=>{c.apply();mode='playing';showOverlay(null);syncHud();tone(820,.25,'sine',.04);toast(c.title+' 선택');};
+    btn.onclick=()=>{c.apply();mode='playing';showOverlay(null);syncHud();tone(820,.25,'sine',.04);toast(c.title+' 선택');if(player.xp>=player.xpMax)earnXP(0);};
     root.append(btn);
   });
 }
@@ -597,6 +632,7 @@ function syncHud(){
     $('list-'+r).innerHTML=(player.unlocks[r].length?player.unlocks[r].slice(-4).map(v=>'<li>'+v+'</li>').join(''):'<li>아직 없음</li>');
     $('branch-'+r).classList.toggle('active',activeRoute()===r);
   }
+  $('treePointsHUD').textContent='UNSPENT SKILL POINTS: '+player.skillPoints;
   $('routeNow').textContent='CURRENT ROUTE : '+(activeRoute()==='balanced'?'BALANCED PROTOCOL':routeNames[activeRoute()]);
   const mini=[];
   if(player.routes.assault>=1)mini.push('SMG');
@@ -613,24 +649,77 @@ function syncHud(){
   labels.forEach(l=>{const d=document.createElement('div');d.className='mini-node'+(mini.includes(l)?' on':'');d.textContent=l;$('blueprintMini').append(d);});
 }
 
+const skillBranches=[
+ {id:'assault',label:'ASSAULT',sub:'기관총 · 탄막 빌드',nodes:[
+  {id:'rapid',name:'RAPID FIRE',cost:1,desc:'연사 속도 +18%',effect:()=>{player.fireRateMult*=1.18;}},
+  {id:'spray',name:'MULTI SHOT',cost:2,desc:'모든 소지 무기 발사 +1',effect:()=>{for(const w of Object.values(player.weapons))w.shots=Math.min(5,w.shots+1);}},
+  {id:'storm',name:'BULLET STORM',cost:3,desc:'기관총 해금 + 연사 25% 증가',effect:()=>{grantWeapon('smg');player.fireRateMult*=1.25;}}
+ ]},
+ {id:'demo',label:'DEMOLITION',sub:'폭탄 · 폭발 빌드',nodes:[
+  {id:'charge',name:'BLAST CHARGE',cost:1,desc:'플라즈마 폭탄 2개 지급',effect:()=>grantActive('bomb',2)},
+  {id:'frag',name:'EXPLOSIVE ROUNDS',cost:2,desc:'폭발 캐논 해금 / 폭발 확대',effect:()=>{grantWeapon('cannon');player.weapons.cannon.explosion+=35;}},
+  {id:'cataclysm',name:'CATACLYSM',cost:3,desc:'모든 무기 공격력 +32%',effect:()=>{player.damageMult*=1.32;}}
+ ]},
+ {id:'arc',label:'ARC / VALKYRIE',sub:'연쇄 공격 · 간접무기',nodes:[
+  {id:'spark',name:'SPARK CORE',cost:1,desc:'아크 무기 해금',effect:()=>grantWeapon('arc')},
+  {id:'axe',name:'VALKYRIE CORE',cost:2,desc:'자동 회전 도끼 1개 활성화',effect:()=>{player.indirect.axes=Math.max(1,player.indirect.axes);player.indirect.axeDamage+=14;}},
+  {id:'thunder',name:'THUNDER LORD',cost:3,desc:'아크 연쇄 +3 / 도끼 추가',effect:()=>{for(const w of Object.values(player.weapons))if(w.chain)w.chain+=3;player.indirect.axes=Math.min(4,player.indirect.axes+1);}}
+ ]},
+ {id:'support',label:'SUPPORT',sub:'생존 · 회복 · 보급',nodes:[
+  {id:'vital',name:'VITAL CORE',cost:1,desc:'최대 체력 +35, 현재 체력 +35',effect:()=>{player.maxHp+=35;player.hp=Math.min(player.maxHp,player.hp+35);}},
+  {id:'supply',name:'FIELD SUPPLY',cost:2,desc:'회복 물약 3개 + EMP 1개',effect:()=>{grantActive('medkit',3);grantActive('emp',1);}},
+  {id:'guardian',name:'GUARDIAN',cost:3,desc:'피해 감소 +15%, 재생력 +0.3',effect:()=>{player.armor=Math.min(.65,player.armor+.15);player.regen+=.3;}}
+ ]}
+];
+function canInvest(branch,index){
+ const node=branch.nodes[index];
+ return !player.skillNodes.has(node.id)&&player.skillPoints>=node.cost&&(index===0||player.skillNodes.has(branch.nodes[index-1].id));
+}
+function investSkill(branchId,nodeId){
+ if(mode!=='tree')return;
+ const branch=skillBranches.find(b=>b.id===branchId);
+ if(!branch)return;
+ const idx=branch.nodes.findIndex(n=>n.id===nodeId);
+ if(idx<0||!canInvest(branch,idx))return;
+ const node=branch.nodes[idx];
+ player.skillPoints-=node.cost;
+ player.skillNodes.add(node.id);
+ node.effect();
+ improveRoute(branchId,node.name);
+ tone(950,.23,'triangle',.035);
+ drawSkillTree();syncHud();
+}
+function drawSkillTree(){
+ $('treePointCount').textContent='SKILL POINTS: '+player.skillPoints;
+ $('treeRouteHeadline').textContent='CURRENT ROUTE: '+(activeRoute()==='balanced'?'BALANCED':routeNames[activeRoute()]);
+ const root=$('skillDiagram');root.replaceChildren();
+ for(const branch of skillBranches){
+  const lane=document.createElement('div');lane.className='skill-lane '+branch.id;
+  const label=document.createElement('div');label.className='lane-label';
+  const labelMain=document.createElement('span');labelMain.textContent=branch.label;
+  const labelSub=document.createElement('small');labelSub.textContent=branch.sub+' · '+branch.nodes.filter(n=>player.skillNodes.has(n.id)).length+'/3';
+  label.append(labelMain,labelSub);lane.append(label);
+  branch.nodes.forEach((node,i)=>{
+   const owned=player.skillNodes.has(node.id);
+   const ready=canInvest(branch,i);
+   const prior=i===0||player.skillNodes.has(branch.nodes[i-1].id);
+   const btn=document.createElement('button');btn.type='button';
+   btn.className='skill-node'+(owned?' owned':ready?' ready':'');
+   btn.disabled=!ready;
+   const title=document.createElement('strong');title.textContent=(i+1).toString().padStart(2,'0')+' / '+node.name;
+   const desc=document.createElement('small');desc.textContent=node.desc;
+   const status=document.createElement('span');status.className='node-status';
+   status.textContent=owned?'✓ UNLOCKED':!prior?'🔒 PREVIOUS REQUIRED':player.skillPoints<node.cost?'NEED '+node.cost+' POINTS':'⚡ '+node.cost+' PT · UNLOCK';
+   btn.append(title,desc,status);
+   btn.onclick=()=>investSkill(branch.id,node.id);
+   lane.append(btn);
+  });
+  root.append(lane);
+ }
+}
 function openTreeMenu(){
-  const entries=r=>player.unlocks[r].length?player.unlocks[r].join(', '):'없음';
-  const weapons=player.ownedWeapons.map(t=>weaponData[t].label).join(', ');
-  const actives=player.actives.map((s,i)=>`${i+1}. ${s?activeCatalog[s.type].name+' x'+s.count:'비어 있음'}`).join('<br>');
-  $('treeSummary').innerHTML=`
-    <b>현재 루트:</b> ${activeRoute()==='balanced'?'Balanced Protocol':routeNames[activeRoute()]}<br><br>
-    <b>보유 무기:</b> ${weapons}<br>
-    <b>현재 장착 무기:</b> ${currentWeapon().name}<br>
-    <b>장착 간접무기:</b> ${meleeData[player.melee].name} (${meleeData[player.melee].desc})<br>
-    <b>발키리 보조 코어:</b> ${player.indirect.axes}개 · 피해 ${player.indirect.axeDamage}<br>
-    <b>보스 토큰:</b> ${player.bossTokens}<br><br>
-    <b>ASSAULT (${player.routes.assault}pt)</b><br>${entries('assault')}<br><br>
-    <b>DEMOLITION (${player.routes.demo}pt)</b><br>${entries('demo')}<br><br>
-    <b>ARC / VALKYRIE (${player.routes.arc}pt)</b><br>${entries('arc')}<br><br>
-    <b>SUPPORT (${player.routes.support}pt)</b><br>${entries('support')}<br><br>
-    <b>액티브 인벤토리</b><br>${actives}
-  `;
-  mode='tree';showOverlay('treeMenu');
+ if(mode!=='playing')return;
+ mode='tree';showOverlay('treeMenu');drawSkillTree();
 }
 function closeTreeMenu(){mode='playing';showOverlay(null);}
 
@@ -863,6 +952,7 @@ addEventListener('mousedown',e=>{if(e.button===0)mouse.down=true;});
 addEventListener('mouseup',()=>mouse.down=false);
 addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('blur',()=>{mouse.down=false;keys={};if(mode==='playing')togglePause();});
+$('treeOpenHUD').onclick=openTreeMenu;
 $('startBtn').onclick=resetGame;$('restartBtn').onclick=resetGame;$('pauseBtn').onclick=togglePause;$('resumeBtn').onclick=togglePause;$('closeTreeBtn').onclick=closeTreeMenu;
 $('reticle').style.left=mouse.x+'px';$('reticle').style.top=mouse.y+'px';
 requestAnimationFrame(loop);
