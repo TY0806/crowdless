@@ -16,8 +16,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
 .logo{font:900 16px Orbitron;letter-spacing:2px;color:var(--cyan);text-shadow:0 0 18px #45ddff88}.logo small{display:block;margin-top:7px;font:600 10px Rajdhani;letter-spacing:4px;color:#89a6bc}
 .stats{display:flex;gap:18px;text-align:right}.stats span{display:block;font:700 10px Orbitron;letter-spacing:2px;color:#8ba7bc}.stats b{display:block;font:700 20px Orbitron}
 .panel-ui{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid #45657f;box-shadow:0 0 18px #43d9ff11,inset 0 0 20px #3a86ff0d}
-#leftHUD{position:absolute;left:22px;bottom:18px;width:min(380px,34vw);padding:14px 14px 12px;border-radius:10px}
-#rightHUD{position:absolute;right:22px;bottom:18px;width:min(350px,29vw);padding:14px;border-radius:10px}
+#leftHUD{position:absolute;left:22px;bottom:18px;width:min(330px,32vw);padding:10px 12px 8px;border-radius:10px}
+#rightHUD{display:none!important}
 #weaponHUD{position:absolute;right:22px;top:90px;width:min(270px,24vw);padding:12px;border-radius:10px}
 .hud-title{font:700 11px Orbitron;letter-spacing:2px;color:#9cd8ff;margin-bottom:8px}
 .meterlabel{display:flex;justify-content:space-between;font:700 12px Rajdhani;letter-spacing:1.4px;margin:5px 0}
@@ -43,7 +43,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
 .controls{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:20px 0;text-align:left}.controls div{padding:10px;background:#ffffff0a;border:1px solid #ffffff19;color:#a9c0d7}.controls b{display:block;margin-bottom:3px;color:#f3fbff}
 #choices{display:grid;gap:10px;margin-top:22px}.choice{text-align:left;padding:13px;display:flex;gap:14px;align-items:center;background:#16233d;border:1px solid #4d6b87;color:white;cursor:pointer}.choice .icon{width:42px;font-size:28px;text-align:center}.choice strong{font-size:17px;display:block}.choice small{display:block;color:#a7bfd5;font-size:13px;margin-top:3px}.tag{display:inline-block;font:700 9px Orbitron;letter-spacing:1px;padding:3px 6px;border:1px solid #587290;color:var(--gold);margin-bottom:4px}
 #reticle{position:fixed;z-index:5;pointer-events:none;width:22px;height:22px;border:1px solid #79fbffbb;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px #5dfaff55}#reticle:before,#reticle:after{content:"";position:absolute;background:#bfffff}#reticle:before{width:2px;height:8px;left:9px;top:6px}#reticle:after{height:2px;width:8px;left:6px;top:9px}
-@media(max-width:900px){#leftHUD{width:42vw}#rightHUD,#weaponHUD{width:31vw}}
+@media(max-width:900px){#leftHUD{width:40vw}#rightHUD,#weaponHUD{width:31vw}}
 @media(max-width:700px){#weaponHUD,#rightHUD{display:none}#leftHUD{width:calc(100vw - 24px);left:12px;right:12px;bottom:12px}#minimap{display:none}.top{left:12px;right:12px;top:12px}.stats{gap:10px}.stats b{font-size:13px}.logo{font-size:11px}#pauseBtn{right:12px;top:48px}.panel{padding:24px}.controls{grid-template-columns:1fr}.primary{width:100%}}
 
 /* VERSION & INTERACTIVE SKILL BLUEPRINT */
@@ -67,10 +67,10 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
 #skillTreeInfo{margin-top:12px;text-align:left;font-size:13px;color:#a8c5dc;line-height:1.4}
 #treeSummary{display:none!important}
 #treeCloseBar{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:14px}
-#treeOpenHUD{pointer-events:auto;position:absolute;right:22px;bottom:345px;border:1px solid #79dfff;background:#102841;color:#d9faff;border-radius:6px;padding:9px 12px;font:700 11px Orbitron;cursor:pointer}
+#treeOpenHUD{pointer-events:auto;position:absolute;right:22px;bottom:22px;z-index:5;border:1px solid #79dfff;background:#102841;color:#d9faff;border-radius:6px;padding:9px 12px;font:700 11px Orbitron;cursor:pointer}
 #treeOpenHUD:hover{box-shadow:0 0 16px #5ddfff55}
 #treePointsHUD{font:700 11px Orbitron;color:#ffd266;margin-top:5px}
-@media(max-width:760px){.skill-lane{grid-template-columns:1fr;gap:6px}.skill-node:before{display:none}#treeMenu .panel{padding:14px}.skill-lane{min-height:0}.skill-node{min-height:60px}#treeOpenHUD{display:none}}
+@media(max-width:760px){.skill-lane{grid-template-columns:1fr;gap:6px}.skill-node:before{display:none}#treeMenu .panel{padding:14px}.skill-lane{min-height:0}.skill-node{min-height:60px}#treeOpenHUD{display:block;right:12px;bottom:14px;font-size:9px;padding:8px}}
 </style>
 </head>
 <body>
@@ -78,7 +78,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
 <div id="reticle"></div>
 <div id="hud" class="hidden">
   <div class="top">
-    <div class="logo">NEON PROTOCOL<small>ROGUELIKE RPG // v5.0</small></div>
+    <div class="logo">NEON PROTOCOL<small>ROGUELIKE RPG // v5.1</small></div>
     <div class="stats">
       <div><span>WAVE</span><b id="wave">01</b></div>
       <div><span>SCORE</span><b id="score">000000</b></div>
@@ -92,7 +92,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
   <div id="toast"></div>
   <div id="lootPrompt" class="hidden" style="position:absolute;left:50%;bottom:70px;transform:translateX(-50%);background:#0b1728ec;border:1px solid #69dcff;padding:11px 18px;max-width:min(86vw,500px);text-align:center;color:#e6faff;font:700 13px Orbitron;letter-spacing:.5px;box-shadow:0 0 20px #4fd9ff40"></div>
 
-  <button id="treeOpenHUD">⌘ SKILL TREE [TAB]</button>
+  <button id="treeOpenHUD">⌘ SKILLS [TAB]</button>
   <div id="weaponHUD" class="panel-ui">
     <div class="hud-title">PRIMARY LOADOUT</div>
     <div id="weaponName">PLASMA BLASTER</div>
@@ -133,7 +133,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070b14;col
   </div>
 </div>
 
-<div id="versionStamp">BUILD v5.0.0 · SKILL TREE EDITION</div>
+<div id="versionStamp">BUILD v5.1.0 · TAB SKILL TREE EDITION</div>
 <div id="startMenu" class="overlay">
   <div class="panel">
     <div class="eyebrow">SYSTEM INITIALIZED // 2089</div>
@@ -633,6 +633,7 @@ function syncHud(){
     $('branch-'+r).classList.toggle('active',activeRoute()===r);
   }
   $('treePointsHUD').textContent='UNSPENT SKILL POINTS: '+player.skillPoints;
+  $('treeOpenHUD').textContent='⌘ SKILLS [TAB]'+(player.skillPoints?' · '+player.skillPoints+' PT':'');
   $('routeNow').textContent='CURRENT ROUTE : '+(activeRoute()==='balanced'?'BALANCED PROTOCOL':routeNames[activeRoute()]);
   const mini=[];
   if(player.routes.assault>=1)mini.push('SMG');
